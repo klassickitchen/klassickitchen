@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+        <record id="inherited_product_template_only_form_views" model="ir.ui.view">
+        <field name="name">inherit.product.template.product.forms</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_only_form_view"/>
+        <field name="arch" type="xml">
+              <xpath expr="//div[hasclass('oe_title')]" position="after">
+
+                  <div>
+                <label for="arabic_name" string="Arabic Name"/>
+                      <h1>
+                   <div>
+                <field name="arabic_name"/>
+                <field name="translation_error" invisible="1"/>
+                <button
+                    name="action_retry_translation"
+                    string="Retry Translation"
+                    type="object"
+                    class="btn-secondary"
+                    invisible="not translation_error"
+                />
+                          </div>
+                       </h1>
+                  </div>
+              </xpath>
+        </field>
+        </record>
+
+
+</odoo>

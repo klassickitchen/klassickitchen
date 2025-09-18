@@ -1,0 +1,27 @@
+<odoo>
+<!--    <record id="view_user_preferences_form_inherit" model="ir.ui.view">-->
+<!--        <field name="name">res.users.form.preferences.analytic</field>-->
+<!--        <field name="model">res.users</field>-->
+<!--        <field name="inherit_id" ref="base.view_users_form"/>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <group name="messaging" position="after">-->
+<!--                <group string="Analytic Account" name="analytic_info">-->
+<!--                    <field name="analytic_account_id"/>-->
+<!--                </group>-->
+<!--            </group>-->
+<!--        </field>-->
+<!--    </record>-->
+
+    <record id="view_users_form_simple_modif_inherit" model="ir.ui.view">
+        <field name="name">res.users.preferences.form.inherit.analytic</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form_simple_modif"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='preference_contact']" position="after">
+                <group name="analytic_info">
+                    <field name="analytic_account_id"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

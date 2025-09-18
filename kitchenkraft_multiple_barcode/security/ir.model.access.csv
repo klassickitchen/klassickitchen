@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_product_barcode,product.barcode,model_product_barcode,,1,1,1,1
+access_barcode_match_user,barcode.match.user,model_barcode_match,base.group_user,1,1,1,1
