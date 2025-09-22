@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_account_move_company_3,account.move.company_3,model_account_move,al_diyafa_custom_report.group_company_3,1,1,1,1
+access_sale_order_company_3,sale.order.company_3,model_sale_order,al_diyafa_custom_report.group_company_3,1,1,1,1
