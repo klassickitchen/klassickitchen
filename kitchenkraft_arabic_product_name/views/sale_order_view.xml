@@ -1,0 +1,17 @@
+<odoo>
+    <record id="view_order_tree_inherited" model="ir.ui.view">
+    <field name="name">sale.order.tree.inherited</field>
+    <field name="model">sale.order</field>
+    <field name="inherit_id" ref="sale.view_order_form"/>
+    <field name="arch" type="xml">
+        <field name="product_template_id" position="after">
+            <field name="arabic_name"/>
+        </field>
+    </field>
+</record>
+<template id="external_layout_standard_no_custom_header" inherit_id="l10n_latam_invoice_document.external_layout_standard">
+    <xpath expr="//div[hasclass('header')][t-if='custom_header']" position="replace"/>
+</template>
+</odoo>
+
+

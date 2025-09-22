@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="product_product_form_view_inherit_kitchenkraft" model="ir.ui.view">
+        <field name="name">product.product.form.inherit.kitchenkraft</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_normal_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook/page[1]" position="after">
+                <page string="Barcode">
+                    <field name="alternative_barcode_ids">
+                        <list editable="bottom">
+                            <field name="barcode"/>
+                            <field name="uom_id"/>
+                            <field name="price"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

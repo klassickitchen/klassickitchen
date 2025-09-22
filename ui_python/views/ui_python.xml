@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--Form View-->
+
+    <record model="ir.ui.view" id="ui_python_form">
+        <field name="name">ui.python.form</field>
+        <field name="model">ui.python</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <group>
+                        <field name="model_id"/>
+                        <field name="worksheet"/>
+                        <field name="image_zip_file"/>
+                        <field name="python_code" widget="ace" options="{'mode': 'python'}"/>
+                        <field name="results" readonly="1"/>
+                    </group>
+                </group>
+<!--                <button name="execute_method" string="Execute Code" type="object"-->
+<!--                        class="fa fa-check oe_highlight" data-hotkey="q"/>-->
+                <button name="clear_method" string="Clean" type="object"
+                        class="fa fa-refresh" data-hotkey="c"/>
+<!--                <button name="execute_my_script" string="Execute Excel" type="object"/>-->
+<!--                <button name="add_delivery_boys_to_zone" string="Add delivery boys to zone" type="object"/>-->
+<!--                <button name="create_compo_products" string="create_compo_products" type="object"/>-->
+<!--                <button name="add_products" string="Add feqa products" type="object"/>-->
+                <button name="add_product_images" string="Add Product with Images" type="object"/>
+                 <button name="get_product_with_no_image" string="Products With No Images" type="object"/>
+<!--                <button name="set_categories" string="set categoreies" type="object"/>-->
+<!--                                    <button name="set_cost" string="set cost" type="object"/>-->
+<!--                                    <button name="set_stock_arora" string="set stock arora" type="object"/>-->
+
+
+                <br></br>
+                <br></br>
+                <br></br>
+                <field name="helpful_commands" readonly="1" nolabel="1"/>
+            </form>
+        </field>
+    </record>
+
+
+    <!--Action -->
+
+
+    <record model="ir.actions.act_window" id="ui_python_action">
+        <field name="name">Ui Python</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">ui.python</field>
+        <field name="view_mode">form</field>
+        <field name="target">inline</field>
+    </record>
+
+
+    <!--Menu View-->
+
+
+    <menuitem id="ui_python_menu" action="ui_python_action" name="Ui Python"
+              web_icon="ui_python,static/description/icon.png"/>
+
+
+</odoo>

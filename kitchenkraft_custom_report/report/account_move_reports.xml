@@ -1,0 +1,15 @@
+<odoo>
+    <record id="action_report_account_move_dotmatrix" model="ir.actions.report">
+        <field name="name">KitchenKraft Invoice (Dot Matrix)</field>
+        <field name="model">account.move</field>  <!-- Target the invoice model -->
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">kitchenkraft_custom_report.kitchenkraft_template_dotmatrix</field>  <!-- Your existing template -->
+        <field name="paperformat_id" ref="kitchenkraft_custom_report.paperformat_sale"/>
+        <field name="binding_model_id" ref="account.model_account_move"/>
+        <field name="binding_type">report</field>
+        <field name="attachment_use" eval="False"/>
+        <field name="attachment">(object.state in ('draft', 'posted')) and ('Invoice - %s' % (object.name)) or ('Invoice - %s' % (object.name))</field>
+        <field name="print_report_name">(object.state in ('draft', 'posted')) and ('Invoice - %s' % (object.name)) or ('Invoice - %s' % (object.name))</field>
+        <field name="domain">[('show_kitchen_kraft_report', '=', True)]</field>
+    </record>
+</odoo>

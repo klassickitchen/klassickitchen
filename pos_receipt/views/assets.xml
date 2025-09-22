@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="assets" inherit_id="web.assets_backend" name="POS Receipt Custom Assets">
+        <xpath expr="." position="inside">
+            <!-- JavaScript files -->
+            <script type="text/javascript"
+                    src="/custom_pos_receipt/static/src/js/receipt.js"/>
+        </xpath>
+    </template>
+
+    <template id="pos_assets" inherit_id="point_of_sale.assets" name="POS Receipt Custom Frontend Assets">
+        <xpath expr="." position="inside">
+            <!-- CSS files -->
+            <link rel="stylesheet"
+                  type="text/css"
+                  href="/custom_pos_receipt/static/src/css/receipt.css"/>
+
+            <!-- XML templates -->
+            <script type="text/javascript"
+                    src="/custom_pos_receipt/static/src/xml/receipt.xml"/>
+        </xpath>
+    </template>
+</odoo>

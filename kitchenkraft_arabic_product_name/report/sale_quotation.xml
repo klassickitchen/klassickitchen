@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data>
+        <template id="sale_report_view_amount_in_words"
+                  inherit_id="sale.report_saleorder_document">
+
+
+            <xpath expr="//table[contains(@class, 'o_main_table')]" position="replace">
+
+                <table class="table table-sm o_main_table mt-4">
+<!--                    <thead style="display: table-row-group">-->
+<!--                    <tr>-->
+<!--                        <th name="th_description" class="text-start">Description</th>-->
+<!--                        <th name="th_quantity" class="text-end">Quantity</th>-->
+<!--                        <th name="th_priceunit" class="text-end">Unit Price</th>-->
+<!--                        <th name="th_discount" t-if="display_discount" class="text-end">-->
+<!--                            <span>Disc.%</span>-->
+<!--                        </th>-->
+<!--                        <th name="th_taxes" class="text-end">Taxes</th>-->
+<!--                        <th name="th_subtotal" class="text-end">-->
+<!--                            <span groups="account.group_show_line_subtotals_tax_excluded">Amount</span>-->
+<!--                            <span groups="account.group_show_line_subtotals_tax_included">Total Price</span>-->
+<!--                        </th>-->
+<!--                    </tr>-->
+<!--                </thead>-->
+                <tbody class="sale_tbody">
+
+                    <t t-set="current_subtotal" t-value="0"/>
+
+                    <t t-foreach="lines_to_report" t-as="line">
+
+                        <t t-set="current_subtotal" t-value="current_subtotal + line.price_subtotal" groups="account.group_show_line_subtotals_tax_excluded"/>
+                        <t t-set="current_subtotal" t-value="current_subtotal + line.price_total" groups="account.group_show_line_subtotals_tax_included"/>
+
+                        <tr t-att-class="'bg-200 fw-bold o_line_section' if line.display_type == 'line_section' else 'fst-italic o_line_note' if line.display_type == 'line_note' else ''">
+                            <t t-if="not line.display_type">
+<!--                                <td name="td_name"><span t-field="line.name"/></td>-->
+                                 <td>
+                                    <span t-if="line.product_id.arabic_name" t-field="line.product_id.arabic_name"/>
+                                 </td>
+
+
+                                <td name="td_quantity" class="text-end">
+                                    <span t-field="line.product_uom_qty"/>
+                                    <span t-field="line.product_uom"/>
+                                </td>
+                                <td name="td_priceunit" class="text-end">
+                                    <span t-field="line.price_unit"/>
+                                </td>
+                                <td t-if="display_discount" class="text-end">
+                                    <span t-field="line.discount"/>
+                                </td>
+                                <t t-set="taxes" t-value="', '.join([(tax.description or tax.name) for tax in line.tax_id])"/>
+                                <td name="td_taxes" t-attf-class="text-end {{ 'text-nowrap' if len(taxes) &lt; 10 else '' }}">
+                                    <span t-out="taxes">Tax 15%</span>
+                                </td>
+                                <td t-if="not line.is_downpayment" name="td_subtotal" class="text-end o_price_total">
+                                    <span t-field="line.price_subtotal" groups="account.group_show_line_subtotals_tax_excluded"/>
+                                    <span t-field="line.price_total" groups="account.group_show_line_subtotals_tax_included"/>
+                                </td>
+                            </t>
+                            <t t-elif="line.display_type == 'line_section'">
+                                <td name="td_section_line" colspan="99">
+                                    <span t-field="line.name"/>
+                                </td>
+                                <t t-set="current_section" t-value="line"/>
+                                <t t-set="current_subtotal" t-value="0"/>
+                            </t>
+                            <t t-elif="line.display_type == 'line_note'">
+                                <td name="td_note_line" colspan="99">
+                                    <span t-field="line.name"/>
+                                </td>
+                            </t>
+                        </tr>
+
+                        <t t-if="current_section and (line_last or lines_to_report[line_index+1].display_type == 'line_section') and not line.is_downpayment">
+                            <tr class="is-subtotal text-end">
+                                <td name="td_section_subtotal" colspan="99">
+                                    <strong class="mr16">Subtotal</strong>
+                                    <span
+                                        t-out="current_subtotal"
+                                        t-options='{"widget": "monetary", "display_currency": doc.pricelist_id.currency_id}'
+                                    />
+                                </td>
+                            </tr>
+                        </t>
+                    </t>
+                </tbody>
+
+                </table>
+            </xpath>
+        </template>
+    </data>
+</odoo>

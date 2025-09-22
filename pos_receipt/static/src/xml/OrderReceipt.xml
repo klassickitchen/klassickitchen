@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="OrderReceipt" t-inherit="point_of_sale.OrderReceipt" t-inherit-mode="primary">
+        <xpath expr="//div[hasclass('pos-receipt-amount')]" position="replace" />
+    <xpath expr="//div[hasclass('pos-receipt-taxes')]" position="replace" />
+    <xpath expr="//div[hasclass('paymentlines')]" position="replace" />
+    <xpath expr="//div[hasclass('pos-receipt-amount')]" position="replace" />
+    <xpath expr="//t[@t-if='props.data.total_discount']" position="replace" />
+    <xpath expr="//div[@t-if='props.data.pos_qr_code']" position="replace" />
+    <xpath expr="//t[@t-if='props.data.shippingDate']" position="replace" />
+    <xpath expr="//div[hasclass('pos-receipt-order-data')]" position="replace" />
+    <xpath expr="//div[@t-esc='props.data.name']/ .. " position="replace" />
+        <xpath expr="//ReceiptHeader" position="replace">
+            <div class="pos-receipt-contact">
+                <div class="row" style="width: 100%;font-family: monospace;font-size: 14px;font-weight: 900;">
+                    <div class="col-6 text-left" style="padding-inline: 10px;text-align: left;">
+                     <t t-if="this.props.data.headerData.customer_name">
+                        <div>Customer:
+                            <t t-esc="this.props.data.headerData.customer_name"/>
+                        </div>
+                     </t>
+                    </div>
+                    <div class="col-6 text-right" style="padding-inline: 0px;text-align: right;">
+                        <div>Date: <t t-esc="props.data.date" /></div>  <!-- Format date -->
+                        <div>Invoice: <t t-esc="props.data.name" /></div>
+                    </div>
+
+                </div>
+
+            </div>
+        </xpath>
+        <xpath expr="//OrderWidget" position="replace" >
+            <style>
+       @media print {
+    .pos-receipt {
+        contain: paint;
+        background-color: transparent;
+        width: 100% !important; /* Fill the page width */
+        height: 100% !important; /* Fill the page height */
+        box-sizing: border-box;      /* Include padding and border in width/height */
+        padding: 15px;             /* Add some padding */
+        font-size: 14px !important; /* Set your desired font size */
+        font-family: monospace;       /* Keep monospace if needed */
+        margin-top: 4cm;
+    }
+
+    .pos, .pos * {
+        position: static !important; /* Crucial for predictable layout */
+    }
+
+     .receipt-container > *:not(.pos-receipt) {  /* Hide siblings of .pos-receipt */
+        display: none !important;
+    }
+
+    @page {
+        size: auto; /* Use the default page size from your printer settings */
+        margin-top: 5cm ;  /* Remove default page margins */
+    }
+}
+    </style>
+            <table class="table table-borderless" style="width: 100%; font-family: monospace;">
+                <thead style="display: table-row-group;border-top: 1px solid;border-bottom: 1px solid;">
+                    <tr>
+                        <th name="th_sn" class="text-start">SN</th>
+                        <th name="th_description" class="text-start">Item Name</th>
+                        <th name="th_quantity" class="text-end">Quantity</th>
+                        <th name="th_priceunit" class="text-end">Rate</th>
+                        <th name="th_subtotal" class="text-end">
+<!--                            <span groups="account.group_show_line_subtotals_tax_excluded">Total</span>-->
+                            <span groups="account.group_show_line_subtotals_tax_included">Total</span>
+                        </th>
+                    </tr>
+                </thead>
+                    <tbody style="height: 6cm;">
+
+                        <t t-set="total_items" t-value="0" />
+                        <t t-foreach="props.data.orderlines" t-as="line" t-key="line_index">
+                            <tr>
+                                <td><t t-esc="line_index + 1"/></td>
+                                <td style="text-align: left; width: 13cm;"><t t-esc="line.productName"/></td>
+                                <td class="text-right"><t t-esc="line.qty"/></td>
+                                <td class="text-right"><t t-esc="line.price"/></td>
+                                <td class="text-right">
+                                    <t t-foreach="props.data.tax_details" t-as="tax" t-key="tax.tax.id">
+                                        <span t-esc="props. formatCurrency(tax.amount + tax.base, false)" />
+                                    </t>
+                                </td>
+
+                            </tr>
+                            <t t-set="total_items" t-value="total_items + 1"/>
+
+                        </t>
+                    </tbody>
+                    <tfoot>  <!-- Add the footer -->
+                    <tr style="border-top: 1px solid;">
+                        <td colspan="3"></td> <!-- Empty cells for spacing -->
+                        <td class="text-right"><strong>Discount:</strong></td>
+                        <td class="text-right">
+                            <t t-esc="props.formatCurrency(props.data.total_discount, false)" />
+                        </td>
+                    </tr>
+                        <tr>
+                        <td colspan="3"></td> <!-- Empty cells for spacing -->
+                        <td class="text-right"><strong>Total:</strong></td>
+                        <td class="text-right">
+                            <t t-esc="props.formatCurrency(props.data.amount_total, false)" />
+                        </td>
+                    </tr>
+                </tfoot>
+                </table>
+
+        </xpath>
+
+    </t>
+
+
+    <t t-name="pos_receipt.ReceiptScreen" t-inherit="point_of_sale.ReceiptScreen" t-inherit-mode="extension" owl="1">
+    <xpath expr="//OrderReceipt" position="replace">
+        <CustomOrderReceipt  data="pos.orderExportForPrinting(pos.get_order())" formatCurrency="env.utils.formatCurrency"/>
+    </xpath>
+</t>
+
+
+</templates>
+
+

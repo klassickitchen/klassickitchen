@@ -1,0 +1,85 @@
+<odoo>
+    <template id="al_saif_template_dotmatrix">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <div class="page text-center mb-4">
+                    <div class="article text-center mb-4" t-attf-data-oe-model="{{doc._name}}"
+                         t-attf-data-oe-id="{{doc.id}}">
+                        <h2 style="font-size: 32px;">  <!-- Increased font size for the title -->
+                            <span t-if="doc.state in ['draft','sent']" style="position: relative;top: 2.8cm; font-weight: bold; text-transform: uppercase; font-size: 23px;">Quotation</span>
+                            <span t-elif="doc.state in ['sale', 'done']" style="position: relative;top: 2.8cm; font-weight: bold; text-transform: uppercase; font-size: 23px;">Sales Order</span>
+                            <span t-elif="doc.move_type == 'out_invoice' and doc.state == 'posted'" style="position: relative;top: 2.8cm; font-weight: bold; text-transform: uppercase; font-size: 23px;">Invoice</span>
+                            <span t-else="" style="position: relative;top: 2.8cm; font-weight: bold; text-transform: uppercase; font-size: 23px;">Other Document</span>
+                        </h2>
+
+                        <div class="row mb-4" style="position: relative; top: 0.1cm; width:100%">
+                            <div class="col-6 pt-3 text-left" style="text-align: left; font-size: 20px;">
+                                <span style="position: relative;top: 0.5cm;left: 1.9cm; font-weight: bold; text-transform: uppercase;" t-field="doc.name"/>
+                                <span style="position: relative;top: 2.55cm;left: -0.8cm; font-weight: bold; text-transform: uppercase;" t-field="doc.partner_id.name"/>
+                                <br/>
+
+                                <span style="position: relative;top: 3.8cm;left: 2.9cm; font-weight: bold; text-transform: uppercase;" t-if="doc.partner_id.phone">
+                                    <span t-field="doc.partner_id.phone"/>
+                                </span>
+                            </div>
+                            <div class="col-6 text-right" style="font-size: 20px;">  <!-- Increased font size -->
+                                <span t-if="doc._name == 'account.move'" style="position: relative;top: 1.0cm; left:5.5cm; font-weight: bold; text-transform: uppercase;">
+                                    <span t-field="doc.invoice_date" t-options='{"widget": "date"}'/>
+                                </span>
+                                <span t-elif="doc._name == 'sale.order'" style="position: relative;top: 1.0cm; left:5.5cm; font-weight: bold; text-transform: uppercase;">
+                                    <span t-field="doc.date_order" t-options='{"widget": "date"}'/>
+                                </span>
+                                <br/>
+
+                            </div>
+                        </div>
+
+                        <table class="table table-borderless"
+                               style="position: relative; top: 9cm;  width:100%; font-family: monospace; font-size: 20px;"> <!-- Increased font size -->
+                            <tbody>
+                                <t t-foreach="doc.invoice_line_ids or doc.order_line" t-as="line">
+                                    <tr>
+                                        <td style="text-align: left; font-weight: bold; text-transform: uppercase;">
+                                            <t t-esc="line_index + 1"/>
+                                        </td>
+
+                                        <td style="text-align: left;width: 12cm; font-weight: bold; text-transform: uppercase;">
+                                            <span t-if="line.product_id.arabic_name" t-field="line.product_id.arabic_name"/>
+                                        </td>
+
+                                        <td style="width: 4.2cm;">
+                                            <t/>
+                                        </td>
+                                        <td class="text-right" style="font-weight: bold; text-transform: uppercase;">
+                                            <span t-field="line.quantity"/>
+                                        </td>
+                                        <td class="text-right" style="font-weight: bold; text-transform: uppercase;">
+                                            <span t-field="line.price_unit"/>
+                                        </td>
+                                        <td class="text-right" style="font-weight: bold; text-transform: uppercase;">
+                                            <span t-field="line.price_subtotal"/>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+
+                        <div style="font-size: 20px;">  <!-- Increased font size for totals -->
+                            <div class="row" style="position: absolute; top: 31.5cm; width:100%">
+                                <div class="col-6" style="font-weight: bold; text-transform: uppercase;">
+
+                                    <span t-esc="doc.currency_id.amount_to_text(doc.amount_total)"/>
+
+                                </div>
+                                <div class="col-6 text-right" style="font-weight: bold; text-transform: uppercase;">
+                                    <span style="position: relative; left: 4.2cm;" t-field="doc.amount_total"/>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

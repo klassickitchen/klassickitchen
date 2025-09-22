@@ -1,0 +1,29 @@
+
+<odoo>
+    <record id="view_order_form_inherit_intercompany_po" model="ir.ui.view">
+        <field name="name">sale.order.form.intercompany.po</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[hasclass('oe_button_box')]" position="inside">
+                <button name="action_view_intercompany_po"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-shopping-cart"
+                        invisible="intercompany_po_count == 0"
+                        help="Open the Intercompany Purchase Orders created for this Sales Order">
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_value">
+                            <field name="intercompany_po_count"/>
+                        </span>
+                        <span class="o_stat_text">Purchase Orders</span>
+                    </div>
+                </button>
+            </xpath>
+
+            <xpath expr="//field[@name='payment_term_id']" position="after">
+                <field name="intercompany_purchase_order_ids" widget="many2many_tags" readonly="1" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

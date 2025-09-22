@@ -1,0 +1,15 @@
+<!-- custom_report.xml -->
+<odoo>
+    <record id="action_report_saleorder_dotmatrix" model="ir.actions.report">
+    <field name="name">Quotation / Order (Dot Matrix)</field>
+    <field name="model">sale.order</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">klassic_kitchen_custom_report.klassic_kitchen_template_dotmatrix</field>
+    <field name="paperformat_id" ref="klassic_kitchen_custom_report.paperformat_sale"/>
+    <field name="binding_model_id" ref="sale.model_sale_order"/>
+    <field name="binding_type">report</field>
+    <field name="attachment_use" eval="False"/>
+    <field name="attachment">(object.state in ('draft', 'sent')) and ('Quotation - %s' % (object.name)) or ('Order - %s' % (object.name))</field>
+    <field name="print_report_name">(object.state in ('draft', 'sent')) and ('Quotation - %s' % (object.name)) or ('Order - %s' % (object.name))</field>
+</record>
+</odoo>
