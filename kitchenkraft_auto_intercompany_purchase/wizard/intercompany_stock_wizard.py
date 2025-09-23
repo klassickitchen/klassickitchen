@@ -536,6 +536,49 @@ class IntercompanyStockWizard(models.TransientModel):
     sale_order_id = fields.Many2one('sale.order', string='Sale Order', required=True)
     order_line_ids = fields.One2many('intercompany.stock.wizard.line', 'wizard_id', string="Products to Purchase")
 
+    @api.model
+    def default_get(self, fields_list):
+        res = super().default_get(fields_list)
+        if res.get('order_line_ids'):
+            new_lines = []
+            for line_vals in res['order_line_ids']:
+                if line_vals[0] != 0:
+                    new_lines.append(line_vals)
+                    continue
+
+                vals = line_vals[2]
+                product = self.env['product.product'].browse(vals['product_id'])
+                companies = self.env['res.company'].search([('id', '!=', self.env.company.id)])
+                available_companies = []
+                for company in companies:
+                    p = product.with_company(company).sudo()
+                    if p.free_qty > 0:
+                        available_companies.append({
+                            'company': company,
+                            'free_qty': p.free_qty,
+                            'qty_available': p.qty_available,
+                            'price_unit': p.standard_price,
+                        })
+
+                if available_companies:
+                    selected_company = sorted(available_companies, key=lambda x: x['free_qty'], reverse=True)[0]
+                    vals.update({
+                        'company_id': selected_company['company'].id,
+                        'qty_available': selected_company['qty_available'],
+                        'free_quantity': selected_company['free_qty'],
+                        'price_unit': selected_company['price_unit'],
+                    })
+                else:
+                    vals.update({
+                        'company_id': False,
+                        'qty_available': 0.0,
+                        'free_quantity': 0.0,
+                        'price_unit': product.standard_price,
+                    })
+                new_lines.append((0, 0, vals))
+            res['order_line_ids'] = new_lines
+        return res
+
     def create_intercompany_purchase_order_confirm(self):
         if not self.order_line_ids.filtered(lambda l: l.selected):
             return
@@ -646,6 +689,7 @@ class IntercompanyStockWizardLine(models.TransientModel):
     def _compute_amount(self):
         for line in self:
             line.amount = line.quantity * line.price_unit
+
 
     @api.onchange('company_id', 'product_id')
     def _onchange_company_product(self):
