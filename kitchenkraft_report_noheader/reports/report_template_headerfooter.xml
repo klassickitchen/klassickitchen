@@ -44,7 +44,7 @@
     </xpath>
 
 
-   <xpath expr="//div[contains(@class, 'o_footer_content row border-top pt-2')]" position="attributes">
+   <xpath expr="//div[contains(@t-attf-class, 'footer o_company_#{company.id}_layout')]" position="attributes">
             <attribute name="t-if">not (o and o._name == 'account.move')</attribute>
         </xpath>
 </template>
@@ -55,7 +55,7 @@
         </xpath>
 
         <!-- Footer: show only if NOT invoice -->
-        <xpath expr="//div[contains(@class, 'o_footer_content row border-top pt-2')]" position="attributes">
+        <xpath expr="//div[contains(@t-attf-class, 'footer o_company_#{company.id}_layout')]" position="attributes">
             <attribute name="t-if">not (o and o._name == 'account.move')</attribute>
         </xpath>
 

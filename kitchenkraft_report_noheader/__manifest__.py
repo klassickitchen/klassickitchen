@@ -1,6 +1,6 @@
 {
     'name': "Kitchenkraft report no header",
-    'version': '1.0',
+    'version': '1.1',
     'author': 'AGM Global Services',
     'description': "removing header and footer in document layout",
     'depends': ['base'],
