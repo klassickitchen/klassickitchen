@@ -698,3 +698,26 @@ class IntercompanyStockWizardLine(models.TransientModel):
             self.qty_available = product_with_company.sudo().qty_available
             self.free_quantity = product_with_company.sudo().free_qty
             self.price_unit = product_with_company.sudo().standard_price
+    def create_intercompany_purchase_order_confirm(self):
+        # calling
+        res = super().create_intercompany_purchase_order_confirm()
+
+        # Get all po that are linked to this
+        po_ids = self.sale_order_id.intercompany_purchase_order_ids
+        for po in po_ids:
+            # Confirm only if intercompany
+            if po.partner_id.company_id and po.partner_id.company_id != po.company_id and po.state == 'draft':
+                po.button_confirm()  # create the Sale Order in receiver company
+
+        return res
+
+    def create_intercompany_purchase_order(self):
+        #auto confirming
+        res = super().create_intercompany_purchase_order()
+
+        po_ids = self.sale_order_id.intercompany_purchase_order_ids
+        for po in po_ids:
+            if po.partner_id.company_id and po.partner_id.company_id != po.company_id and po.state == 'draft':
+                po.button_confirm()
+
+        return res
