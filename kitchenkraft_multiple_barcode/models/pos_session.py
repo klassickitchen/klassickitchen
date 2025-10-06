@@ -3,58 +3,93 @@ from odoo.osv.expression import AND
 
 
 class PosSession(models.Model):
-    _inherit = 'pos.session'
+    _inherit = "pos.session"
+
+    def _load_pos_data_models(self, config_id):
+        """Add product.barcode to the list of models loaded in POS"""
+        models = super()._load_pos_data_models(config_id)
+        models.append("product.barcode")
+        return models
 
     def find_product_by_barcode(self, barcode, config_id):
-        product_fields = self.env['product.product']._load_pos_data_fields(config_id)
-        product_packaging_fields = self.env['product.packaging']._load_pos_data_fields(config_id)
-        product_context = {**self.env.context, 'display_default_code': False}
+        """Override to first check product.barcode model for multiple barcodes"""
+        product_fields = self.env["product.product"]._load_pos_data_fields(config_id)
+        product_packaging_fields = self.env["product.packaging"]._load_pos_data_fields(
+            config_id
+        )
+        product_context = {**self.env.context, "display_default_code": False}
 
-        # 1. Check product.barcode model
-        product_barcode = self.env['product.barcode'].search([
-            ('barcode', '=', barcode),
-        ], limit=1)
+        # 1. First check our custom product.barcode model
+        product_barcode = self.env["product.barcode"].search(
+            [
+                ("barcode", "=", barcode),
+                ("product_id.sale_ok", "=", True),
+                ("product_id.available_in_pos", "=", True),
+            ],
+            limit=1,
+        )
 
         if product_barcode and product_barcode.product_id:
-            result = {'product.product': product_barcode.product_id.with_context(product_context).read(product_fields,
-                                                                                                       load=True)}
-            if result['product.product']:
-                result['product.product'][0]['uom_id'] = product_barcode.uom_id.id if product_barcode.uom_id else False
-                result['product.product'][0]['lst_price'] = product_barcode.price
-            return result
+            # Found in custom barcode model - return with custom price and UOM
+            product_data = product_barcode.product_id.with_context(
+                product_context
+            ).read(product_fields, load=False)
+            if product_data:
+                # Override the price with the barcode-specific price
+                product_data[0]["lst_price"] = product_barcode.price
+                # Add the custom barcode info for frontend processing
+                product_data[0]["_barcode_uom_id"] = (
+                    product_barcode.uom_id.id if product_barcode.uom_id else False
+                )
+                product_data[0]["_barcode_price"] = product_barcode.price
 
-        # 2. Check product.product model
-        product = self.env['product.product'].search([
-            ('barcode', '=', barcode),
-            ('sale_ok', '=', True),
-            ('available_in_pos', '=', True),
-        ])
+                return {"product.product": product_data}
+
+        # 2. Fall back to standard product barcode check
+        product = self.env["product.product"].search(
+            [
+                ("barcode", "=", barcode),
+                ("sale_ok", "=", True),
+                ("available_in_pos", "=", True),
+            ],
+            limit=1,
+        )
+
         if product:
-            return {'product.product': product.with_context(product_context).read(product_fields, load=False)}
+            return {
+                "product.product": product.with_context(product_context).read(
+                    product_fields, load=False
+                )
+            }
 
-        # 3. Check product.packaging model
-        domain = [('barcode', '!=', False)]  # Changed to ensure barcode is not False or ''
-        loaded_data = self._context.get('loaded_data')
+        # 3. Check product packaging
+        domain = [("barcode", "not in", ["", False])]
+        loaded_data = self._context.get("loaded_data")
         if loaded_data:
-            loaded_product_ids = [x['id'] for x in loaded_data['product.product']]
-            domain = AND([domain, [('product_id', 'in', [x['id'] for x in self._context.get('loaded_data')[
-                'product.product']])]]) if self._context.get('loaded_data') else []
-            domain = AND([domain, [('product_id', 'in', loaded_product_ids)]])
+            loaded_product_ids = [x["id"] for x in loaded_data["product.product"]]
+            domain = AND([domain, [("product_id", "in", loaded_product_ids)]])
+
         packaging_params = {
-            'search_params': {
-                'domain': domain,
-                'fields': ['name', 'barcode', 'product_id', 'qty'],
+            "search_params": {
+                "domain": [("barcode", "=", barcode)] + domain,
+                "fields": ["name", "barcode", "product_id", "qty"],
             },
         }
-        packaging_params['search_params']['domain'] = [['barcode', '=', barcode]]
-        packaging = self.env['product.packaging'].search(packaging_params['search_params']['domain'])
+        packaging = self.env["product.packaging"].search(
+            packaging_params["search_params"]["domain"]
+        )
 
         if packaging and packaging.product_id:
             return {
-                'product.product': packaging.product_id.with_context(product_context).read(product_fields, load=False),
-                'product.packaging': packaging.read(product_packaging_fields, load=False)}
+                "product.product": packaging.product_id.with_context(
+                    product_context
+                ).read(product_fields, load=False),
+                "product.packaging": packaging.read(
+                    product_packaging_fields, load=False
+                ),
+            }
         else:
             return {
-                'product.product': [],
-                'product.packaging': [],
+                "product.product": [],
+                "product.packaging": [],
             }
