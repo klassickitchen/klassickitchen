@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <template id="report_simple_label_dymo_inherit_company" inherit_id="product.report_simple_label_dymo">
+
+            <!-- Add Company, Product Name, and Arabic Name -->
+            <xpath expr="//div[@class='o_label_sheet o_label_dymo']/div[1]" position="before">
+                <div style="text-align:center; font-weight:bold; font-size:9px; margin-bottom:2px;">
+                    <span t-esc="env.company.name"/><br/>
+                    <span t-esc="product.name"/><br/>
+                    <span t-esc="product.arabic_name"/>
+                </div>
+            </xpath>
+
+            <!-- Replace Barcode + Internal Reference Layout -->
+            <xpath expr="//div[@class='text-start o_label_small_barcode']//div[@class='o_label_name']" position="replace">
+<!--                <div class="o_label_name"-->
+<!--                     style="display:flex; justify-content:space-between; align-items:center; width:100%; background-color:transparent;">-->
+<!--                    <span t-out="barcode"/>-->
+<!--                    <t t-if="product.default_code">-->
+<!--                        <span t-out="product.default_code"/>-->
+<!--                    </t>-->
+<!--                </div>-->
+                <div style="float: left;">
+                  <span t-out="barcode"/>
+              </div>
+                <div style="float: right;"><span t-out="product.default_code"/></div>
+            </xpath>
+
+            <!-- Add Price Below -->
+            <xpath expr="//div[@class='text-start o_label_small_barcode']" position="inside">
+                <div class="text-start o_label_internal_ref" style=" text-align:center;margin-top:2em;font-weight:bold;">
+                    <!-- Show Default Price if no alt.barcode price -->
+                    <t t-if="len(barcode_and_qty) == 2">
+                        <span  style="display:block; text-align:center;gap:10px;">QR <t t-esc="product.lst_price"/>
+                            <span style="margin-left:10px;"><t t-esc="product.arabic_price"/></span></span>
+                    </t>
+<!--                    <t t-if="product.lst_price">-->
+<!--                        <span style="font-weight:bold;direction: rtl;text-align:center;">-->
+<!--                            <t t-esc="product.arabic_price"/>-->
+<!--                        </span>-->
+<!--                    </t>-->
+                    <!-- Show Alt Barcode Price if available -->
+                    <t t-if="len(barcode_and_qty) > 2">
+                        <span style="display:block; text-align:center;gap:10px;">QR <t t-esc="barcode_and_qty[2]"/>
+                            <span style="margin-left: 10px;"><t t-esc="product.arabic_price"/></span></span>
+
+                    </t>
+                </div>
+            </xpath>
+
+        </template>
+
+    </data>
+</odoo>
+
+
+
+
+
+
+
+
+
+

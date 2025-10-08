@@ -12,6 +12,7 @@
                             <field name="barcode"/>
                             <field name="uom_id"/>
                             <field name="price"/>
+<!--                            <field name="arabic_price_alt"/>-->
                         </list>
                     </field>
                 </page>

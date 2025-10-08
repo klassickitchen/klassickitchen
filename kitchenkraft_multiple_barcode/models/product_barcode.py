@@ -30,6 +30,7 @@ class ProductBarcode(models.Model):
         store=False,  # No need to store this helper field
     )
     price = fields.Float(string="Price", required=True)
+    arabic_price_alt=fields.Char(string="Arabic Price ",compute='_compute_arabic_price_alt', store=True)
 
     _sql_constraints = [
         (
@@ -114,3 +115,24 @@ class ProductBarcode(models.Model):
     @api.model
     def _load_pos_data_fields(self, config_id):
         return ["id", "barcode", "product_id", "uom_id", "price"]
+
+    ENGLISH_CHARS = "0123456789."
+    ARABIC_CHARS = "٠١٢٣٤٥٦٧٨٩٫"
+
+    # Define the translation table once as a class attribute
+    ARABIC_NUMERALS = str.maketrans(ENGLISH_CHARS, ARABIC_CHARS)
+
+    @api.depends('price')  # <-- Crucial decorator must be present!
+    def _compute_arabic_price_alt(self):
+        # Access the class attribute
+        translation_table = self.ARABIC_NUMERALS
+
+        for rec in self:
+            if rec.price is not None:
+                # 1. Format the float to a string with 2 decimal places
+                formatted = "{:.2f}".format(rec.price)
+
+                # 2. Translate the entire formatted string in one go
+                rec.arabic_price_alt = formatted.translate(translation_table)
+            else:
+                rec.arabic_price_alt = False
