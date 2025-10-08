@@ -158,6 +158,21 @@ class IntercompanyStockWizard(models.TransientModel):
 
         return {'type': 'ir.actions.act_window_close'}
 
+    def action_confirm_without_po(self):
+        """Confirm the Sale Order normally, bypass intercompany workflow, and generate deliveries."""
+        sale_order = self.sale_order_id
+
+        if sale_order.state in ['draft', 'sent']:
+            # Use context flag to skip intercompany logic in your SaleOrder.action_confirm override
+            sale_order.with_context(skip_intercompany=True).sudo().action_confirm()
+
+        # Close the wizard
+        return {'type': 'ir.actions.act_window_close'}
+
+
+
+
+
 
 class IntercompanyStockWizardLine(models.TransientModel):
     _name = 'intercompany.stock.wizard.line'
@@ -194,3 +209,4 @@ class IntercompanyStockWizardLine(models.TransientModel):
             self.qty_available = product_with_company.sudo().qty_available
             self.free_quantity = product_with_company.sudo().free_qty
             self.price_unit = product_with_company.sudo().standard_price
+

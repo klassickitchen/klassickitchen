@@ -23,6 +23,7 @@
                 <footer>
                     <button string="Create and Process PO(s)" type="object" class="btn-primary" name="create_intercompany_purchase_order_confirm" data-hotkey="q"/>
                     <button string="Create PO" type="object" class="btn-primary" name="create_intercompany_purchase_order" />
+                    <button string="Confirm without po" type="object" class="btn-primary" name="action_confirm_without_po" />
                     <button string="Cancel" class="btn-secondary" special="cancel" data-hotkey="z"/>
                 </footer>
             </form>
