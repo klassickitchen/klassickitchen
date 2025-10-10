@@ -29,6 +29,7 @@ class ReportProductLabelDymoBarcodes(models.AbstractModel):
             if hasattr(product, 'alternative_barcode_ids'):
                 for alt in product.alternative_barcode_ids:
                     # Ensure quantity is integer
+                    print('barcodes',barcodes)
                     qty = 1
                     if barcodes and isinstance(barcodes[0][1], (int, float, str)):
                         try:
@@ -36,10 +37,13 @@ class ReportProductLabelDymoBarcodes(models.AbstractModel):
                         except Exception:
                             qty = 1
 
+
                     quantity_by_product[product].append((alt.barcode, qty, alt.price))
 
         result['quantity'] = quantity_by_product
+        print('result', result)
         return result
+
 
 
 

@@ -30,7 +30,7 @@ class ProductBarcode(models.Model):
         store=False,  # No need to store this helper field
     )
     price = fields.Float(string="Price", required=True)
-    arabic_price_alt=fields.Char(string="Arabic Price ",compute='_compute_arabic_price_alt', store=True)
+    arabic_price_alt=fields.Char(compute='_compute_arabic_price_alt', store=True)
 
     _sql_constraints = [
         (

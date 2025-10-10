@@ -15,6 +15,19 @@ class ProductProduct(models.Model):
         "product_id",
         string="Alternative Barcodes",
     )
+    arabic_price_alt = fields.Char(
+        string='Arabic Price Alt',
+        compute='_compute_arabic_price_alt',
+        store=True
+    )
+
+    @api.depends('alternative_barcode_ids.arabic_price_alt')
+    def _compute_arabic_price_alt(self):
+        for product in self:
+            if product.alternative_barcode_ids:
+                product.arabic_price_alt = product.alternative_barcode_ids.arabic_price_alt
+            else:
+                product.arabic_price_alt = 0.0
 
 
     arabic_name = fields.Char(string='Arabic Name')
