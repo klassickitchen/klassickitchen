@@ -36,8 +36,10 @@
         </t>
         <t t-if="len(barcode_and_qty) > 2">
             <span>QR <t t-esc="barcode_and_qty[2]"/></span>
-            <t t-if="product.arabic_price_alt">
-                <span style="margin-left:10px;"><t t-esc="product.arabic_price_alt"/></span>
+            <t t-foreach="product.alternative_barcode_ids" t-as="alt_barcode">
+            <t t-if="alt_barcode.barcode == barcode_and_qty[0] and alt_barcode.arabic_price_alt">
+                <span style="margin-left:10px;">
+                    <t t-esc="alt_barcode.arabic_price_alt"/></span></t>
             </t>
         </t>
     </div>

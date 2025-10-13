@@ -25,7 +25,7 @@ class ProductProduct(models.Model):
     def _compute_arabic_price_alt(self):
         for product in self:
             if product.alternative_barcode_ids:
-                product.arabic_price_alt = product.alternative_barcode_ids.arabic_price_alt
+                product.arabic_price_alt = product.alternative_barcode_ids[0].arabic_price_alt
             else:
                 product.arabic_price_alt = 0.0
 
