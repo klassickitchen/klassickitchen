@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="report_invoice_a5">
+            <t t-call="account.report_invoice">
+                <t t-set="print_with_payments" t-value="True"/>
+            </t>
+        </template>
+    </data>
+</odoo>

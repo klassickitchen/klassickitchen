@@ -1,0 +1,19 @@
+<odoo>
+<!--    <record id="seq_pos_invoice" model="ir.sequence">-->
+<!--        <field name="name">POS Invoice</field>-->
+<!--        <field name="code">pos.invoice</field>-->
+<!--        <field name="prefix">POS/</field>-->
+<!--        <field name="padding">4</field>-->
+<!--        <field name="company_id" eval="False"/>-->
+<!--    </record>-->
+
+
+<!--    <record id="seq_account_invoice" model="ir.sequence">-->
+<!--        <field name="name">Account Invoice</field>-->
+<!--        <field name="code">account.invoice</field>-->
+<!--        <field name="prefix">INV/</field>-->
+<!--        <field name="padding">4</field>-->
+<!--        <field name="company_id" eval="False"/>-->
+<!--    </record>-->
+
+</odoo>
