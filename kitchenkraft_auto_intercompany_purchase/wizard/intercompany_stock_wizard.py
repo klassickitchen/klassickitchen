@@ -87,35 +87,34 @@ class IntercompanyStockWizard(models.TransientModel):
                 purchase_order.picking_ids.button_validate()
 
 
-                sale_order_vals = {
-                    'partner_id': self.sale_order_id.partner_id.id,
-                    'company_id': company.id,
-                    'order_line': [(0, 0, {
-                        'product_id': line.product_id.id,
-                        'product_uom_qty': line.quantity,
-                        'price_unit': line.price_unit,
-                        'tax_id': [(6, 0, line.taxes_id.ids)]
-                    }) for line in lines],
-                    'origin': f"Intercompany PO: {purchase_order.name}"
-                }
-                sale_order = self.env['sale.order'].with_company(company).create(sale_order_vals)
-                sale_order.action_confirm()
-
-                for picking in sale_order.picking_ids:
-
-                    for move in picking.move_ids:
-                        move.quantity = move.product_uom_qty
-
-                    picking.button_validate()
 
             if created_po_ids:
                 self.sale_order_id.write({
                 'intercompany_purchase_order_ids': [(6, 0, created_po_ids)]
             })
 
-            self.sale_order_id.action_confirm()
+
 
         return {'type': 'ir.actions.act_window_close'}
+
+
+
+    @api.model
+    def _create_sale_order_from_po(self):
+        # Let Odoo create the quotation
+        sale_order = super()._create_sale_order_from_po()
+
+        # Confirm it automatically
+        if sale_order and sale_order.state in ['draft', 'sent']:
+            sale_order.action_confirm()
+
+            # Optionally validate delivery
+            for picking in sale_order.picking_ids:
+                for move in picking.move_ids_without_package:
+                    move.quantity_done = move.product_uom_qty
+                picking.button_validate()
+
+        return sale_order
 
 
     def create_intercompany_purchase_order(self):
@@ -209,4 +208,3 @@ class IntercompanyStockWizardLine(models.TransientModel):
             self.qty_available = product_with_company.sudo().qty_available
             self.free_quantity = product_with_company.sudo().free_qty
             self.price_unit = product_with_company.sudo().standard_price
-
