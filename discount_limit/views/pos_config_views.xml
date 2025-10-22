@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="pos_session_edit_wizard_inherit" model="ir.ui.view">
+        <field name="name">pos.session.edit.wizard.inherit</field>
+        <field name="model">pos.config</field>
+        <field name="inherit_id" ref="point_of_sale.pos_config_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//setting[@id='other_devices']" position="after">
+                <setting string="Discount Limit" help="Set the discount limit">
+                    <field name="min_discount"/>
+                    <field name="max_discount"/>
+                </setting>
+            </xpath>
+        </field>
+    </record>
+</odoo>

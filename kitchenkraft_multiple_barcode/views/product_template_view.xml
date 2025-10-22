@@ -11,4 +11,16 @@
             </xpath>
         </field>
     </record>
+    <record id="product_product_form_inherit" model="ir.ui.view">
+        <field name="name">product.product.form.inherit</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_normal_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[hasclass('oe_title')]" position="after">
+                <field name="arabic_name" invisible="1"/>
+            <field name="arabic_price" invisible="1"/>
+
+            </xpath>
+        </field>
+    </record>
 </odoo>
