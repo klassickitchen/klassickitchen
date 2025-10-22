@@ -57,6 +57,8 @@ class SaleOrder(models.Model):
         return action
 
     def action_confirm(self):
+        if self.env.context.get('skip_intercompany'):
+            return super(SaleOrder, self).action_confirm()
         products_requiring_intercompany = []
 
         for order in self:
