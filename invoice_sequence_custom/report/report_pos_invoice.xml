@@ -16,8 +16,8 @@
         <field name="name">Invoice A4</field>
         <field name="model">account.move</field>
         <field name="report_type">qweb-pdf</field>
-        <field name="report_name">account.report_invoice_with_payments</field>
-        <field name="report_file">account.report_invoice_with_payments</field>
+        <field name="report_name">invoice_sequence_custom.report_invoice_a5</field>
+        <field name="report_file">invoice_sequence_custom.report_invoice_a5</field>
         <field name="is_invoice_report">True</field>
         <field name="paperformat_id" ref="base.paperformat_euro"/>
         <field name="print_report_name">(object._get_report_base_filename())</field>
@@ -32,8 +32,8 @@
         <field name="name">Invoice A5</field>
         <field name="model">account.move</field>
         <field name="report_type">qweb-pdf</field>
-        <field name="report_name">invoice_sequence_custom.report_invoice_a5</field>
-        <field name="report_file">invoice_sequence_custom.report_invoice_a5</field>
+        <field name="report_name">account.report_invoice_with_payments</field>
+        <field name="report_file">account.report_invoice_with_payments</field>
         <field name="paperformat_id" ref="invoice_sequence_custom.paperformat_a5"/>
         <field name="is_invoice_report">True</field>
         <field name="print_report_name">(object._get_report_base_filename())</field>
