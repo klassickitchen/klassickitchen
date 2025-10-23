@@ -9,8 +9,8 @@
             <!-- Entire label content here -->
             <div style="text-align:center; font-weight:bold; font-size:9px; margin-bottom:2px;">
                 <span t-esc="env.company.name"/><br/>
-                <span t-esc="product.name"/><br/>
-                <span t-esc="product.arabic_name"/>
+                <span t-esc="product.name" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%;"/><br/>
+                <span t-esc="product.arabic_name" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%;"/>
             </div>
             <t t-if="barcode">
     <!-- Barcode Image -->
