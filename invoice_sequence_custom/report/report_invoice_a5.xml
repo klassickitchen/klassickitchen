@@ -6,5 +6,24 @@
                 <t t-set="print_with_payments" t-value="True"/>
             </t>
         </template>
+        <template id="report_invoice_document_inherit_customer_line" inherit_id="account.report_invoice_document">
+            <xpath expr="//div[@name='address_same_as_shipping']//address" position="replace"/>
+            <xpath expr="//t[@t-set='layout_document_title']" position="inside">
+                <span style="margin-left:200px;">
+                    <t t-esc="o.partner_id.name" style="text-align:right;"/></span>
+            </xpath>
+            <xpath expr="//td[@name='account_invoice_line_name']" position="replace"/>
+            <xpath expr="//td[@name='td_quantity']" position="before">
+            <td name="account_invoice_line_name">
+                <span t-if="line.name" t-field="line.name" t-options="{'widget': 'text'}"/>
+                <br/>
+                <span t-if="line.product_id.arabic_name" t-esc="line.product_id.arabic_name"/>
+            </td>
+            </xpath>
+
+        <!-- Target the layout title block that contains the invoice number -->
+
+
+    </template>
     </data>
 </odoo>
