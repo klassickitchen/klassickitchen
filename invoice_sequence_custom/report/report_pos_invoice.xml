@@ -6,10 +6,10 @@
         <field name="default">False</field>
         <field name="format">A5</field>
         <field name="orientation">Landscape</field>
-        <field name="margin_top">10</field>
+        <field name="margin_top">50</field>
         <field name="margin_bottom">10</field>
-        <field name="margin_left">10</field>
-        <field name="margin_right">10</field>
+        <field name="margin_left">5</field>
+        <field name="margin_right">5</field>
     </record>
 
     <record id="account_invoices_a4" model="ir.actions.report">

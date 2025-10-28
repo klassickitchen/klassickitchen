@@ -10,7 +10,20 @@
                 </span>
                 <span t-field="o.number_to_words"/>
             </div>
+            <div style="margin-top:10px;" class="mb-3"
+                 t-if="o.move_type in ('out_invoice', 'in_refund') and o.payment_reference">
+                <p name="payment_communication">
+                    Payment Communication:
+                    <span class="fw-bold" t-field="o.payment_reference">INV/2023/00001</span>
+                    <t t-if="o.partner_bank_id">
+                        <br/>
+                        on this account:
+                        <span t-field="o.partner_bank_id" class="fw-bold"/>
+                    </t>
+                </p>
+            </div>
         </xpath>
+        <xpath expr="//p[@name='payment_communication']" position="replace"/>
     </template>
     <!--To show the amount in words on purchase report-->
     <template id="purchase_report_view_amount_in_words"
