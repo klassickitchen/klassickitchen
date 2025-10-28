@@ -7,27 +7,27 @@
     <t t-if="barcode or alternative_barcode_ids">
         <div class="o_label_sheet o_label_dymo" t-att-style="padding_page">
             <!-- Entire label content here -->
-            <div style="text-align:center; font-weight:bold; font-size:9px; margin-bottom:2px;">
+            <div style="text-align:center; font-weight:bold; font-size:4px; margin-bottom:2px;">
                 <span t-esc="env.company.name"/><br/>
-                <span t-esc="product.name" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%;"/><br/>
-                <span t-esc="product.arabic_name" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%;"/>
+                <span t-esc="product.name" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%;margin-left:10px;"/><br/>
+                <span t-esc="product.arabic_name" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%;margin-left:10px;"/>
             </div>
             <t t-if="barcode">
     <!-- Barcode Image -->
     <div t-out="barcode"
-         style="padding:0; margin:auto;"
-         t-options="{'widget': 'barcode', 'quiet': 0, 'symbology': 'auto', 'img_style': barcode_size}"/>
+         style="padding:0; margin:auto;text-align:center;"
+         t-options="{'widget': 'barcode', 'quiet': 0, 'symbology': 'auto', 'img_style': 'width:120px; height:20px;'}"/>
 
     <!-- Barcode number & product code -->
-    <div style="text-align:left; font-size:8px; margin-top:2px; line-height:1.2;">
-        <span t-out="barcode"/>
+    <div style="text-align:left; font-size:4px; margin-top:1px; line-height:1.2;">
+        <span t-out="barcode" style="margin-left:35px;"/>
         <t t-if="product.default_code">
-            <span style="float:right; font-size:8px;" t-out="product.default_code"/>
+            <span style="float:right; font-size:4px;margin-right:35px;" t-out="product.default_code"/>
         </t>
     </div>
 
     <!-- Price block -->
-    <div style="text-align:center; margin-top:4px; font-weight:bold; font-size:10px; line-height:1.3;">
+    <div style="text-align:center;font-weight:bold; font-size:10px; line-height:1.3;">
         <t t-if="len(barcode_and_qty) == 2">
             <span>QR <t t-esc="product.lst_price"/></span>
             <t t-if="product.arabic_price">
