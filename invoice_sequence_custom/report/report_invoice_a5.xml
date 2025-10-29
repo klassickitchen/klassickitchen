@@ -40,7 +40,7 @@
                     <span t-elif="o.move_type == 'in_refund'" style="font-size:22px; color: black;">Vendor Credit Note</span>
                     <span t-elif="o.move_type == 'in_invoice'" style="font-size:22px; color: black;">Vendor Bill</span>
                     <span t-if="o.name and o.name != '/'" t-field="o.name" style="font-size:22px; color: black;">INV/2023/0001</span>
-                    <span style="margin-left:450px; font-size: 22px; color: black;">
+                    <span style="margin-left:500px; font-size: 22px; color: black;">
                         <t t-esc="o.partner_id.name" style="text-align:right;"/>
                     </span>
                 </t>
