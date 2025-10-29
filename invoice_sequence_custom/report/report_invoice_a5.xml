@@ -14,27 +14,33 @@
                 <t t-set="layout_document_title" style="margin-top: 50px;">
                     <span t-if="not proforma"></span>
                     <span t-else="">PROFORMA</span>
-                    <span t-if="o.move_type == 'out_invoice' and o.state == 'posted'" style="font-size:22px;">Invoice
+                    <span t-if="o.move_type == 'out_invoice' and o.state == 'posted'"
+                          style="font-size:22px; color: black;">Invoice
                     </span>
-                    <span t-elif="o.move_type == 'out_invoice' and o.state == 'draft'" style="font-size:22px;">Draft
+                    <span t-elif="o.move_type == 'out_invoice' and o.state == 'draft'"
+                          style="font-size:22px; color: black;">Draft
                         Invoice
                     </span>
-                    <span t-elif="o.move_type == 'out_invoice' and o.state == 'cancel'" style="font-size:22px;">
+                    <span t-elif="o.move_type == 'out_invoice' and o.state == 'cancel'"
+                          style="font-size:22px; color: black;">
                         Cancelled Invoice
                     </span>
-                    <span t-elif="o.move_type == 'out_refund' and o.state == 'posted'" style="font-size:22px;">Credit
+                    <span t-elif="o.move_type == 'out_refund' and o.state == 'posted'"
+                          style="font-size:22px; color: black;">Credit
                         Note
                     </span>
-                    <span t-elif="o.move_type == 'out_refund' and o.state == 'draft'" style="font-size:22px;">Draft
+                    <span t-elif="o.move_type == 'out_refund' and o.state == 'draft'"
+                          style="font-size:22px; color: black;">Draft
                         Credit Note
                     </span>
-                    <span t-elif="o.move_type == 'out_refund' and o.state == 'cancel'" style="font-size:22px;">Cancelled
+                    <span t-elif="o.move_type == 'out_refund' and o.state == 'cancel'"
+                          style="font-size:22px; color: black;">Cancelled
                         Credit Note
                     </span>
-                    <span t-elif="o.move_type == 'in_refund'" style="font-size:22px;">Vendor Credit Note</span>
-                    <span t-elif="o.move_type == 'in_invoice'" style="font-size:22px;">Vendor Bill</span>
-                    <span t-if="o.name and o.name != '/'" t-field="o.name" style="font-size:22px;">INV/2023/0001</span>
-                    <span style="margin-left:200px; font-size: 22px;">
+                    <span t-elif="o.move_type == 'in_refund'" style="font-size:22px; color: black;">Vendor Credit Note</span>
+                    <span t-elif="o.move_type == 'in_invoice'" style="font-size:22px; color: black;">Vendor Bill</span>
+                    <span t-if="o.name and o.name != '/'" t-field="o.name" style="font-size:22px; color: black;">INV/2023/0001</span>
+                    <span style="margin-left:450px; font-size: 22px; color: black;">
                         <t t-esc="o.partner_id.name" style="text-align:right;"/>
                     </span>
                 </t>
@@ -96,8 +102,27 @@
                 <attribute name="style">line-height: 0.8; padding: 0; margin: 0;</attribute>
             </xpath>
 
+            <xpath expr="//tr[@class='o_total']" position="attributes">
+                <attribute name="style">line-height: 0.8; color: black; padding: 0; margin: 0;</attribute>
+            </xpath>
+
             <xpath expr="//tr[@class='o_taxes']" position="attributes">
                 <attribute name="style">line-height: 0.8; padding: 0; margin: 0;</attribute>
+            </xpath>
+
+            <xpath expr="//tr[@class='o_subtotal']" position="after">
+                <tr t-if="sum(line.price_subtotal for line in o.invoice_line_ids if 'disc' in (line.name or '').lower())"
+                    style="line-height: 0.8;">
+                    <td>
+                        <strong>Discount</strong>
+                    </td>
+                    <td class="text-end">
+                        <strong>
+                            <t t-esc="sum(-line.price_subtotal for line in o.invoice_line_ids if 'disc' in (line.name or '').lower())"/>
+                            <t t-esc="o.currency_id.symbol"/>
+                        </strong>
+                    </td>
+                </tr>
             </xpath>
 
         </template>
