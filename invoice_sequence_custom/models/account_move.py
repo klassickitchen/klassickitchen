@@ -9,18 +9,26 @@ class AccountMove(models.Model):
         for move in self:
             company_code = move.company_id.code or ''
 
-            if move.is_pos_invoice:
+            # Only for customer invoices and credit notes
+            if move.move_type in ('out_invoice', 'out_refund'):
                 if move.name in ('/', False):
-                    sequence_number = self.env['ir.sequence'].next_by_code('pos.invoice')
-                    move.name = f"{company_code}/{sequence_number}"
-            else:
-                if move.name in ('/', False):
-                    sequence_number = self.env['ir.sequence'].next_by_code('account.invoice')
+                    # Customer Invoice (normal or POS)
+                    if move.move_type == 'out_invoice':
+                        if move.is_pos_invoice:
+                            sequence_code = 'pos.invoice'
+                        else:
+                            sequence_code = 'account.invoice'
+                    # Customer Credit Note
+                    elif move.move_type == 'out_refund':
+                        sequence_code = 'account.invoice.return'
+
+                    # Get next sequence and assign custom name
+                    sequence_number = self.env['ir.sequence'].next_by_code(sequence_code)
                     move.name = f"{company_code}/{sequence_number}"
 
+        # Continue with Odoo’s standard post behavior
         res = super().action_post()
         return res
-
 
     def action_print_pdf(self):
         self.ensure_one()
