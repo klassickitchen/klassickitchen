@@ -13,6 +13,11 @@
                             <field name="uom_id"/>
                             <field name="price"/>
                           <field name="arabic_price_alt"/>
+                            <button name="action_open_label_layout2"
+                            string="Print Label"
+                            type="object"
+                            icon="fa-print">
+                            </button>
                         </list>
                     </field>
                 </page>

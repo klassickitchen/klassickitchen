@@ -6,3 +6,8 @@ class ProductTemplate(models.Model):
 
     supplier = fields.Char(string="Supplier")
     country_id = fields.Many2one("res.country")
+    alternative_barcode_ids = fields.One2many(
+        "product.barcode",
+        "product_id",
+        string="Alternative Barcodes",
+    )

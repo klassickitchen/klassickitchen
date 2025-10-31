@@ -136,3 +136,30 @@ class ProductBarcode(models.Model):
                 rec.arabic_price_alt = formatted.translate(translation_table)
             else:
                 rec.arabic_price_alt = False
+
+    def action_open_label_layout2(self):
+        # function for only alternative barcode
+        self.ensure_one()
+        product_tmpl = self.product_id.product_tmpl_id
+
+        # create the wizard record manually
+        wizard = self.env["product.label.layout"].create({
+            "product_tmpl_ids": [(6, 0, [product_tmpl.id])],
+        })
+
+        # open it with context so your barcode info travels along
+        return {
+            "name": _("Product Labels"),
+            "type": "ir.actions.act_window",
+            "res_model": "product.label.layout",
+            "view_mode": "form",
+            "target": "new",
+            "res_id": wizard.id,
+            "context": {
+                **self.env.context,
+                "active_model": "product.template",
+                "active_ids": [product_tmpl.id],
+                "default_barcode": self.barcode,
+                "from_alternative_barcode": True,
+            },
+        }
