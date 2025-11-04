@@ -1,6 +1,6 @@
 {
     'name': 'KitchenKraft Auto Intercompany Purchase',
-    'version': '18.6.1',
+    'version': '18.6.2',
     'category': 'Sales',
     'summary': 'Automatically create intercompany purchase orders',
     'depends': ['sale', 'purchase','sale_purchase_inter_company_rules'],
