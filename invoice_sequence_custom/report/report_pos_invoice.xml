@@ -44,5 +44,4 @@
  (4, ref('account.group_account_readonly'))]"/>
     </record>
 
-
 </odoo>
