@@ -1,11 +1,11 @@
 @font-face {
-    font-family: 'Doto-Black';
-    src: url('/kitchenkraft_report_custom_font/static/src/fonts/doto/Doto-Black.ttf') format('truetype');
+    font-family: 'RobotoMono-Bold';
+    src: url('/kitchenkraft_report_custom_font/static/src/fonts/Roboto_Mono/RobotoMono-Bold.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
 }
 
 .o_report_layout_standard{
-    font-family: 'Doto-Black', sans-serif;
+    font-family: 'RobotoMono-Bold', monospace;
     color: black;
 }
