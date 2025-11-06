@@ -7,7 +7,7 @@
                 <t t-if="barcode or alternative_barcode_ids">
                     <div class="o_label_sheet o_label_dymo" t-att-style="padding_page">
                         <!-- Entire label content here -->
-                        <div style="width:100%; text-align:center; font-size:6px; font-weight:bold; position: relative; bottom:10px; right:2px;">
+                        <div style="width:100%; text-align:center; font-size:6px; font-weight:bold; position: relative; bottom:12px; right:2px;">
 
                             <div style="display:inline-block; width:55%; margin-bottom:10px; white-space:nowrap; line-height:1.2;">
 
@@ -15,11 +15,11 @@
                                     <t t-esc="env.company.name"/>
                                 </span>
 
-                                <span style="display:block; font-size:5px; font-weight:800; margin-left:4px;">
+                                <span style="display:block; font-size:5px; font-weight:bold; margin-left:4px;">
                                     <t t-esc="product.name"/>
                                 </span>
 
-                                <span style="display:block; font-size:5px; font-weight:500;">
+                                <span style="display:block; font-size:5px; font-weight:bold;">
                                     <t t-esc="product.arabic_name"/>
                                 </span>
 
@@ -27,27 +27,27 @@
 
                         </div>
 
-                        <div style="padding:0; margin:auto; position: relative; bottom:25px; right:5px;">
+                        <div style="padding:0; margin:auto; position: relative; bottom:28px; right:5px;">
 
 
                             <t t-if="barcode">
                                 <!-- Product Code(internal reference) -->
                                 <t t-if="product.default_code">
-                                    <div style="text-align:center; font-size:5px; font-weight:700;">
+                                    <div style="text-align:center; font-size:6px; font-weight:bold;">
                                         <span t-out="product.default_code"/>
                                     </div>
                                 </t>
                                 <!-- Barcode Image -->
                                 <div t-out="barcode"
                                      style="padding:0; margin:auto;text-align:center; position: relative; bottom:10px;"
-                                     t-options="{'widget': 'barcode', 'quiet': 0, 'symbology': 'auto', 'img_style': 'width:60px; height:10px;'}"/>
+                                     t-options="{'widget': 'barcode', 'quiet': 0, 'symbology': 'auto', 'img_style': 'width:60px; height:13px;'}"/>
 
                                 <!-- Barcode number & product code -->
-                                <div style="text-align:center; font-size:4px; line-height:0.1; position: relative; bottom:11px;">
+                                <div style="text-align:center; font-size:4px; line-height:0.1; position: relative; bottom:10px;">
                                     <!-- Barcode Code -->
-                                    <span t-out="barcode" style="margin-left:7px; font-size:5px; font-weight:700;"/>
+                                    <span t-out="barcode" style="margin-left:7px; font-size:6px; font-weight:bold;"/>
 
-                                    <div style="text-align:center;font-weight:bold; font-size:7px; line-height:1.8;">
+                                    <div style="text-align:center;font-weight:bold; font-size:8px; line-height:1.8;">
                                         <t t-if="len(barcode_and_qty) == 2">
                                             <span>QR:
                                                 <t t-esc="product.lst_price"/>
