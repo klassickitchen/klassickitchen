@@ -34,9 +34,9 @@ class ProductBarcode(models.Model):
     company_id=fields.Many2one("res.company",'Company')
     _sql_constraints = [
         (
-            "barcode_unique",
-            "unique(barcode, product_id)",
-            "Barcode must be unique per product!",
+            "barcode_unique_per_company",
+            "unique(barcode, product_id, company_id)",
+            "Barcode must be unique per product within a company!",
         ),
     ]
 
