@@ -50,7 +50,7 @@
                             <strong>Invoice Date:</strong>
                             <t t-esc="o.invoice_date"/>
                         </span>
-                        <span style="font-size: 23px; color: black; margin-left: 250px;">
+                        <span style="font-size: 23px; color: black; margin-left: 150px;">
                             <t t-esc="o.partner_id.name" style="text-align:right;"/>
                         </span>
                     </t>
@@ -63,8 +63,7 @@
             <xpath expr="//td[@name='account_invoice_line_name']" position="replace"/>
             <xpath expr="//td[@name='td_quantity']" position="before">
                 <td name="account_invoice_line_name">
-                    <span t-if="line.name" t-field="line.name" style="font-size: 19px;" t-options="{'widget': 'text'}"/>
-                    <br/>
+                    <span t-if="line.name" t-field="line.name" style="font-size: 19px;" t-options="{'widget': 'text'}"/> /
                     <span t-if="line.product_id.arabic_name" style="font-size: 18px;"
                           t-esc="line.product_id.arabic_name"/>
                 </td>
@@ -74,6 +73,10 @@
                 <attribute name="style">width: 103%; position: relative; right: 1.5%; font-size: 19px;
                 </attribute>
             </xpath>
+
+            <xpath expr="//table[@name='invoice_line_table']//td" position="attributes">
+    <attribute name="style">line-height: 1.1;</attribute>
+</xpath>
 
             <!--reduce line spacing for Paid and Amount Due -->
             <xpath expr="//t[@t-if='print_with_payments']" position="replace">
@@ -118,24 +121,24 @@
                 <attribute name="style">line-height: 0.8; padding: 0; margin: 0;</attribute>
             </xpath>
 
-            <xpath expr="//span[contains(text(), 'Untaxed Amount')]" position="replace">
-                <span>Gross Total Amount</span>
-            </xpath>
+<!--            <xpath expr="//span[contains(text(), 'Untaxed Amount')]" position="replace">-->
+<!--                <span>Gross Total Amount</span>-->
+<!--            </xpath>-->
 
-            <xpath expr="//tr[@class='o_subtotal']" position="after">
-                <tr t-if="sum(line.price_subtotal for line in o.invoice_line_ids if 'disc' in (line.name or '').lower())"
-                    style="line-height: 0.8;">
-                    <td>
-                        <strong>Discount Amount</strong>
-                    </td>
-                    <td class="text-end">
-                        <strong>
-                            <t t-esc="sum(-line.price_subtotal for line in o.invoice_line_ids if 'disc' in (line.name or '').lower())"/>
-                            <t t-esc="o.currency_id.symbol"/>
-                        </strong>
-                    </td>
-                </tr>
-            </xpath>
+<!--            <xpath expr="//tr[@class='o_subtotal']" position="after">-->
+<!--                <tr t-if="sum(line.price_subtotal for line in o.invoice_line_ids if 'disc' in (line.name or '').lower())"-->
+<!--                    style="line-height: 0.8;">-->
+<!--                    <td>-->
+<!--                        <strong>Discount Amount</strong>-->
+<!--                    </td>-->
+<!--                    <td class="text-end">-->
+<!--                        <strong>-->
+<!--                            <t t-esc="sum(-line.price_subtotal for line in o.invoice_line_ids if 'disc' in (line.name or '').lower())"/>-->
+<!--                            <t t-esc="o.currency_id.symbol"/>-->
+<!--                        </strong>-->
+<!--                    </td>-->
+<!--                </tr>-->
+<!--            </xpath>-->
         </template>
 
     </data>
