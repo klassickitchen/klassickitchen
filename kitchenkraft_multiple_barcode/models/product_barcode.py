@@ -31,7 +31,7 @@ class ProductBarcode(models.Model):
     )
     price = fields.Float(string="Price", required=True)
     arabic_price_alt=fields.Char(compute='_compute_arabic_price_alt', store=False)
-
+    company_id=fields.Many2one("res.company",'Company')
     _sql_constraints = [
         (
             "barcode_unique",

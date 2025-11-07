@@ -8,6 +8,7 @@
             <xpath expr="//notebook/page[1]" position="after">
                 <page string="Barcode">
                     <field name="alternative_barcode_ids">
+                          <field name="company_id"/>
                         <list editable="bottom">
                             <field name="barcode"/>
                             <field name="uom_id"/>
