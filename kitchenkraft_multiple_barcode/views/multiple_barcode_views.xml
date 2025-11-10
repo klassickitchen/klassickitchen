@@ -8,10 +8,12 @@
             <xpath expr="//notebook/page[1]" position="after">
                 <page string="Barcode">
                     <field name="alternative_barcode_ids">
+
                         <list editable="bottom">
                             <field name="barcode"/>
                             <field name="uom_id"/>
                             <field name="price"/>
+                               <field name="company_id"/>
                           <field name="arabic_price_alt"/>
                             <button name="action_open_label_layout2"
                             string="Print Label"

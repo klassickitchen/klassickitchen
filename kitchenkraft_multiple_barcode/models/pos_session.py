@@ -12,40 +12,40 @@ class PosSession(models.Model):
         return models
 
     def find_product_by_barcode(self, barcode, config_id):
-        """Override to first check product.barcode model for multiple barcodes"""
+        """Override to first check product.barcode model for multiple barcodes per company"""
         product_fields = self.env["product.product"]._load_pos_data_fields(config_id)
-        product_packaging_fields = self.env["product.packaging"]._load_pos_data_fields(
-            config_id
-        )
+        product_packaging_fields = self.env["product.packaging"]._load_pos_data_fields(config_id)
         product_context = {**self.env.context, "display_default_code": False}
 
-        # 1. First check our custom product.barcode model
+        current_company = self.env.company.id
+
+        # 1️⃣ First check our custom product.barcode model
         product_barcode = self.env["product.barcode"].search(
             [
                 ("barcode", "=", barcode),
                 ("product_id.sale_ok", "=", True),
                 ("product_id.available_in_pos", "=", True),
+                "|",
+                ("company_id", "=", current_company),  # match current company
+                ("company_id", "=", False),  # or global (shared) barcodes
             ],
             limit=1,
         )
 
         if product_barcode and product_barcode.product_id:
             # Found in custom barcode model - return with custom price and UOM
-            product_data = product_barcode.product_id.with_context(
-                product_context
-            ).read(product_fields, load=False)
+            product_data = product_barcode.product_id.with_context(product_context).read(product_fields, load=False)
             if product_data:
                 # Override the price with the barcode-specific price
                 product_data[0]["lst_price"] = product_barcode.price
                 # Add the custom barcode info for frontend processing
-                product_data[0]["_barcode_uom_id"] = (
-                    product_barcode.uom_id.id if product_barcode.uom_id else False
-                )
+                product_data[0]["_barcode_uom_id"] = product_barcode.uom_id.id if product_barcode.uom_id else False
                 product_data[0]["_barcode_price"] = product_barcode.price
+                product_data[0]["_barcode_company_id"] = product_barcode.company_id.id
 
                 return {"product.product": product_data}
 
-        # 2. Fall back to standard product barcode check
+        # 2️⃣ Fall back to standard product barcode check
         product = self.env["product.product"].search(
             [
                 ("barcode", "=", barcode),
@@ -57,12 +57,10 @@ class PosSession(models.Model):
 
         if product:
             return {
-                "product.product": product.with_context(product_context).read(
-                    product_fields, load=False
-                )
+                "product.product": product.with_context(product_context).read(product_fields, load=False)
             }
 
-        # 3. Check product packaging
+        # 3️⃣ Check product packaging
         domain = [("barcode", "not in", ["", False])]
         loaded_data = self._context.get("loaded_data")
         if loaded_data:
@@ -81,12 +79,8 @@ class PosSession(models.Model):
 
         if packaging and packaging.product_id:
             return {
-                "product.product": packaging.product_id.with_context(
-                    product_context
-                ).read(product_fields, load=False),
-                "product.packaging": packaging.read(
-                    product_packaging_fields, load=False
-                ),
+                "product.product": packaging.product_id.with_context(product_context).read(product_fields, load=False),
+                "product.packaging": packaging.read(product_packaging_fields, load=False),
             }
         else:
             return {
