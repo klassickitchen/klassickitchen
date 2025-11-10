@@ -1,6 +1,6 @@
 {
 	'name': "Custom invoice sequence number",
-	'version': '18.0.3.1.0',
+	'version': '18.0.3.2.0',
 	'category': 'Point of Sale',
 	'summary': "This module is used to add custom serial number for invoices",
     'author': 'AGM Global Services',

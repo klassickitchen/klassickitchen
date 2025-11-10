@@ -5,7 +5,35 @@
     font-style: normal;
 }
 
-.o_report_layout_standard{
-    font-family: 'RobotoMono-Bold', monospace;
-    color: black;
+.o_report_layout_standard[data-oe-model="account.move"][data-oe-id] {
+    font-family: 'RobotoMono-Bold', monospace !important;
 }
+
+.o_report_layout_boxed[data-oe-model="account.move"][data-oe-id] {
+    font-family: 'RobotoMono-Bold', monospace !important;
+}
+.o_report_layout_striped[data-oe-model="account.move"][data-oe-id] {
+    font-family: 'RobotoMono-Bold', monospace !important;
+}
+
+.o_report_layout_bold[data-oe-model="account.move"][data-oe-id] {
+    font-family: 'RobotoMono-Bold', monospace !important;
+}
+
+.o_report_layout_bubble[data-oe-model="account.move"][data-oe-id] {
+    font-family: 'RobotoMono-Bold', monospace !important;
+}
+
+.o_report_layout_wave[data-oe-model="account.move"][data-oe-id] {
+    font-family: 'RobotoMono-Bold', monospace !important;
+}
+
+.o_report_layout_folder[data-oe-model="account.move"][data-oe-id] {
+    font-family: 'RobotoMono-Bold', monospace !important;
+}
+
+
+
+
+
+

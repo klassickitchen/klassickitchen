@@ -1,6 +1,6 @@
 {
     'name': 'Kitchen Kraft Report Custom Font',
-    'version': '1.2',
+    'version': '1.3',
     'summary': 'Applies a custom font to all PDF reports',
     'description': """
         This module applies a custom dot matrix-style font globally across
@@ -8,7 +8,7 @@
     """,
     'author': 'AGM Global Services',
     'category': 'Tools',
-    'depends': ['web', 'base'],
+    'depends': ['web', 'base','account'],
     # 'data': [
     #     'views/report_templates.xml',
     # ],
