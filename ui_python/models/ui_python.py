@@ -11,6 +11,9 @@ import xlrd
 from odoo.tools import config
 import tempfile
 import zipfile
+import openpyxl
+from io import BytesIO
+import xlsxwriter
 
 
 # _logger = logging.getLogger(__name__)
@@ -714,3 +717,533 @@ class UiPython(models.Model):
                 raise UserError(f"Image not found for Item Code: {item_code}")
 
         print("-------add product images Ended-------")
+
+
+    # duplicate checking
+
+    filename = fields.Char(string='Uploaded Filename')
+
+
+    duplicate_file = fields.Binary(string='Duplicate Result File',
+                                   readonly=True)
+    duplicate_filename = fields.Char(string='Duplicate Filename',
+                                     readonly=True)
+
+    def check_duplicate_products(self):
+
+        if not self.worksheet:
+            raise UserError("Please upload an Excel file first.")
+
+        try:
+
+            excel_data = base64.b64decode(self.worksheet)
+            wb = openpyxl.load_workbook(BytesIO(excel_data))
+            sheet = wb.active
+
+            ITEM_CODE_COL = 1
+            BARCODE_COL = 14
+
+            duplicate_products = []
+
+            for row_idx in range(2, sheet.max_row + 1):
+                item_code = str(sheet.cell(row=row_idx,
+                                           column=ITEM_CODE_COL + 1).value or '').strip()
+                print("item",item_code)
+                barcode = str(sheet.cell(row=row_idx,
+                                         column=BARCODE_COL + 1).value or '').strip()
+                print("barcode",barcode)
+
+                if not item_code or not barcode:
+                    continue  # Skip empty rows
+
+
+                existing_product = self.env['product.product'].search([
+                    '|',
+                    ('default_code', '=', item_code),
+                    ('barcode', '=', barcode)
+                ], limit=1)
+
+                if existing_product:
+                    print(f"duplicate: {existing_product.name} | Item Code: {existing_product.default_code} | Barcode: {existing_product.barcode}")
+                    duplicate_products.append({
+                        'Product Name': existing_product.name,
+                        'Item Code': existing_product.default_code,
+                        'Barcode': existing_product.barcode,
+                    })
+
+
+
+            if not duplicate_products:
+                raise UserError(
+                    "No duplicate products found based on 'ITEM CODE' and 'BARCODE 1'.")
+
+            #Create output workbook in memory
+            output = BytesIO()
+            wb_result = openpyxl.Workbook()
+            ws = wb_result.active
+            ws.title = "Duplicates Found"
+            ws.append(['Product Name', 'Item Code', 'Barcode'])
+
+            for p in duplicate_products:
+                ws.append([p['Product Name'], p['Item Code'], p['Barcode']])
+
+            wb_result.save(output)
+            output.seek(0)
+
+            # save to new binary field
+            file_data = base64.b64encode(output.read())
+            self.write({
+                'duplicate_file': file_data,
+                'duplicate_filename': 'duplicate_products.xlsx'
+            })
+
+            # download action
+            return {
+                'type': 'ir.actions.act_url',
+                'url': '/web/content/?model=ui.python&id=%s&field=duplicate_file&filename_field=duplicate_filename&download=true' % self.id,
+                'target': 'new',
+            }
+
+        except Exception as e:
+            raise UserError(f"Error reading Excel file: {e}")
+
+
+
+    # def add_non_duplicate_product(self):
+    #     print("add_non_duplicate_product started")
+    #     self.ensure_one()
+    #
+    #     if not self.worksheet:
+    #         raise UserError(_('Please upload an Excel file'))
+    #
+    #
+    #     excel_data = base64.b64decode(self.worksheet)
+    #     try:
+    #         wb = openpyxl.load_workbook(BytesIO(excel_data))
+    #         sheet = wb.active
+    #     except Exception as e:
+    #         raise UserError(f"Error opening Excel file: {e}")
+    #
+    #
+    #     ITEM_CODE_COL = 1
+    #     PRODUCT_NAME_COL = 2
+    #     DESCRIPTION_COL = 3
+    #     ARABIC_NAME_COL = 4
+    #     SUB_CATEGORY_COL = 6
+    #     BRAND_COL = 7
+    #     ORIGIN_COL = 8
+    #     UOM_COL = 10
+    #     COST_COL = 12
+    #     SALE_PRICE_COL = 13
+    #     BARCODE_COL = 14
+    #
+    #     created_count = 0
+    #     updated_count = 0
+    #     skipped_count = 0
+    #
+    #     for row in range(4, sheet.max_row + 1):  # skip header
+    #         item_code = str(sheet.cell(row=row,
+    #                                    column=ITEM_CODE_COL + 1).value or '').strip()
+    #         product_name = str(sheet.cell(row=row,
+    #                                       column=PRODUCT_NAME_COL + 1).value or '').strip()
+    #         description = str(sheet.cell(row=row,
+    #                                      column=DESCRIPTION_COL + 1).value or '').strip()
+    #         arabic_name = str(sheet.cell(row=row,
+    #                                      column=ARABIC_NAME_COL + 1).value or '').strip()
+    #         sub_category = str(sheet.cell(row=row,
+    #                                       column=SUB_CATEGORY_COL + 1).value or '').strip()
+    #         brand = str(
+    #             sheet.cell(row=row, column=BRAND_COL + 1).value or '').strip()
+    #         origin = str(
+    #             sheet.cell(row=row, column=ORIGIN_COL + 1).value or '').strip()
+    #         uom_name = str(
+    #             sheet.cell(row=row, column=UOM_COL + 1).value or '').strip()
+    #         cost = sheet.cell(row=row, column=COST_COL + 1).value or 0.0
+    #         sale_price = sheet.cell(row=row,
+    #                                 column=SALE_PRICE_COL + 1).value or 0.0
+    #         barcode = str(sheet.cell(row=row,
+    #                                  column=BARCODE_COL + 1).value or '').strip()
+    #
+    #         print(
+    #             f"Row {row}: "
+    #             f"item_code={item_code}, "
+    #             f"product_name={product_name}, "
+    #             f"description={description}, "
+    #             f"arabic_name={arabic_name}, "
+    #             f"sub_category={sub_category}, "
+    #             f"brand={brand}, "
+    #             f"origin={origin}, "
+    #             f"uom_name={uom_name}, "
+    #             f"cost={cost}, "
+    #             f"sale_price={sale_price}, "
+    #             f"barcode={barcode}"
+    #         )
+    #
+    #
+    #
+    #         if not item_code and not barcode and not product_name:
+    #             skipped_count += 1
+    #             continue
+    #
+    #         try:
+    #             cost = float(cost) if cost not in (None, '') else 0.0
+    #             sale_price = float(sale_price) if sale_price not in (None,
+    #                                                                  '') else 0.0
+    #         except:
+    #             cost = sale_price = 0.0
+    #
+    #         #Search item_code or barcode
+    #         existing = self.env['product.product'].search([
+    #             '|',
+    #             ('default_code', '=', item_code),
+    #             ('barcode', '=', barcode)
+    #         ], limit=1)
+    #
+    #         if existing:
+    #             tmpl = existing.product_tmpl_id
+    #             if sale_price and tmpl.list_price != sale_price:
+    #                 tmpl.list_price = sale_price
+    #             updated_count += 1
+    #         else:
+    #             #subcategory if exists
+    #             category_id = False
+    #             if sub_category:
+    #                 category = self.env['product.category'].search(
+    #                     [('name', '=', sub_category)], limit=1)
+    #                 print("category\n\n\n\n",category)
+    #                 if category:
+    #                     category_id=category.id
+    #
+    #             #UoM if exists
+    #             uom_id = False
+    #             if uom_name:
+    #                 uom = self.env['uom.uom'].search([('name', '=', uom_name)],
+    #                                                  limit=1)
+    #                 print("\n \n\n\nuom",uom)
+    #                 if uom:
+    #                     uom_id = uom.id
+    #
+    #             # origin_id = False
+    #             # if origin:
+    #             #     country = self.env['res.country'].search([
+    #             #         '|',
+    #             #         ('name', '=', origin),
+    #             #     ], limit=1)
+    #             #     print("\n\n\n country",country)
+    #             #     if country:
+    #             #         origin_id = country.id
+    #
+    #             #Create new template
+    #             tmpl_vals = {
+    #                 'name': product_name or 'Unnamed',
+    #                 'default_code': item_code or '',
+    #                 'list_price': sale_price,
+    #                 'standard_price': cost,
+    #                 'description': description or '',
+    #                 'arabic_name': arabic_name or '',
+    #                 'brand': brand or '',
+    #                 # 'country_of_origin': origin_id,
+    #                 # 'categ_id': category_id,
+    #                 'categ_id':447,
+    #                 # 'uom_id': uom_id,
+    #                 'uom_id': 28,
+    #                 # 'uom_po_id': uom_id,
+    #                 'uom_po_id': 28,
+    #             }
+    #
+    #             tmpl = self.env['product.template'].create(tmpl_vals)
+    #
+    #             #existing variant or create one
+    #             variant = tmpl.product_variant_id or self.env[
+    #                 'product.product'].create({
+    #                 'product_tmpl_id': tmpl.id
+    #             })
+    #
+    #             #Update codes/barcodes
+    #             if item_code:
+    #                 variant.default_code = item_code
+    #             if barcode:
+    #                 variant.barcode = barcode
+    #
+    #             created_count += 1
+    #
+    #     self.results = (
+    #         f"Import Complete \n"
+    #         f"Created: {created_count}\n"
+    #         f"Updated: {updated_count}\n"
+    #         f"Skipped Empty Rows: {skipped_count}"
+    #     )
+    #     print("Ended")
+    #     return True
+
+    def import_products_with_barcode_move(self):
+        if not self.worksheet:
+            raise UserError(_('Please upload an Excel file.'))
+
+        excel_data = base64.b64decode(self.worksheet)
+        try:
+            wb = openpyxl.load_workbook(BytesIO(excel_data))
+            sheet = wb.active
+        except Exception as e:
+            raise UserError(f"Error opening Excel file: {e}")
+
+        # Define column indices
+        ITEM_CODE_COL = 1
+        PRODUCT_NAME_COL = 2
+        DESCRIPTION_COL = 3
+        ARABIC_NAME_COL = 4
+        SUB_CATEGORY_COL = 6
+        BRAND_COL = 7
+        ORIGIN_COL = 8
+        UOM_COL = 10
+        COST_COL = 12
+        SALE_PRICE_COL = 13
+        BARCODE_COL = 14
+        COMPANY_COL = 15
+
+        created_count = 0
+        barcode_created_count = 0
+        skipped_count = 0
+
+        # Company fixed by code
+        kk_company = self.env['res.company'].sudo().search([('code', '=', 'KK')], limit=1)
+        if not kk_company:
+            raise UserError(_("Company with code 'KK' not found."))
+
+        for row in range(4, sheet.max_row + 1):
+            item_code = str(sheet.cell(row=row, column=ITEM_CODE_COL + 1).value or '').strip()
+            product_name = str(sheet.cell(row=row, column=PRODUCT_NAME_COL + 1).value or '').strip()
+            description = str(sheet.cell(row=row, column=DESCRIPTION_COL + 1).value or '').strip()
+            arabic_name = str(sheet.cell(row=row, column=ARABIC_NAME_COL + 1).value or '').strip()
+            sub_category = str(sheet.cell(row=row, column=SUB_CATEGORY_COL + 1).value or '').strip()
+            brand = str(sheet.cell(row=row, column=BRAND_COL + 1).value or '').strip()
+            origin = str(sheet.cell(row=row, column=ORIGIN_COL + 1).value or '').strip()
+            uom_name = str(sheet.cell(row=row, column=UOM_COL + 1).value or '').strip()
+            cost = float(sheet.cell(row=row, column=COST_COL + 1).value or 0.0)
+            sale_price = float(sheet.cell(row=row, column=SALE_PRICE_COL + 1).value or 0.0)
+            barcode = str(sheet.cell(row=row, column=BARCODE_COL + 1).value or '').strip()
+            print(product_name)
+
+            if not barcode and not item_code and not product_name:
+                skipped_count += 1
+                continue
+
+            # Category
+            category = self.env['product.category'].sudo().search([('name', '=', sub_category)], limit=1)
+            category_id = category.id if category else 447
+
+            # UoM
+            uom = self.env['uom.uom'].sudo().search([('name', '=', uom_name)], limit=1)
+            uom_id = uom.id if uom else 28  # fallback UoM
+
+            # Search for existing product
+            existing_product = self.env['product.product'].sudo().search([
+                '|', ('default_code', '=', item_code),
+                ('barcode', '=', barcode)
+            ], limit=1)
+
+            # ---------------------
+            # CASE 1: Product exists
+            # ---------------------
+            if existing_product:
+                existing_barcode = self.env['product.barcode'].sudo().search([
+                    ('barcode', '=', barcode),
+                    ('product_id', '=', existing_product.id),
+                    ('company_id', '=', kk_company.id)
+                ], limit=1)
+                if not existing_barcode:
+                    self.env['product.barcode'].sudo().create({
+                        'product_id': existing_product.id,
+                        'barcode': barcode,
+                        'uom_id': uom_id,
+                        'price': sale_price,
+                        'company_id': kk_company.id,
+                        'arabic_price_alt': getattr(existing_product, 'arabic_price_alt', '') or '',
+                    })
+                    barcode_created_count += 1
+                else:
+                    skipped_count += 1
+                continue
+
+            # ---------------------
+            # CASE 2: Product does not exist → Create new
+            # ---------------------
+            tmpl_vals = {
+                'name': product_name or 'Unnamed',
+                'default_code': item_code or '',
+                'list_price': sale_price,
+                'standard_price': cost,
+                'description': description or '',
+                'arabic_name': arabic_name or '',
+                'brand': brand or '',
+                'categ_id': category_id,
+                'uom_id': uom_id,
+                'uom_po_id': uom_id,
+                'company_id': kk_company.id,
+            }
+
+            tmpl = self.env['product.template'].sudo().create(tmpl_vals)
+            product_variant = tmpl.product_variant_id
+
+            # Create product.barcode entry
+            if barcode:
+                self.env['product.barcode'].sudo().create({
+                    'product_id': product_variant.id,
+                    'barcode': barcode,
+                    'uom_id': uom_id,
+                    'price': sale_price,
+                    'company_id': kk_company.id,
+                    'arabic_price_alt': getattr(product_variant, 'arabic_price_alt', '') or '',
+                })
+
+            created_count += 1
+
+        # Save result summary
+        self.results = (
+            f"New Products Created: {created_count}\n"
+            f"New Barcode Records: {barcode_created_count}\n"
+            f"Skipped (duplicates/missing): {skipped_count}"
+        )
+
+        print(self.results)
+        return True
+
+    def assign_pos_category_by_company(self):
+
+        Product = self.env['product.product']
+        POSCategory = self.env['pos.category']
+
+        created_cat = 0
+        updated_prod = 0
+        skipped = 0
+
+        all_products = Product.search([])
+
+        for product in all_products:
+            #all barcodes related to product
+            barcode_recs = self.env['product.barcode'].search([
+                ('product_id', '=', product.id)
+            ])
+            print("Processing Product:", product.name, "(ID:", product.id, ")")
+
+            if barcode_recs:
+                print("  Found", len(barcode_recs), "barcode(s):")
+                for b in barcode_recs:
+                    print("   Barcode:", b.barcode or "N/A",
+                          "| Company:", b.company_id.name or "No Company",
+                          "| Barcode ID:", b.id)
+            else:
+                print("  No barcode records found. Skipped.")
+                skipped += 1
+                continue
+
+
+            company_ids = barcode_recs.mapped('company_id')
+
+            #Remove empty companies
+            company_ids = company_ids.filtered(lambda c: c)
+
+            if not company_ids:
+                skipped += 1
+                continue
+
+            if len(company_ids) == 1:
+                pos_category_name = company_ids.name
+            else:
+                pos_category_name = 'Common'
+
+            pos_category = POSCategory.search(
+                [('name', '=', pos_category_name)],
+                limit=1
+            )
+            if not pos_category:
+                pos_category = POSCategory.create({'name': pos_category_name})
+                created_cat += 1
+
+            #Assign POS category to product template
+            template = product.product_tmpl_id
+            if pos_category not in template.pos_categ_ids:
+                template.pos_categ_ids = [(4, pos_category.id)]
+                updated_prod += 1
+            else:
+                skipped += 1
+
+        result_msg = (
+            f"Created Categories: {created_cat}\n"
+            f"Updated Products: {updated_prod}\n"
+            f"Skipped (No barcode or company): {skipped}"
+        )
+
+        self.results = result_msg
+        print(result_msg)
+        return True
+
+
+    def action_move_to_barcode(self):
+        skipped_products = []
+        created_products = []
+
+        all_products = self.env['product.product'].search([])
+
+        for product in all_products:
+            if not product.barcode or not product.uom_id:
+                skipped_products.append(f"{product.display_name} (No Barcode or UoM)")
+                continue
+
+            current_company = self.env.company
+            print("Processing Product:", product.display_name)
+            print("Current Company:", current_company.name)
+
+            existing = self.env['product.barcode'].search([
+                ('barcode', '=', product.barcode),
+                ('product_id', '=', product.id),
+                ('company_id', '=', current_company.id)
+            ], limit=1)
+
+            if existing:
+                print("Skipped (Already Exists):", product.display_name)
+                skipped_products.append(f"{product.display_name} (Already Exists)")
+                continue
+
+            # Create barcode
+            self.env['product.barcode'].create({
+                'product_id': product.id,
+                'barcode': product.barcode,
+                'uom_id': product.uom_id.id,
+                'price': product.lst_price or 0.0,
+                'company_id': current_company.id,
+                'arabic_price_alt': product.arabic_price_alt or '',
+            })
+            print("Created new barcode for:", product.display_name)
+            created_products.append(product.display_name)
+
+
+            product.write({
+                'barcode': False,
+                'lst_price': 0.0,
+            })
+
+        print("\nBarcode Move Completed Successfully.")
+        print("Created Barcodes for:", created_products)
+        print("Skipped Products:", skipped_products)
+
+
+        summary = (
+            f"Created: {len(created_products)} product(s)\n"
+            f"Skipped: {len(skipped_products)} product(s)\n\n"
+            f"Skipped Products:\n" + "\n".join(skipped_products)
+        )
+
+        self.results = summary
+        return True
+
+
+
+
+
+
+
+
+
+
+

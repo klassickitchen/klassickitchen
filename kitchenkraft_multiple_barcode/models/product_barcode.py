@@ -62,30 +62,22 @@ class ProductBarcode(models.Model):
             if record.price < 0:
                 raise ValidationError(_("Price cannot be negative."))
 
-    @api.constrains("barcode")
-    def _check_barcode_is_unique(self):
-        # Consider renaming this to _check_barcode_is_globally_unique for clarity
-        # if the intent is to check against *all* other products.
+    @api.constrains("barcode", "company_id")
+    def _check_barcode_is_unique_per_company(self):
         for record in self:
-            # Use exists() for robustness
-            if (
-                record.product_id.exists()
-                and self.search_count(
-                    [
-                        ("barcode", "=", record.barcode),
-                        (
-                            "product_id",
-                            "!=",
-                            record.product_id.id,
-                        ),  # Check against other products
-                        # ('id', '!=', record.id) # Alternative: check against other records
-                    ]
+            if not record.barcode or not record.company_id:
+                continue
+
+            duplicate_count = self.sudo().search_count([
+                ("barcode", "=", record.barcode),
+                ("company_id", "=", record.company_id.id),
+                ("id", "!=", record.id),
+            ])
+            if duplicate_count > 0:
+                raise ValidationError(
+                    _("Barcode '%s' already exists for another product in company '%s'.")
+                    % (record.barcode, record.company_id.display_name)
                 )
-                > 0
-            ):
-                # Consider a more general error message if enforcing global uniqueness:
-                # raise ValidationError(_("Barcode '%s' already exists!", record.barcode))
-                raise ValidationError(_("Barcode already exists for another product!"))
 
     @api.constrains("product_id", "uom_id")
     def _check_uom_category(self):
