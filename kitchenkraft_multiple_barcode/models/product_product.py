@@ -20,6 +20,39 @@ class ProductProduct(models.Model):
         compute='_compute_arabic_price_alt',
         store=True
     )
+    product_price = fields.Float(
+        string='Computed Price',
+        compute='_compute_price_for_company',
+        store=True
+    )
+
+    def _load_pos_data_fields(self, config_id):
+        """Extend to include qty_available and virtual_available in POS data fields."""
+        fields = super(ProductProduct, self)._load_pos_data_fields(config_id)
+        if 'product_price' not in fields:
+            fields.append('product_price')
+
+        return fields
+
+    @api.depends('alternative_barcode_ids.uom_id', 'alternative_barcode_ids.price')
+    def _compute_price_for_company(self):
+        for rec in self:
+            product_barcodes = rec.alternative_barcode_ids
+
+            # Try to find barcode matching product's own UoM
+            barcode_record = product_barcodes.filtered(lambda b: b.uom_id == rec.uom_id)[:1]
+
+            # If not found, fallback to single barcode if only one exists
+            if not barcode_record and len(product_barcodes) == 1:
+                barcode_record = product_barcodes[0]
+
+            # Assign the computed price
+            if barcode_record:
+                rec.product_price = barcode_record.price
+            else:
+                rec.product_price = rec.lst_price
+
+
 
     @api.depends('alternative_barcode_ids.arabic_price_alt')
     def _compute_arabic_price_alt(self):

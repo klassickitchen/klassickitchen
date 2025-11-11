@@ -21,6 +21,7 @@
         "point_of_sale._assets_pos": [
             "kitchenkraft_multiple_barcode/static/src/js/pos_order_line_patch.js",
             "kitchenkraft_multiple_barcode/static/src/js/product_screen.js",
+            "kitchenkraft_multiple_barcode/static/src/js/product_screen_extension.js"
         ],
     },
     "installable": True,
