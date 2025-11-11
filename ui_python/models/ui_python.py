@@ -1108,6 +1108,62 @@ class UiPython(models.Model):
         print(self.results)
         return True
 
+    def update_existing_product_cost(self):
+        if not self.worksheet:
+            raise UserError(_('Please upload an Excel file.'))
+
+        excel_data = base64.b64decode(self.worksheet)
+        try:
+            wb = openpyxl.load_workbook(BytesIO(excel_data))
+            sheet = wb.active
+        except Exception as e:
+            raise UserError(f"Error opening Excel file: {e}")
+
+        # Define column indices (same as before)
+        ITEM_CODE_COL = 1
+        BARCODE_COL = 14
+        COST_COL = 12
+
+        updated_count = 0
+        skipped_count = 0
+
+        for row in range(4, sheet.max_row + 1):
+            item_code = str(sheet.cell(row=row, column=ITEM_CODE_COL + 1).value or '').strip()
+            barcode = str(sheet.cell(row=row, column=BARCODE_COL + 1).value or '').strip()
+            cost = sheet.cell(row=row, column=COST_COL + 1).value
+
+            if not (item_code or barcode):
+                skipped_count += 1
+                continue
+
+            # Convert cost safely to float
+            try:
+                cost_value = float(cost or 0.0)
+            except Exception:
+                skipped_count += 1
+                continue
+
+            # Search for existing product (product.product)
+            product = self.env['product.product'].sudo().search([
+                '|', ('default_code', '=', item_code),
+                ('barcode', '=', barcode)
+            ], limit=1)
+
+            if product:
+                # Update cost in template level (shared across variants)
+                if product.product_tmpl_id.standard_price != cost_value:
+                    product.product_tmpl_id.sudo().write({'standard_price': cost_value})
+                    updated_count += 1
+            else:
+                skipped_count += 1
+
+        self.results = (
+            f"Updated Product Costs: {updated_count}\n"
+            f"Skipped (not found or invalid): {skipped_count}"
+        )
+        print(self.results)
+        return True
+
     def assign_pos_category_by_company(self):
 
         Product = self.env['product.product']
