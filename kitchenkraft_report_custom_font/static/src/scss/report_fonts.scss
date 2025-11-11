@@ -1,0 +1,39 @@
+@font-face {
+    font-family: 'RobotoMono-Bold';
+    src: url('/kitchenkraft_report_custom_font/static/src/fonts/Roboto_Mono/RobotoMono-Bold.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+.o_report_layout_standard[data-oe-model="account.move"][data-oe-id] {
+    font-family: 'RobotoMono-Bold', monospace !important;
+}
+
+.o_report_layout_boxed[data-oe-model="account.move"][data-oe-id] {
+    font-family: 'RobotoMono-Bold', monospace !important;
+}
+.o_report_layout_striped[data-oe-model="account.move"][data-oe-id] {
+    font-family: 'RobotoMono-Bold', monospace !important;
+}
+
+.o_report_layout_bold[data-oe-model="account.move"][data-oe-id] {
+    font-family: 'RobotoMono-Bold', monospace !important;
+}
+
+.o_report_layout_bubble[data-oe-model="account.move"][data-oe-id] {
+    font-family: 'RobotoMono-Bold', monospace !important;
+}
+
+.o_report_layout_wave[data-oe-model="account.move"][data-oe-id] {
+    font-family: 'RobotoMono-Bold', monospace !important;
+}
+
+.o_report_layout_folder[data-oe-model="account.move"][data-oe-id] {
+    font-family: 'RobotoMono-Bold', monospace !important;
+}
+
+
+
+
+
+

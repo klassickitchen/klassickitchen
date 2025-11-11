@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="invoice_report" inherit_id="account.report_invoice_document">
+            <xpath expr="//tr/th[@name='th_description']" position="before">
+                    <th name="th_d" class="text-start">No.</th>
+            </xpath>
+            <xpath expr="//table[hasclass('o_main_table')]/tbody/t/tr/t/td[1]" position="before">
+                    <td>
+                        <span t-field="line.invoice_sequence_number" />
+                    </td>
+            </xpath>
+        </template>
+
+    </data>
+</odoo>
