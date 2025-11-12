@@ -9,6 +9,7 @@
         "point_of_sale",
         "stock",
         "web",
+        "product"
     ],
     "data": [
         "security/ir_rule.xml",
