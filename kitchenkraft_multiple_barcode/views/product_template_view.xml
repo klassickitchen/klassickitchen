@@ -18,7 +18,11 @@
         <field name="arch" type="xml">
             <xpath expr="//div[hasclass('oe_title')]" position="after">
                 <field name="arabic_name"/>
-            <field name="arabic_price" invisible="1"/>
+                <field name="arabic_price" invisible="1"/>
+
+            </xpath>
+            <xpath expr="//field[@name='lst_price']" position="after">
+                <field name="product_price"/>
 
             </xpath>
         </field>

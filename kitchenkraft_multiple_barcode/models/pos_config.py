@@ -7,7 +7,7 @@ class PosConfig(models.Model):
 
     def _get_pos_ui_product_product_fields(self):
         res = super()._get_pos_ui_product_product_fields()
-        res += ["alternative_barcode_ids"]
+        res += ["alternative_barcode_ids", "product_price"]
         return res
 
     def _get_pos_ui_uom_fields(self):
