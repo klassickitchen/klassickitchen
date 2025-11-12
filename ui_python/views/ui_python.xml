@@ -38,7 +38,7 @@
                 <!--                                    <button name="set_stock_arora" string="set stock arora" type="object"/>-->
 
                 <!--                <field name="results" readonly="1" colspan="4" style="height:150px;"/>                 -->
-                <button name="update_existing_product_price" string="update_existing_product_price" type="object"
+                <button name="assign_pos_categories_based_on_company" string="assign_pos_categories_based_on_company" type="object"
                         class="btn btn-primary ms-2"/>
 
 

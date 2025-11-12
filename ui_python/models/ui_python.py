@@ -1177,6 +1177,70 @@ class UiPython(models.Model):
         print(self.results)
         return True
 
+    def assign_pos_categories_based_on_company(self):
+        PosCategory = self.env['pos.category'].sudo()
+        ProductTmpl = self.env['product.template'].sudo()
+        Barcode = self.env['product.barcode'].sudo()
+        Company = self.env['res.company'].sudo()
+
+        # Ensure the three POS categories exist (create if missing)
+        kitchenkraft_categ = PosCategory.search([('name', '=', 'Kitchenkraft')], limit=1)
+        if not kitchenkraft_categ:
+            kitchenkraft_categ = PosCategory.create({'name': 'Kitchenkraft'})
+
+        klassic_categ = PosCategory.search([('name', '=', 'Klassic Kitchen')], limit=1)
+        if not klassic_categ:
+            klassic_categ = PosCategory.create({'name': 'Klassic Kitchen'})
+
+        common_categ = PosCategory.search([('name', '=', 'Common')], limit=1)
+        if not common_categ:
+            common_categ = PosCategory.create({'name': 'Common'})
+
+        # Get company records
+        kk_company = Company.search([('code', '=', 'KK')], limit=1)
+        kl_company = Company.search([('code', '=', 'KL')], limit=1)
+
+        if not kk_company or not kl_company:
+            raise UserError(_("Both companies with code 'KK' and 'KL' must exist."))
+
+        updated_count = 0
+        no_barcode_count = 0
+
+        # Loop through all products
+        all_products = ProductTmpl.search([])
+
+        for tmpl in all_products:
+            # Find all barcodes for this product template
+            barcodes = Barcode.search([('product_id.product_tmpl_id', '=', tmpl.id)])
+            if not barcodes:
+                no_barcode_count += 1
+                continue
+
+            # Extract company codes from linked barcodes
+            company_codes = set(barcodes.mapped('company_id.code'))
+
+            if {'KK', 'KL'}.issubset(company_codes):
+                # Has both KK & KL → Common
+                tmpl.pos_categ_ids = [(6, 0, [common_categ.id])]
+            elif 'KK' in company_codes:
+                # Only KK
+                tmpl.pos_categ_ids = [(6, 0, [kitchenkraft_categ.id])]
+            elif 'KL' in company_codes:
+                # Only KL
+                tmpl.pos_categ_ids = [(6, 0, [klassic_categ.id])]
+            else:
+                continue
+
+            updated_count += 1
+
+        self.results = (
+            f"POS Category Assignment Completed\n"
+            f"Products Updated: {updated_count}\n"
+            f"Products Without Barcodes: {no_barcode_count}"
+        )
+        print(self.results)
+        return True
+
     def update_existing_product_price(self):
         # Open Odoo shell
         products = self.env['product.product'].search([])
