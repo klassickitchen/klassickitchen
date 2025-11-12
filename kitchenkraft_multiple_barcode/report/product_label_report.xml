@@ -7,7 +7,7 @@
                 <t t-if="barcode or alternative_barcode_ids">
                     <div class="o_label_sheet o_label_dymo" t-att-style="padding_page">
                         <!-- Entire label content here -->
-                        <div style="width:100%; font-family: 'Roboto-Bold' !important; text-align:center; font-size:6px; font-weight:bold; position: relative; bottom:12px; right:2px;">
+                        <div style="width:100%; font-family: 'Roboto', sans-serif !important; text-align:center; font-size:6px; font-weight:bold; position: relative; bottom:12px; right:2px;">
 
                             <div style="display:inline-block; width:55%; margin-bottom:10px; white-space:nowrap; line-height:1.2;">
 
@@ -27,7 +27,7 @@
 
                         </div>
 
-                        <div style="padding:0; font-family: 'Roboto-Bold' !important; margin:auto; position: relative; bottom:28px; right:5px;">
+                        <div style="padding:0; font-family: 'Roboto', sans-serif !important; margin:auto; position: relative; bottom:28px; right:5px;">
 
 
                             <t t-if="barcode">
