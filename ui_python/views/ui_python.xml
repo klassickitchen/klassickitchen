@@ -17,27 +17,29 @@
                         <field name="results" readonly="1"/>
                     </group>
                 </group>
-<!--                <button name="execute_method" string="Execute Code" type="object"-->
-<!--                        class="fa fa-check oe_highlight" data-hotkey="q"/>-->
+                <!--                <button name="execute_method" string="Execute Code" type="object"-->
+                <!--                        class="fa fa-check oe_highlight" data-hotkey="q"/>-->
                 <button name="clear_method" string="Clean" type="object"
                         class="fa fa-refresh" data-hotkey="c"/>
-<!--                <button name="execute_my_script" string="Execute Excel" type="object"/>-->
-<!--                <button name="add_delivery_boys_to_zone" string="Add delivery boys to zone" type="object"/>-->
-<!--                <button name="create_compo_products" string="create_compo_products" type="object"/>-->
-<!--                <button name="add_products" string="Add feqa products" type="object"/>-->
-<!--                <button name="add_product_images" string="Add Product with Images" type="object" class="btn btn-primary ms-2"/>-->
-<!--                 <button name="get_product_with_no_image" string="Products With No Images" type="object" class="btn btn-primary ms-2"/>-->
-<!--                <button name="check_duplicate_products" string="Check Duplicates" type="object" class="btn btn-primary ms-2"/>-->
-<!--&lt;!&ndash;                <button name="add_non_duplicate_product" string="Add Non Duplicate" type="object" class="btn btn-primary ms-2"/>&ndash;&gt;-->
-<!--                <button name="import_products_with_barcode_move" string="Product_with_barcode_move" type="object" class="btn btn-primary ms-2"/>-->
-                <button name="update_existing_product_cost_and_price" string="update_existing_product_cost" type="object" class="btn btn-primary ms-2"/>
-<!--                <button name="assign_pos_category_by_company" string="Assign POS Categories" type="object" class="btn-primary ms-2"/>-->
-<!--                <button name="action_move_to_barcode" string="Move to Barcode" type="object"/>-->
-<!--                <button name="set_categories" string="set categoreies" type="object"/>-->
-<!--                                    <button name="set_cost" string="set cost" type="object"/>-->
-<!--                                    <button name="set_stock_arora" string="set stock arora" type="object"/>-->
+                <!--                <button name="execute_my_script" string="Execute Excel" type="object"/>-->
+                <!--                <button name="add_delivery_boys_to_zone" string="Add delivery boys to zone" type="object"/>-->
+                <!--                <button name="create_compo_products" string="create_compo_products" type="object"/>-->
+                <!--                <button name="add_products" string="Add feqa products" type="object"/>-->
+                <!--                <button name="add_product_images" string="Add Product with Images" type="object" class="btn btn-primary ms-2"/>-->
+                <!--                 <button name="get_product_with_no_image" string="Products With No Images" type="object" class="btn btn-primary ms-2"/>-->
+                <!--                <button name="check_duplicate_products" string="Check Duplicates" type="object" class="btn btn-primary ms-2"/>-->
+                <!--&lt;!&ndash;                <button name="add_non_duplicate_product" string="Add Non Duplicate" type="object" class="btn btn-primary ms-2"/>&ndash;&gt;-->
+                <!--                <button name="import_products_with_barcode_move" string="Product_with_barcode_move" type="object" class="btn btn-primary ms-2"/>-->
+                <!--                <button name="update_existing_product_cost_and_price" string="update_existing_product_cost" type="object" class="btn btn-primary ms-2"/>-->
+                <!--                <button name="assign_pos_category_by_company" string="Assign POS Categories" type="object" class="btn-primary ms-2"/>-->
+                <!--                <button name="action_move_to_barcode" string="Move to Barcode" type="object"/>-->
+                <!--                <button name="set_categories" string="set categoreies" type="object"/>-->
+                <!--                                    <button name="set_cost" string="set cost" type="object"/>-->
+                <!--                                    <button name="set_stock_arora" string="set stock arora" type="object"/>-->
 
-<!--                <field name="results" readonly="1" colspan="4" style="height:150px;"/>                 -->
+                <!--                <field name="results" readonly="1" colspan="4" style="height:150px;"/>                 -->
+                <button name="update_existing_product_price" string="update_existing_product_price" type="object"
+                        class="btn btn-primary ms-2"/>
 
 
                 <br></br>

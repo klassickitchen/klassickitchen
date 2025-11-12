@@ -1177,6 +1177,11 @@ class UiPython(models.Model):
         print(self.results)
         return True
 
+    def update_existing_product_price(self):
+        # Open Odoo shell
+        products = self.env['product.product'].search([])
+        products._compute_price_for_company()
+
     def assign_pos_category_by_company(self):
 
         Product = self.env['product.product']
