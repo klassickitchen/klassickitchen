@@ -23,7 +23,6 @@ class ProductProduct(models.Model):
     product_price = fields.Float(
         string='Computed Price',
         compute='_compute_price_for_company',
-        store=True
     )
 
     def _load_pos_data_fields(self, config_id):
@@ -34,24 +33,30 @@ class ProductProduct(models.Model):
 
         return fields
 
-    @api.depends('alternative_barcode_ids.uom_id', 'alternative_barcode_ids.price')
+    @api.depends('alternative_barcode_ids.uom_id', 'alternative_barcode_ids.price',
+                 'alternative_barcode_ids.company_id')
     def _compute_price_for_company(self):
+        current_company = self.env.company
         for rec in self:
-            product_barcodes = rec.alternative_barcode_ids
+            # Filter barcodes belonging to current company only
+            product_barcodes = rec.alternative_barcode_ids.filtered(
+                lambda b: b.company_id == current_company
+            )
 
             # Try to find barcode matching product's own UoM
             barcode_record = product_barcodes.filtered(lambda b: b.uom_id == rec.uom_id)[:1]
+            print(barcode_record,"lo0zzzz")
 
-            # If not found, fallback to single barcode if only one exists
+            # If not found, fallback to single barcode (if exactly one exists)
             if not barcode_record and len(product_barcodes) == 1:
+                print("ifffzzzzzz")
                 barcode_record = product_barcodes[0]
 
-            # Assign the computed price
+            # Assign computed price
             if barcode_record:
                 rec.product_price = barcode_record.price
             else:
                 rec.product_price = rec.lst_price
-
 
 
     @api.depends('alternative_barcode_ids.arabic_price_alt')
