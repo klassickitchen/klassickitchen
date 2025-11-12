@@ -8,6 +8,14 @@
             <xpath expr="//field[@name='journal_id']" position="after">
                 <field name="is_pos_invoice" invisible="1"/>
             </xpath>
+
+<!--            <xpath expr="//button[@name='action_print_pdf']" position="after">-->
+<!--                <button name="action_print_pdf_with_header_footer"-->
+<!--                        string="PDF with Header and Footer"-->
+<!--                        type="object"-->
+<!--                        class="oe_highlight"-->
+<!--                        invisible="state != 'posted'"/>-->
+<!--            </xpath>-->
         </field>
     </record>
 </odoo>

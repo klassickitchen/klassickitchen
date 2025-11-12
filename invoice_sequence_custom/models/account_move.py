@@ -33,8 +33,25 @@ class AccountMove(models.Model):
     def action_print_pdf(self):
         self.ensure_one()
         if self.is_pos_invoice:
+            print("yessssssssssss9999999999")
             invoice_template = self.env.ref('invoice_sequence_custom.account_invoices_a5')
         else:
+            print("elseeeeeee")
             invoice_template = self.env.ref('invoice_sequence_custom.account_invoices_a4')
         report_action = invoice_template.report_action(self.id, config=False)
         return self._get_action_with_base_document_layout_configurator(report_action)
+
+    # def action_print_pdf_with_header_footer(self):
+    #     self.ensure_one()
+    #     ctx = dict(self.env.context)
+    #     ctx['include_header_footer'] = True
+    #
+    #     if self.is_pos_invoice:
+    #         invoice_template = self.env.ref('invoice_sequence_custom.account_invoices_a5')
+    #     else:
+    #         invoice_template = self.env.ref('invoice_sequence_custom.account_invoices_a4')
+    #
+    #     report_action = invoice_template.report_action(self.id, config=False)
+    #     report_action['context'] = ctx
+    #     return self._get_action_with_base_document_layout_configurator(report_action)
+
