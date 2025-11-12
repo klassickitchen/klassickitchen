@@ -30,7 +30,7 @@
 <!--                <button name="check_duplicate_products" string="Check Duplicates" type="object" class="btn btn-primary ms-2"/>-->
 <!--&lt;!&ndash;                <button name="add_non_duplicate_product" string="Add Non Duplicate" type="object" class="btn btn-primary ms-2"/>&ndash;&gt;-->
 <!--                <button name="import_products_with_barcode_move" string="Product_with_barcode_move" type="object" class="btn btn-primary ms-2"/>-->
-                <button name="update_existing_product_cost" string="update_existing_product_cost" type="object" class="btn btn-primary ms-2"/>
+                <button name="update_existing_product_cost_and_price" string="update_existing_product_cost" type="object" class="btn btn-primary ms-2"/>
 <!--                <button name="assign_pos_category_by_company" string="Assign POS Categories" type="object" class="btn-primary ms-2"/>-->
 <!--                <button name="action_move_to_barcode" string="Move to Barcode" type="object"/>-->
 <!--                <button name="set_categories" string="set categoreies" type="object"/>-->

@@ -1108,7 +1108,7 @@ class UiPython(models.Model):
         print(self.results)
         return True
 
-    def update_existing_product_cost(self):
+    def update_existing_product_cost_and_price(self):
         if not self.worksheet:
             raise UserError(_('Please upload an Excel file.'))
 
@@ -1123,6 +1123,7 @@ class UiPython(models.Model):
         ITEM_CODE_COL = 1
         BARCODE_COL = 14
         COST_COL = 12
+        SALE_PRICE_COL = 13
 
         updated_count = 0
         skipped_count = 0
@@ -1131,34 +1132,46 @@ class UiPython(models.Model):
             item_code = str(sheet.cell(row=row, column=ITEM_CODE_COL + 1).value or '').strip()
             barcode = str(sheet.cell(row=row, column=BARCODE_COL + 1).value or '').strip()
             cost = sheet.cell(row=row, column=COST_COL + 1).value
+            sale_price = sheet.cell(row=row, column=SALE_PRICE_COL + 1).value
 
             if not (item_code or barcode):
                 skipped_count += 1
                 continue
 
-            # Convert cost safely to float
+            # Convert numeric fields safely
             try:
                 cost_value = float(cost or 0.0)
             except Exception:
-                skipped_count += 1
-                continue
+                cost_value = 0.0
 
-            # Search for existing product (product.product)
+            try:
+                sale_price_value = float(sale_price or 0.0)
+            except Exception:
+                sale_price_value = 0.0
+
+            # Find existing product
             product = self.env['product.product'].sudo().search([
                 '|', ('default_code', '=', item_code),
                 ('barcode', '=', barcode)
             ], limit=1)
 
             if product:
-                # Update cost in template level (shared across variants)
-                if product.product_tmpl_id.standard_price != cost_value:
-                    product.product_tmpl_id.sudo().write({'standard_price': cost_value})
+                tmpl = product.product_tmpl_id
+                # Update only if values are different
+                vals = {}
+                if tmpl.standard_price != cost_value:
+                    vals['standard_price'] = cost_value
+                if tmpl.list_price != sale_price_value:
+                    vals['list_price'] = sale_price_value
+
+                if vals:
+                    tmpl.sudo().write(vals)
                     updated_count += 1
             else:
                 skipped_count += 1
 
         self.results = (
-            f"Updated Product Costs: {updated_count}\n"
+            f"Updated Product Costs/Prices: {updated_count}\n"
             f"Skipped (not found or invalid): {skipped_count}"
         )
         print(self.results)
