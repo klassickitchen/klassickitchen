@@ -10,7 +10,7 @@
         <field name="margin_bottom">27</field>
         <field name="margin_left">5</field>
         <field name="margin_right">5</field>
-        <field name="header_spacing">55</field>
+        <field name="header_spacing">58</field>
     </record>
 
     <record id="account_invoices_a4" model="ir.actions.report">
