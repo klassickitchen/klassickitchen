@@ -11,59 +11,55 @@
                   inherit_id="account.report_invoice_document">
 
             <xpath expr="//t[@t-set='layout_document_title']" position="replace">
-                <div class="row mb-4">
-                    <t t-set="layout_document_title" style="margin-top: 50px;">
-                        <span t-if="not proforma"></span>
-                        <span t-else="">PROFORMA</span>
-                        <span t-if="o.move_type == 'out_invoice' and o.state == 'posted'"
-                              style="font-size:23px; color: black;">Invoice
-                        </span>
-                        <span t-elif="o.move_type == 'out_invoice' and o.state == 'draft'"
-                              style="font-size:23px; color: black;">Draft
-                            Invoice
-                        </span>
-                        <span t-elif="o.move_type == 'out_invoice' and o.state == 'cancel'"
-                              style="font-size:23px; color: black;">
-                            Cancelled Invoice
-                        </span>
-                        <span t-elif="o.move_type == 'out_refund' and o.state == 'posted'"
-                              style="font-size:23px; color: black;">Credit
-                            Note
-                        </span>
-                        <span t-elif="o.move_type == 'out_refund' and o.state == 'draft'"
-                              style="font-size:23px; color: black;">Draft
-                            Credit Note
-                        </span>
-                        <span t-elif="o.move_type == 'out_refund' and o.state == 'cancel'"
-                              style="font-size:23px; color: black;">Cancelled
-                            Credit Note
-                        </span>
-                        <span t-elif="o.move_type == 'in_refund'" style="font-size:23px; color: black;">Vendor Credit
-                            Note
-                        </span>
-                        <span t-elif="o.move_type == 'in_invoice'" style="font-size:23px; color: black;">Vendor Bill
-                        </span>
-                        <span t-if="o.name and o.name != '/'" t-field="o.name" style="font-size:23px; color: black;">
-                            INV/2023/0001
-                        </span>
-                        <span style="font-size: 20px; color: black; margin-left: 150px;">
-                            <strong>Invoice Date:</strong>
-                            <t t-esc="o.invoice_date"/>
-                        </span>
-                        <span style="font-size: 23px; color: black; margin-left: 150px;">
-                            <t t-esc="o.partner_id.name" style="text-align:right;"/>
-                        </span>
-                    </t>
+    <div class="row mb-4" style="margin-top: 50px;">
+        <t t-set="layout_document_title">
+
+            <!-- Optional: your existing conditional spans for proforma / draft / credit note -->
+            <span t-if="not proforma"></span>
+            <span t-else="">PROFORMA</span>
+            <span t-if="o.move_type == 'out_invoice' and o.state == 'posted'"></span>
+            <span t-elif="o.move_type == 'out_invoice' and o.state == 'draft'" style="font-size:23px; color:black;">Draft Invoice</span>
+            <span t-elif="o.move_type == 'out_invoice' and o.state == 'cancel'" style="font-size:23px; color:black;">Cancelled Invoice</span>
+            <span t-elif="o.move_type == 'out_refund' and o.state == 'posted'" style="font-size:23px; color:black;">Credit Note</span>
+            <span t-elif="o.move_type == 'out_refund' and o.state == 'draft'" style="font-size:23px; color:black;">Draft Credit Note</span>
+            <span t-elif="o.move_type == 'out_refund' and o.state == 'cancel'" style="font-size:23px; color:black;">Cancelled Credit Note</span>
+            <span t-elif="o.move_type == 'in_refund'" style="font-size:23px; color:black;">Vendor Credit Note</span>
+            <span t-elif="o.move_type == 'in_invoice'" style="font-size:23px; color:black;">Vendor Bill</span>
+
+            <!-- New layout row for invoice number, customer, and date -->
+            <div class="row" style="align-items: center;">
+                <!-- Left: Invoice Number -->
+                <div class="col-4 text-start">
+                    <span t-if="o.name and o.name != '/'" t-field="o.name" style="font-size:23px; color:black;"/>
                 </div>
 
-            </xpath>
+                <!-- Center: Customer Name -->
+                <div class="col-4 text-center">
+                    <span style="font-size:23px; color:black;">
+                        <t t-esc="o.partner_id.name"/>
+                    </span>
+                </div>
+
+                <!-- Right: Invoice Date -->
+                <div class="col-4 text-end">
+                    <span style="font-size:20px; color:black;">
+                        <t t-esc="o.invoice_date"/>
+                    </span>
+                </div>
+            </div>
+
+        </t>
+    </div>
+</xpath>
+
 
 
             <xpath expr="//div[@name='address_same_as_shipping']//address" position="replace"/>
             <xpath expr="//td[@name='account_invoice_line_name']" position="replace"/>
             <xpath expr="//td[@name='td_quantity']" position="before">
                 <td name="account_invoice_line_name">
-                    <span t-if="line.name" t-field="line.name" style="font-size: 19px;" t-options="{'widget': 'text'}"/> /
+                    <span t-if="line.name" t-field="line.name" style="font-size: 19px;" t-options="{'widget': 'text'}"/>
+                    /
                     <span t-if="line.product_id.arabic_name" style="font-size: 18px;"
                           t-esc="line.product_id.arabic_name"/>
                 </td>
@@ -71,15 +67,30 @@
 
             <xpath expr="//th[@name='th_taxes']" position="replace"></xpath>
             <xpath expr="//td[@name='td_taxes']" position="replace"></xpath>
+
+            <xpath expr="//th[@name='th_discount']" position="replace"></xpath>
+            <xpath expr="//td[@name='td_discount']" position="replace"></xpath>
+
+            <xpath expr="//th[@name='th_quantity']" position="replace">
+                <th name="th_quantity" class="text-end">
+                    <span>Qty</span>
+                </th>
+            </xpath>
+            <xpath expr="//td[@name='td_quantity']/span[@t-field='line.quantity']" position="replace">
+                <!-- Replace the original field to remove decimals -->
+                <span class="text-nowrap">
+                    <t t-esc="int(line.quantity) if float(line.quantity).is_integer() else ('%.0f' % line.quantity)"/>
+                </span>
+            </xpath>
             <!-- increase table width -->
             <xpath expr="//table[@name='invoice_line_table']" position="attributes">
-                <attribute name="style">width: 103%; position: relative; right: 1.5%; font-size: 19px;
+                <attribute name="style">width: 103%; position: relative; right: 1.5%; font-size: 19px; bottom: 35px;
                 </attribute>
             </xpath>
 
             <xpath expr="//table[@name='invoice_line_table']//td" position="attributes">
-    <attribute name="style">line-height: 1.1;</attribute>
-</xpath>
+                <attribute name="style">line-height: 1.1;</attribute>
+            </xpath>
 
             <!--reduce line spacing for Paid and Amount Due -->
             <xpath expr="//t[@t-if='print_with_payments']" position="replace">
@@ -89,17 +100,17 @@
 
             <!-- Add a small gap between invoice lines table and totals -->
             <xpath expr="//div[@class='overflow-hidden']" position="attributes">
-                <attribute name="style">margin-top: 9px !important; padding-top: 0 !important; font-size: 19px;
+                <attribute name="style">margin-top: 6px !important; padding-top: 0 !important; font-size: 19px;
                 </attribute>
             </xpath>
 
             <xpath expr="//div[@id='right-elements']" position="attributes">
-                <attribute name="style">margin-top: 5px !important; padding-top: 0 !important; font-size: 19px;
+                <attribute name="style">margin-top: 3px !important; padding-top: 0 !important; font-size: 19px;
                 </attribute>
             </xpath>
 
             <xpath expr="//div[@id='total']" position="attributes">
-                <attribute name="style">margin-top: 5px !important; padding-top: 0 !important; line-height: 1
+                <attribute name="style">margin-top: 3px !important; padding-top: 0 !important; line-height: 1
                     !important; font-size: 19px;
                 </attribute>
             </xpath>
@@ -124,24 +135,28 @@
                 <attribute name="style">line-height: 0.8; padding: 0; margin: 0;</attribute>
             </xpath>
 
-<!--            <xpath expr="//span[contains(text(), 'Untaxed Amount')]" position="replace">-->
-<!--                <span>Gross Total Amount</span>-->
-<!--            </xpath>-->
+            <xpath expr="//span[contains(text(), 'Untaxed Amount')]" position="replace">
+                <span>Gross Total Amount</span>
+            </xpath>
 
-<!--            <xpath expr="//tr[@class='o_subtotal']" position="after">-->
-<!--                <tr t-if="sum(line.price_subtotal for line in o.invoice_line_ids if 'disc' in (line.name or '').lower())"-->
-<!--                    style="line-height: 0.8;">-->
-<!--                    <td>-->
-<!--                        <strong>Discount Amount</strong>-->
-<!--                    </td>-->
-<!--                    <td class="text-end">-->
-<!--                        <strong>-->
-<!--                            <t t-esc="sum(-line.price_subtotal for line in o.invoice_line_ids if 'disc' in (line.name or '').lower())"/>-->
-<!--                            <t t-esc="o.currency_id.symbol"/>-->
-<!--                        </strong>-->
-<!--                    </td>-->
-<!--                </tr>-->
-<!--            </xpath>-->
+            <xpath expr="//tr[@class='o_total']/td[1]/strong" position="replace">
+                <strong>Net Total</strong>
+            </xpath>
+
+            <!--            <xpath expr="//tr[@class='o_subtotal']" position="after">-->
+            <!--                <tr t-if="sum(line.price_subtotal for line in o.invoice_line_ids if 'disc' in (line.name or '').lower())"-->
+            <!--                    style="line-height: 0.8;">-->
+            <!--                    <td>-->
+            <!--                        <strong>Discount Amount</strong>-->
+            <!--                    </td>-->
+            <!--                    <td class="text-end">-->
+            <!--                        <strong>-->
+            <!--                            <t t-esc="sum(-line.price_subtotal for line in o.invoice_line_ids if 'disc' in (line.name or '').lower())"/>-->
+            <!--                            <t t-esc="o.currency_id.symbol"/>-->
+            <!--                        </strong>-->
+            <!--                    </td>-->
+            <!--                </tr>-->
+            <!--            </xpath>-->
         </template>
 
     </data>
