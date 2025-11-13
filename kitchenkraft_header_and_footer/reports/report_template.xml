@@ -56,9 +56,10 @@
                     </div>
                 </t>
                 <!--  BODY -->
-                <div class="custom_invoice_report"
-                     style="font-family: 'Lato', 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+
                     <t t-call="web.external_layout">
+                        <div class="custom_invoice_report"
+                     style="font-family: 'Lato', 'Helvetica Neue', Helvetica, Arial, sans-serif; margin-top: 100px;">
                         <t t-set="o" t-value="o.with_context(lang=lang)"/>
                         <t t-set="forced_vat"
                            t-value="o.fiscal_position_id.foreign_vat"/> <!-- So that it appears in the footer of the report instead of the company VAT if it's set -->
@@ -81,7 +82,7 @@
                                      style="font-family: 'Lato', 'Helvetica Neue', Helvetica, Arial, sans-serif;">
                                     <t t-set="address"
                                        style="font-family: 'Lato', 'Helvetica Neue', Helvetica, Arial, sans-serif;">
-                                        <address class="mb-0" style="font-family: 'Lato', 'Helvetica Neue', Helvetica, Arial, sans-serif;" t-field="o.partner_id"
+                                        <address class="mb-0" style="font-family: 'Lato', 'Helvetica Neue', Helvetica, Arial, sans-serif; position: relative; top: 100px;" t-field="o.partner_id"
                                                  t-options='{"widget": "contact", "fields": ["address", "name"], "no_marker": True}' />
                                         <div t-if="o.partner_id.vat" id="partner_vat_address_not_same_as_shipping">
                                             <t t-if="o.company_id.account_fiscal_country_id.vat_label"
@@ -99,7 +100,7 @@
                                      name="address_same_as_shipping">
                                     <t t-set="address"
                                        style="font-family: 'Lato', 'Helvetica Neue', Helvetica, Arial, sans-serif;">
-                                        <address class="mb-0" t-field="o.partner_id" style="font-family: 'Lato', 'Helvetica Neue', Helvetica, Arial, sans-serif;"
+                                        <address class="mb-0" t-field="o.partner_id" style="font-family: 'Lato', 'Helvetica Neue', Helvetica, Arial, sans-serif; position: relative; top: 100px;"
                                                  t-options='{"widget": "contact", "fields": ["address", "name"], "no_marker": True}'/>
                                         <div t-if="o.partner_id.vat" id="partner_vat_address_same_as_shipping">
                                             <t t-if="o.company_id.account_fiscal_country_id.vat_label"
@@ -117,7 +118,7 @@
                                      name="no_shipping">
                                     <t t-set="address"
                                        style="font-family: 'Lato', 'Helvetica Neue', Helvetica, Arial, sans-serif;">
-                                        <address class="mb-0" t-field="o.partner_id" style="font-family: 'Lato', 'Helvetica Neue', Helvetica, Arial, sans-serif;"
+                                        <address class="mb-0" t-field="o.partner_id" style="font-family: 'Lato', 'Helvetica Neue', Helvetica, Arial, sans-serif; position: relative; top: 100px;"
                                                  t-options='{"widget": "contact", "fields": ["address", "name"], "no_marker": True}'/>
                                         <div t-if="o.partner_id.vat" id="partner_vat_no_shipping">
                                             <t t-if="o.company_id.account_fiscal_country_id.vat_label"
@@ -137,42 +138,42 @@
                                     <span t-if="not proforma"></span>
                                     <span t-else="">PROFORMA</span>
                                     <span t-if="o.move_type == 'out_invoice' and o.state == 'posted'"
-                                          style="font-family: 'Lato', 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+                                          style="font-family: 'Lato', 'Helvetica Neue', Helvetica, Arial, sans-serif; position: relative; top: 100px;">
                                         Invoice
                                     </span>
                                     <span t-elif="o.move_type == 'out_invoice' and o.state == 'draft'"
-                                          style="font-family: 'Lato', 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+                                          style="font-family: 'Lato', 'Helvetica Neue', Helvetica, Arial, sans-serif; position: relative; top: 100px;">
                                         Draft Invoice
                                     </span>
                                     <span t-elif="o.move_type == 'out_invoice' and o.state == 'cancel'"
-                                          style="font-family: 'Lato', 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+                                          style="font-family: 'Lato', 'Helvetica Neue', Helvetica, Arial, sans-serif; position: relative; top: 100px;">
                                         Cancelled
                                         Invoice
                                     </span>
                                     <span t-elif="o.move_type == 'out_refund' and o.state == 'posted'"
-                                          style="font-family: 'Lato', 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+                                          style="font-family: 'Lato', 'Helvetica Neue', Helvetica, Arial, sans-serif; position: relative; top: 100px;">
                                         Credit Note
                                     </span>
                                     <span t-elif="o.move_type == 'out_refund' and o.state == 'draft'"
-                                          style="font-family: 'Lato', 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+                                          style="font-family: 'Lato', 'Helvetica Neue', Helvetica, Arial, sans-serif; position: relative; top: 100px;">
                                         Draft Credit
                                         Note
                                     </span>
                                     <span t-elif="o.move_type == 'out_refund' and o.state == 'cancel'"
-                                          style="font-family: 'Lato', 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+                                          style="font-family: 'Lato', 'Helvetica Neue', Helvetica, Arial, sans-serif; position: relative; top: 100px;">
                                         Cancelled Credit
                                         Note
                                     </span>
                                     <span t-elif="o.move_type == 'in_refund'"
-                                          style="font-family: 'Lato', 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+                                          style="font-family: 'Lato', 'Helvetica Neue', Helvetica, Arial, sans-serif; position: relative; top: 100px;">
                                         Vendor Credit Note
                                     </span>
                                     <span t-elif="o.move_type == 'in_invoice'"
-                                          style="font-family: 'Lato', 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+                                          style="font-family: 'Lato', 'Helvetica Neue', Helvetica, Arial, sans-serif; position: relative; top: 100px;">
                                         Vendor Bill
                                     </span>
                                     <span t-if="o.name and o.name != '/'" t-field="o.name"
-                                          style="font-family: 'Lato', 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+                                          style="font-family: 'Lato', 'Helvetica Neue', Helvetica, Arial, sans-serif; position: relative; top: 100px;">
                                         INV/2023/0001
                                     </span>
                                 </t>
@@ -512,8 +513,9 @@
                                 </div>
                             </div>
                         </div>
+                        </div>
                     </t>
-                </div>
+
                 <!--  FOOTER  -->
                 <t t-if="company.report_footer_image">
                     <div class="footer" style="text-align: center; margin: 0; padding: 0;">
