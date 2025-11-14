@@ -11,7 +11,7 @@
         'report/report_pos_invoice.xml',
         # 'data/pos_invoice_sequence.xml',
 		'views/account_move_views.xml',
-		# 'views/sale_order_views.xml',
+		'views/sale_order_views.xml',
 	],
 	'assets': {
 				'point_of_sale._assets_pos': [
