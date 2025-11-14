@@ -57,6 +57,7 @@ class SaleOrder(models.Model):
         return action
 
     def action_confirm(self):
+        print('acfm')
         if self.env.context.get('skip_intercompany'):
             return super(SaleOrder, self).action_confirm()
         products_requiring_intercompany = []
@@ -67,6 +68,10 @@ class SaleOrder(models.Model):
 
             for line in order.order_line:
                 product = line.product_id
+
+                if not product.is_storable:
+                    print('222222')
+                    continue
 
                 product_in_context = product.with_context(warehouse=order.warehouse_id.id)
                 available_qty = product_in_context.qty_available

@@ -11,6 +11,7 @@
         'security/ir.model.access.csv',
         'views/sale_order_views.xml',
         'views/stock_details_wizard_views.xml',
+        'views/po_number.xml',
     ],
     'installable': True,
     'application': True,

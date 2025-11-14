@@ -158,6 +158,7 @@ class IntercompanyStockWizard(models.TransientModel):
         return {'type': 'ir.actions.act_window_close'}
 
     def action_confirm_without_po(self):
+        print('cheeeeee')
         """Confirm the Sale Order normally, bypass intercompany workflow, and generate deliveries."""
         sale_order = self.sale_order_id
 
