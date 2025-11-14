@@ -5,8 +5,11 @@ class SaleOrder(models.Model):
     _inherit = "sale.order"
 
     payment_type = fields.Selection(
-        [('cash', 'Cash'),
-         ('credit', 'Credit'),
-         ], string='Cash|Credit',
-        required=True
+        [
+            ('cash', 'Cash'),
+            ('credit', 'Credit'),
+        ],
+        string="Payment Type",
+        required=True,
+        default='cash'
     )
