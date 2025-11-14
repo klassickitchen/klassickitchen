@@ -11,47 +11,69 @@
                   inherit_id="account.report_invoice_document">
 
             <xpath expr="//t[@t-set='layout_document_title']" position="replace">
-    <div class="row mb-4" style="margin-top: 50px;">
-        <t t-set="layout_document_title">
+                <div class="row mb-4" style="margin-top: 50px;">
 
-            <!-- Optional: your existing conditional spans for proforma / draft / credit note -->
-            <span t-if="not proforma"></span>
-            <span t-else="">PROFORMA</span>
-            <span t-if="o.move_type == 'out_invoice' and o.state == 'posted'"></span>
-            <span t-elif="o.move_type == 'out_invoice' and o.state == 'draft'" style="font-size:23px; color:black;">Draft Invoice</span>
-            <span t-elif="o.move_type == 'out_invoice' and o.state == 'cancel'" style="font-size:23px; color:black;">Cancelled Invoice</span>
-            <span t-elif="o.move_type == 'out_refund' and o.state == 'posted'" style="font-size:23px; color:black;">Credit Note</span>
-            <span t-elif="o.move_type == 'out_refund' and o.state == 'draft'" style="font-size:23px; color:black;">Draft Credit Note</span>
-            <span t-elif="o.move_type == 'out_refund' and o.state == 'cancel'" style="font-size:23px; color:black;">Cancelled Credit Note</span>
-            <span t-elif="o.move_type == 'in_refund'" style="font-size:23px; color:black;">Vendor Credit Note</span>
-            <span t-elif="o.move_type == 'in_invoice'" style="font-size:23px; color:black;">Vendor Bill</span>
+                    <t t-set="layout_document_title">
 
-            <!-- New layout row for invoice number, customer, and date -->
-            <div class="row" style="align-items: center;">
-                <!-- Left: Invoice Number -->
-                <div class="col-4 text-start">
-                    <span t-if="o.name and o.name != '/'" t-field="o.name" style="font-size:23px; color:black;"/>
+                        <!-- Optional: your existing conditional spans for proforma / draft / credit note -->
+                        <span t-if="not proforma"></span>
+                        <span t-else="">PROFORMA</span>
+                        <span t-if="o.move_type == 'out_invoice' and o.state == 'posted'"></span>
+                        <span t-elif="o.move_type == 'out_invoice' and o.state == 'draft'"
+                              style="font-size:23px; color:black;">Draft Invoice
+                        </span>
+                        <span t-elif="o.move_type == 'out_invoice' and o.state == 'cancel'"
+                              style="font-size:23px; color:black;">Cancelled Invoice
+                        </span>
+                        <span t-elif="o.move_type == 'out_refund' and o.state == 'posted'"
+                              style="font-size:23px; color:black;">Credit Note
+                        </span>
+                        <span t-elif="o.move_type == 'out_refund' and o.state == 'draft'"
+                              style="font-size:23px; color:black;">Draft Credit Note
+                        </span>
+                        <span t-elif="o.move_type == 'out_refund' and o.state == 'cancel'"
+                              style="font-size:23px; color:black;">Cancelled Credit Note
+                        </span>
+                        <span t-elif="o.move_type == 'in_refund'" style="font-size:23px; color:black;">Vendor Credit
+                            Note
+                        </span>
+                        <span t-elif="o.move_type == 'in_invoice'" style="font-size:23px; color:black;">Vendor Bill
+                        </span>
+
+                        <!--payment type title-->
+                        <div t-if="o.payment_type" class="text-center mb-2">
+                            <h2 class="text-uppercase fw-bold mb-4">
+                                <t t-if="o.payment_type == 'cash'">CASH INVOICE</t>
+                                <t t-elif="o.payment_type == 'credit'">CREDIT INVOICE</t>
+                            </h2>
+                        </div>
+
+                        <!-- New layout row for invoice number, customer, and date -->
+                        <div class="row" style="align-items: center;">
+                            <!-- Left: Invoice Number -->
+                            <div class="col-4 text-start">
+                                <span t-if="o.name and o.name != '/'" t-field="o.name"
+                                      style="font-size:23px; color:black;"/>
+                            </div>
+
+                            <!-- Center: Customer Name -->
+                            <div class="col-4 text-center">
+                                <span style="font-size:23px; color:black;">
+                                    <t t-esc="o.partner_id.name"/>
+                                </span>
+                            </div>
+
+                            <!-- Right: Invoice Date -->
+                            <div class="col-4 text-end">
+                                <span style="font-size:20px; color:black;">
+                                    <t t-esc="o.invoice_date"/>
+                                </span>
+                            </div>
+                        </div>
+
+                    </t>
                 </div>
-
-                <!-- Center: Customer Name -->
-                <div class="col-4 text-center">
-                    <span style="font-size:23px; color:black;">
-                        <t t-esc="o.partner_id.name"/>
-                    </span>
-                </div>
-
-                <!-- Right: Invoice Date -->
-                <div class="col-4 text-end">
-                    <span style="font-size:20px; color:black;">
-                        <t t-esc="o.invoice_date"/>
-                    </span>
-                </div>
-            </div>
-
-        </t>
-    </div>
-</xpath>
-
+            </xpath>
 
 
             <xpath expr="//div[@name='address_same_as_shipping']//address" position="replace"/>

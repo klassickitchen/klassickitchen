@@ -9,6 +9,10 @@
                 <field name="is_pos_invoice" invisible="1"/>
             </xpath>
 
+            <xpath expr="//div[@name='journal_div']" position="after">
+                <field name="payment_type" widget="radio"/>
+            </xpath>
+
 <!--            <xpath expr="//button[@name='action_print_pdf']" position="after">-->
 <!--                <button name="action_print_pdf_with_header_footer"-->
 <!--                        string="PDF with Header and Footer"-->

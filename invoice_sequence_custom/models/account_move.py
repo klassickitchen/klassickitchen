@@ -4,6 +4,37 @@ from odoo import models, api, fields
 class AccountMove(models.Model):
     _inherit = 'account.move'
     is_pos_invoice = fields.Boolean(string="POS Invoice", default=False)
+    payment_type = fields.Selection(
+        [('cash', 'Cash'),
+         ('credit', 'Credit')],
+        string='Cash|Credit',
+        compute="_compute_payment_type"
+    )
+
+    @api.depends('invoice_line_ids.sale_line_ids.order_id.payment_type')
+    def _compute_payment_type(self):
+        for move in self:
+            if move.is_pos_invoice:
+                move.payment_type = 'cash'
+                continue
+
+            sale_orders = move.invoice_line_ids.sale_line_ids.mapped('order_id')
+            if sale_orders:
+                move.payment_type = sale_orders[0].payment_type
+            else:
+                move.payment_type = False
+
+    # @api.model
+    # def create(self, vals_list):
+    #     print('createeeeeeee')
+    #     res = super(AccountMove, self).create(vals_list)
+    #     if self.env.context.get('linked_to_pos'):
+    #         print(self.env.context.get('linked_to_pos'), 'contextttttttt')
+    #         for move in res:
+    #             move.payment_type = 'cash'
+    #         print("payment type", move.payment_type)
+    #         print(res, 'resssssssssss')
+    #     return res
 
     def action_post(self):
         for move in self:
