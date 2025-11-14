@@ -10,7 +10,7 @@
         'report/report_invoice_a5.xml',
         'report/report_pos_invoice.xml',
         # 'data/pos_invoice_sequence.xml',
-		'views/account_move_views.xml',
+		# 'views/account_move_views.xml',
 		# 'views/sale_order_views.xml',
 	],
 	'assets': {
