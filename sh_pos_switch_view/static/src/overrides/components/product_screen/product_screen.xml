@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+
+    <t t-name="sh_pos_switch_view.ShProductCard"> 
+        <tr t-on-click="() => this.addProductToOrder(props.product)" t-att-data-product-id="props.productId" t-attf-aria-labelledby="article_product_{{props.productId}}" class="1563">
+            <t t-if="pos.config.sh_display_product_image">
+                <td>
+                    <t t-if="props.imageUrl">
+                        <t t-if="pos.config.sh_product_image_size == 'small_size'">
+                            <img t-att-src="props.imageUrl" t-att-alt="props.name" class="small_size_image" />
+                        </t>
+                        <t t-if="pos.config.sh_product_image_size == 'medium_size'">
+                            <img t-att-src="props.imageUrl" t-att-alt="props.name" class="medium_size_image" />
+                        </t>
+                        <t t-if="pos.config.sh_product_image_size == 'large_size'">
+                            <img t-att-src="props.imageUrl" t-att-alt="props.name" class="large_size_image" />
+                        </t>
+                    </t>
+                    <t t-else="">
+                        -
+                    </t>
+                </td>
+            </t>
+            <t t-if="pos.config.sh_display_product_name">
+                <td>
+                    <t t-esc="props.name" />
+                </td>
+            </t>
+            <t t-if="pos.config.sh_display_product_code">
+                <td>
+                    <t t-if="props.product.default_code and props.product.product_variant_count == 1">
+                        <t t-esc="props.product.default_code" />
+                    </t>
+                    <t t-else="">
+                        -
+                    </t>
+                </td>
+            </t>
+            <t t-if="pos.config.sh_display_product_type">
+                <td>
+                    <t t-if="props.product.type == 'consu'">
+                        Goods
+                    </t>
+                    <t t-if="props.product.type == 'combo'">
+                        Combo
+                    </t>
+                    <t t-if="props.product.type == 'service'">
+                        Service
+                    </t>
+                </td>
+            </t>
+            <t t-if="pos.config.sh_display_product_onhand">
+                <td>
+                    <t t-if="props.product.product_variant_count == 1">
+                        <t t-if="props.product.qty_available > 0">
+                            <t t-esc="props.product.qty_available" />
+                        </t>
+                        <t t-else="">
+                            0
+                        </t>
+                    </t>
+                    <t t-else="">
+                        -
+                    </t>
+                    
+                </td>
+            </t>
+            <t t-if="pos.config.sh_display_product_forecasted">
+                <td>
+                    <t t-if="props.product.product_variant_count == 1">
+                        <t t-if="props.product.virtual_available > 0">
+                            <t t-esc="props.product.virtual_available" />
+                        </t>
+                        <t t-else="">
+                            0
+                        </t>
+                    </t>
+                    <t t-else="">
+                        -
+                    </t>
+                </td>
+            </t>
+            <t t-if="pos.config.sh_display_product_uom">
+                <td>
+                    <t t-esc="props.product.uom_id.name" />
+                </td>
+            </t>
+            <t t-if="pos.config.sh_display_product_price">
+                <td>
+                    <t t-esc="pos.getProductPriceFormatted(props.product)"/>
+                </td>
+            </t>
+        </tr>
+    </t>
+
+    <t t-name="sh_pos_theme_responsive.ProductScreen" t-inherit="point_of_sale.ProductScreen" t-inherit-mode="extension">
+        <xpath expr="//div[@t-if='searchWord']" position="before">
+            <t t-if="pos.config.sh_pos_switch_view and productsToDisplay.length > 0 and pos.display_type_activated=='list_view'">
+                <div class="sh_product_list_view">
+                    <table class="table">
+                        <thead>
+                            <t t-if="pos.config.sh_display_product_image">
+                                <th>Image</th>
+                            </t>
+                            <t t-if="pos.config.sh_display_product_name">
+                                <th>Name</th>
+                            </t>
+                            <t t-if="pos.config.sh_display_product_code">
+                                <th>Code</th>
+                            </t>
+                            <t t-if="pos.config.sh_display_product_type">
+                                <th>Type</th>
+                            </t>
+                            <t t-if="pos.config.sh_display_product_onhand">
+                                <th>On Hand</th>
+                            </t>
+                            <t t-if="pos.config.sh_display_product_forecasted">
+                                <th>Forecasted</th>
+                            </t>
+                            <t t-if="pos.config.sh_display_product_uom">
+                                <th>UOM</th>
+                            </t>
+                            <t t-if="pos.config.sh_display_product_price">
+                                <th>Price</th>
+                            </t>
+                        </thead>
+                        <tbody>
+
+
+                            <ShProductCard
+                                t-foreach="productsToDisplay" t-as="product" t-key="product.id"
+                                productId="product.id"
+                                product="product"
+                                class="pos.productViewMode"
+                                name="getProductName(product)"
+                                color="product.color || product.pos_categ_ids?.at(-1)?.color"
+                                imageUrl="this.getProductImage(product)"
+                                onClick.bind="() => this.addProductToOrder(product)"
+                                productInfo="true"
+                                productCartQty="this.state.quantityByProductTmplId[product.raw.product_tmpl_id]"
+                                onProductInfoClick.bind="() => this.onProductInfoClick(product)" 
+                                
+                            />
+                            <!-- <t t-foreach="productsToDisplay" t-as="product" t-key="product.id">
+                                <tr t-on-click="() => this.addProductToOrder(product)" t-att-data-product-id="props.productId" t-attf-aria-labelledby="article_product_{{props.productId}}" class="1563">
+                                    <t t-if="pos.config.sh_display_product_image">
+                                        <td>
+                                            <t t-if="this.getProductImage(product)">
+                                                <t t-if="pos.config.sh_product_image_size == 'small_size'">
+                                                    <img t-att-src="this.getProductImage(product)" t-att-alt="props.name" class="small_size_image" />
+                                                </t>
+                                                <t t-if="pos.config.sh_product_image_size == 'medium_size'">
+                                                    <img t-att-src="this.getProductImage(product)" t-att-alt="props.name" class="medium_size_image" />
+                                                </t>
+                                                <t t-if="pos.config.sh_product_image_size == 'large_size'">
+                                                    <img t-att-src="this.getProductImage(product)" t-att-alt="props.name" class="large_size_image" />
+                                                </t>
+                                            </t>
+                                            <t t-else="">
+                                                -
+                                            </t>
+                                        </td>
+                                    </t>
+                                    <t t-if="pos.config.sh_display_product_name">
+                                        <td>
+                                            <t t-esc="getProductName(product)" />
+                                        </td>
+                                    </t>
+                                    <t t-if="pos.config.sh_display_product_code">
+                                        <td>
+                                            <t t-if="product.default_code and !pos.isProductVariant(product)">
+                                                <t t-esc="product.default_code" />
+                                            </t>
+                                            <t t-else="">
+                                                -
+                                            </t>
+                                        </td>
+                                    </t>
+                                    <t t-if="pos.config.sh_display_product_type">
+                                        <td>
+                                            <t t-if="product.type == 'consu'">
+                                                Goods
+                                            </t>
+                                            <t t-if="product.type == 'combo'">
+                                                Combo
+                                            </t>
+                                            <t t-if="product.type == 'service'">
+                                                Service
+                                            </t>
+                                        </td>
+                                    </t>
+                                    <t t-if="pos.config.sh_display_product_onhand">
+                                        <td>
+                                            <t t-if="product.qty_available > 0 and !pos.isProductVariant(product)">
+                                                <t t-esc="product.qty_available" />
+                                            </t>
+                                            <t t-else="">
+                                                0
+                                            </t>
+                                        </td>
+                                    </t>
+                                    <t t-if="pos.config.sh_display_product_forecasted">
+                                        <td>
+                                            <t t-if="product.virtual_available > 0 and !pos.isProductVariant(product)">
+                                                <t t-esc="product.virtual_available" />
+                                            </t>
+                                            <t t-else="">
+                                                0
+                                            </t>
+                                        </td>
+                                    </t>
+                                    <t t-if="pos.config.sh_display_product_uom">
+                                        <td>
+                                            <t t-esc="product.uom_id.name" />
+                                        </td>
+                                    </t>
+                                    <t t-if="pos.config.sh_display_product_price">
+                                        <td>
+                                            <t t-esc="this.getProductPrice(product)"/>
+                                        </td>
+                                    </t>
+                                </tr>
+                            </t> -->
+                        </tbody>
+                    </table>
+                </div>
+            </t>
+        </xpath>
+    </t>
+</templates>

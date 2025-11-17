@@ -1,0 +1,103 @@
+.pos {
+        .sh_product_list_view {
+            width: 100%;
+            overflow: auto;
+            height: 100% !important;
+
+            table {
+                width: 100%;
+
+                th {
+                    line-height: 20px;
+                    white-space: nowrap;
+                    color: #fff;
+                    text-align: left;
+                    background: $o-brand-primary;
+                    position: sticky;
+                    top: 0;
+                }
+
+                thead {
+                    font-size: 15px;
+                    text-transform: capitalize;
+                }
+
+                td {
+                    font-size: 14px;
+                }
+
+                tr {
+                    &:nth-child(even) {
+                        background: #fff;
+                    }
+
+                    &:nth-child(odd) {
+                        background: #E0E2E6;
+                    }
+                }
+                tbody{
+                    vertical-align: middle;
+                }
+            }
+
+            th {
+                padding: 10px 12px !important;
+            }
+
+            td {
+                padding: 10px 12px !important;
+            }
+
+            .small_size_image {
+                height: 50px;
+                object-fit: contain;
+                width: 50px;
+            }
+
+            .medium_size_image {
+                height: 90px;
+                object-fit: contain;
+                width: 90px;
+            }
+
+            .large_size_image {
+                height: 130px;
+                object-fit: contain;
+                width: 120px;
+            }
+        }
+    
+
+}
+
+@include media-breakpoint-down(xl) {
+    .pos {
+
+            .sh_product_list_view {
+                table {
+                    td {
+                        white-space: nowrap;
+                    }
+                }
+            }
+        
+    }
+}
+.pos{
+    .pos-content{
+        .rightpane{
+            width: 60%;
+            .product-list.hide_product_list_container.pb-2{
+               padding-bottom: 0px!important;display: none!important;
+            } 
+            .sh_product_list_view.hide_sh_product_list_view{
+                display: none;
+            }
+            .sh_product_list_view{
+                display: block;
+            }
+            
+        }
+    }
+}
+
