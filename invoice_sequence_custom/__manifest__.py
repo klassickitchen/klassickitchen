@@ -1,6 +1,6 @@
 {
 	'name': "Custom invoice sequence number",
-	'version': '18.0.3.6.0',
+	'version': '18.0.3.7.0',
 	'category': 'Point of Sale',
 	'summary': "This module is used to add custom serial number for invoices",
     'author': 'AGM Global Services',
@@ -10,8 +10,8 @@
         'report/report_invoice_a5.xml',
         'report/report_pos_invoice.xml',
         # 'data/pos_invoice_sequence.xml',
-		# 'views/account_move_views.xml',
-		# 'views/sale_order_views.xml',
+		'views/account_move_views.xml',
+		'views/sale_order_views.xml',
 	],
 	'assets': {
 				'point_of_sale._assets_pos': [

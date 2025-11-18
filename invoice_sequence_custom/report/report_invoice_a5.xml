@@ -66,7 +66,7 @@
                             <!-- Right: Invoice Date -->
                             <div class="col-4 text-end">
                                 <span style="font-size:20px; color:black;">
-                                    <t t-esc="o.invoice_date"/>
+                                    <t t-esc="o.invoice_date.strftime('%d/%m/%Y')"/>
                                 </span>
                             </div>
                         </div>
@@ -94,7 +94,7 @@
             <xpath expr="//td[@name='td_discount']" position="replace"></xpath>
 
             <xpath expr="//th[@name='th_quantity']" position="replace">
-                <th name="th_quantity" class="text-end">
+                <th name="th_quantity" class="text-center">
                     <span>Qty</span>
                 </th>
             </xpath>
@@ -104,6 +104,12 @@
                     <t t-esc="int(line.quantity) if float(line.quantity).is_integer() else ('%.0f' % line.quantity)"/>
                 </span>
             </xpath>
+
+            <xpath expr="//td[@name='td_subtotal']/span[@t-field='line.price_subtotal']" position="replace">
+    <span class="text-nowrap" t-field="line.amount_without_discount"/>
+</xpath>
+
+
             <!-- increase table width -->
             <xpath expr="//table[@name='invoice_line_table']" position="attributes">
                 <attribute name="style">width: 103%; position: relative; right: 1.5%; font-size: 19px; bottom: 35px;
@@ -157,28 +163,28 @@
                 <attribute name="style">line-height: 0.8; padding: 0; margin: 0;</attribute>
             </xpath>
 
-            <xpath expr="//span[contains(text(), 'Untaxed Amount')]" position="replace">
-                <span>Gross Total Amount</span>
+            <xpath expr="//tr[@class='o_subtotal']/td/span" position="replace">
+                <span>Gross Total</span>
+            </xpath>
+
+            <xpath expr="//tr[@class='o_subtotal']/td[2]/span" position="replace">
+                <span t-out="o.gross_total"
+                      t-options='{"widget": "monetary", "display_currency": currency}'/>
             </xpath>
 
             <xpath expr="//tr[@class='o_total']/td[1]/strong" position="replace">
                 <strong>Net Total</strong>
             </xpath>
 
-            <!--            <xpath expr="//tr[@class='o_subtotal']" position="after">-->
-            <!--                <tr t-if="sum(line.price_subtotal for line in o.invoice_line_ids if 'disc' in (line.name or '').lower())"-->
-            <!--                    style="line-height: 0.8;">-->
-            <!--                    <td>-->
-            <!--                        <strong>Discount Amount</strong>-->
-            <!--                    </td>-->
-            <!--                    <td class="text-end">-->
-            <!--                        <strong>-->
-            <!--                            <t t-esc="sum(-line.price_subtotal for line in o.invoice_line_ids if 'disc' in (line.name or '').lower())"/>-->
-            <!--                            <t t-esc="o.currency_id.symbol"/>-->
-            <!--                        </strong>-->
-            <!--                    </td>-->
-            <!--                </tr>-->
-            <!--            </xpath>-->
+            <xpath expr="//tr[@class='o_subtotal']" position="after">
+                <tr t-if="o.amount_discount and o.amount_discount != 0">
+                    <td>Discount</td>
+                    <td class="text-end">
+                        <span t-out="o.amount_discount"
+                              t-options='{"widget": "monetary", "display_currency": currency}'/>
+                    </td>
+                </tr>
+            </xpath>
         </template>
 
     </data>
