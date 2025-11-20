@@ -1,13 +1,13 @@
 {
     'name': "Header and Footer for KitchenKraft",
-    'version': '18.1.5',
+    'version': '18.1.6',
     'author': 'AGM Global Services',
     'description': """Header and Footer for KitchenKraft""",
     'depends': ['sale_management', 'sale', 'stock', 'web', 'base', 'account'],
     'data': [
         'reports/report_template.xml',
         'views/res_company_views.xml',
-        'views/ir_action_report.xml',
+        # 'views/ir_action_report.xml',
     ],
     'assets': {
         'web.report_assets_common': [

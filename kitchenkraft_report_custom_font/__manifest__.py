@@ -1,6 +1,6 @@
 {
     'name': 'Kitchen Kraft Report Custom Font',
-    'version': '1.3',
+    'version': '1.4',
     'summary': 'Applies a custom font to all PDF reports',
     'description': """
         This module applies a custom dot matrix-style font globally across

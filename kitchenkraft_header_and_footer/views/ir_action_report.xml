@@ -23,9 +23,7 @@
         <field name="domain" eval="[('move_type', '!=', 'entry')]"/>
     </record>
 
-    <record id="account.account_invoices_without_payment" model="ir.actions.report">
-            <field name="name">Dot Matrix A5</field>
-    </record>
+
 
 
 </odoo>

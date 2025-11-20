@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <template id="report_invoice_a5">
-            <t t-call="account.report_invoice">
-                <t t-set="print_with_payments" t-value="True"/>
-            </t>
-        </template>
+<!--        <template id="report_invoice_a5">-->
+<!--            <t t-call="account.report_invoice">-->
+<!--                <t t-set="print_with_payments" t-value="True"/>-->
+<!--            </t>-->
+<!--        </template>-->
 
         <template id="report_invoice_document_inherit_customer_line"
                   inherit_id="account.report_invoice_document">
@@ -152,15 +152,15 @@
         <template id="document_tax_totals_template_inherit" inherit_id="account.document_tax_totals_template">
             <!-- reduce line spacing between subtotal and tax rows -->
             <xpath expr="//tr[@class='o_subtotal']" position="attributes">
-                <attribute name="style">line-height: 0.8; padding: 0; margin: 0;</attribute>
+                <attribute name="style">line-height: 0.8; padding: 0; margin: 0; font-size: 19px;</attribute>
             </xpath>
 
             <xpath expr="//tr[@class='o_total']" position="attributes">
-                <attribute name="style">line-height: 0.8; color: black; padding: 0; margin: 0;</attribute>
+                <attribute name="style">line-height: 0.8; color: black; padding: 0; margin: 0; font-size: 19px;</attribute>
             </xpath>
 
             <xpath expr="//tr[@class='o_taxes']" position="attributes">
-                <attribute name="style">line-height: 0.8; padding: 0; margin: 0;</attribute>
+                <attribute name="style">line-height: 0.8; padding: 0; margin: 0; font-size: 19px;</attribute>
             </xpath>
 
             <xpath expr="//tr[@class='o_subtotal']/td/span" position="replace">
