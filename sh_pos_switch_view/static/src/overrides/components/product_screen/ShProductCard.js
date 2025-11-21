@@ -34,6 +34,51 @@ export class ShProductCard extends Component {
         this.pos = usePos();
     }
     async addProductToOrder(product) {
-        await reactive(this.pos).addLineToCurrentOrder({ product_id: product }, {});
+
+        const currentOrder = this.pos.get_order();
+
+        // Always use product.product_price when present
+        const customPrice = product.product_price;
+        const priceToUse = Number(customPrice ?? product.lst_price ?? 0);
+        const priceThreshold = 0.01;
+
+        const hasCustomPrice = customPrice !== undefined && customPrice !== null;
+
+        // --- Merge logic ---
+        if (hasCustomPrice) {
+            let merged = false;
+            const productId = product.id;
+            const lines = currentOrder.get_orderlines();
+
+            for (const line of lines) {
+                if (line.get_product().id === productId) {
+                    if (Math.abs(line.get_unit_price() - priceToUse) < priceThreshold) {
+                        // Merge: increase quantity
+                        line.set_quantity(line.get_quantity() + 1);
+                        merged = true;
+                        break;
+                    }
+                }
+            }
+
+            // If not merged → create new line
+            if (!merged) {
+                await this.pos.addLineToCurrentOrder({
+                    product_id: product,
+                    product_tmpl_id: product.product_tmpl_id,
+                    price_unit: priceToUse,
+                    price_type: "manual",
+                });
+            }
+
+            return;
+        }
+
+        // No custom price -> normal add
+        await this.pos.addLineToCurrentOrder({
+            product_id: product,
+            price_unit: priceToUse,
+        });
     }
+
 }
