@@ -17,8 +17,16 @@
                 <field name="amount_without_discount"/>
             </xpath>
 
-            <xpath expr="//list//field[@name='price_subtotal']" position="replace"/>
-            <xpath expr="//list//field[@name='discount']" position="replace"/>
+            <!--            <xpath expr="//list//field[@name='price_subtotal']" position="replace"/>-->
+            <!--            <xpath expr="//list//field[@name='discount']" position="replace"/>-->
+
+            <xpath expr="//list//field[@name='price_subtotal']" position="attributes">
+                <attribute name="column_invisible">1</attribute>
+            </xpath>
+
+            <xpath expr="//list//field[@name='discount']" position="attributes">
+                <attribute name="column_invisible">1</attribute>
+            </xpath>
 
             <xpath expr="//group[@class='oe_subtotal_footer']//field[@name='tax_totals']" position="before">
                 <field name="gross_total" colspan="2"/>

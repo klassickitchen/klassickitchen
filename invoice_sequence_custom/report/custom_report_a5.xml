@@ -122,13 +122,13 @@
                                         </span>
 
                                         <!--payment type title-->
-                                        <div t-if="o.payment_type" class="text-center mb-2"
-                                             style="position: relative; top: 50px; font-family: 'RobotoMono-Bold', monospace !important;">
-                                            <h2 class="text-uppercase fw-bold mb-4">
-                                                <t t-if="o.payment_type == 'cash'">CASH INVOICE</t>
-                                                <t t-elif="o.payment_type == 'credit'">CREDIT INVOICE</t>
-                                            </h2>
-                                        </div>
+<!--                                        <div t-if="o.payment_type" class="text-center mb-2"-->
+<!--                                             style="position: relative; top: 50px; font-family: 'RobotoMono-Bold', monospace !important;">-->
+<!--                                            <h2 class="text-uppercase fw-bold mb-4">-->
+<!--                                                <t t-if="o.payment_type == 'cash'">CASH INVOICE</t>-->
+<!--                                                <t t-elif="o.payment_type == 'credit'">CREDIT INVOICE</t>-->
+<!--                                            </h2>-->
+<!--                                        </div>-->
 
                                         <!-- New layout row for invoice number, customer, and date -->
                                         <div class="row" style="align-items: center; margin-top: 70px;">
