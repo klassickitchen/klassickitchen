@@ -22,8 +22,33 @@
 <!--        <field name="print_report_name">(object._get_report_base_filename() + '_empire_custom')</field>-->
 <!--        <field name="domain" eval="[('move_type', '!=', 'entry')]"/>-->
 <!--    </record>-->
+<!--<odoo>-->
+<!--    <record id="paperformat_invoice_a4" model="report.paperformat">-->
+<!--        <field name="name">Invoice A4 Format</field>-->
+<!--        <field name="format">A4</field>-->
+<!--        <field name="orientation">Portrait</field>-->
+<!--        <field name="margin_top">30</field>-->
+<!--        <field name="margin_bottom">25</field>-->
+<!--        <field name="margin_left">5</field>-->
+<!--        <field name="margin_right">5</field>-->
+<!--        <field name="header_spacing">35</field>-->
+<!--        <field name="dpi">90</field>-->
+<!--    </record>-->
+<!--    <record id="action_empire_invoice_with_header_footer" model="ir.actions.report">-->
+<!--        <field name="name">Print PDF</field>-->
+<!--        <field name="model">account.move</field>-->
+<!--        <field name="report_type">qweb-pdf</field>-->
+<!--        <field name="report_name">kitchenkraft_header_and_footer.empire_report_invoice_with_header_footer</field>-->
+<!--        <field name="report_file">kitchenkraft_header_and_footer.empire_report_invoice_with_header_footer</field>-->
+<!--        <field name="paperformat_id" ref="kitchenkraft_header_and_footer.paperformat_invoice_a4"/>-->
+<!--        <field name="binding_model_id" ref="account.model_account_move"/>-->
+<!--        <field name="binding_type">report</field>-->
+<!--        <field name="print_report_name">(object._get_report_base_filename() + '_empire_custom')</field>-->
+<!--        <field name="domain" eval="[('move_type', '!=', 'entry')]"/>-->
+<!--    </record>-->
 
 
 
 
 <!--</odoo>-->
+</odoo>

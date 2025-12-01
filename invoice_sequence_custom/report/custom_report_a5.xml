@@ -129,6 +129,13 @@
 <!--                                                <t t-elif="o.payment_type == 'credit'">CREDIT INVOICE</t>-->
 <!--                                            </h2>-->
 <!--                                        </div>-->
+<!--                                        <div t-if="o.payment_type" class="text-center mb-2"-->
+<!--                                             style="position: relative; top: 50px; font-family: 'RobotoMono-Bold', monospace !important;">-->
+<!--                                            <h2 class="text-uppercase fw-bold mb-4">-->
+<!--                                                <t t-if="o.payment_type == 'cash'">CASH INVOICE</t>-->
+<!--                                                <t t-elif="o.payment_type == 'credit'">CREDIT INVOICE</t>-->
+<!--                                            </h2>-->
+<!--                                        </div>-->
 
                                         <!-- New layout row for invoice number, customer, and date -->
                                         <div class="row" style="align-items: center; margin-top: 70px;">
@@ -330,7 +337,7 @@
                                 </table>
                                 <!-- === NEW TOTAL BLOCK (CUSTOM) === -->
                                 <div class="row mt-1"
-                                     style="font-size:19px; font-family: 'RobotoMono-Bold', monospace !important; position: relative; bottom: 50px;">
+                                     style="font-size:19px; font-family: 'RobotoMono-Bold', monospace !important; position: relative; bottom: 55px;">
                                     <div class="col-6"></div>
 
                                     <div class="col-6">
@@ -384,7 +391,7 @@
                                 </div>
                                 <!-- === END TOTAL BLOCK === -->
 
-                                <div style="font-size:19px; padding15px; font-family: 'RobotoMono-Bold', monospace !important;">
+                                <div style="font-size:19px; padding15px; position: relative; bottom: 30px; font-family: 'RobotoMono-Bold', monospace !important;">
                                     <span>
                                         <strong>Amount in Words (Total) :</strong>
                                     </span>
