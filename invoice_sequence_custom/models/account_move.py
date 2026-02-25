@@ -34,18 +34,6 @@ class AccountMove(models.Model):
             gross_total = sum(move.invoice_line_ids.mapped('amount_without_discount'))
             move.gross_total = gross_total
 
-    # @api.depends('invoice_line_ids.sale_line_ids.order_id.payment_type')
-    # def _compute_payment_type(self):
-    #     for move in self:
-    #         if move.is_pos_invoice:
-    #             move.payment_type = 'cash'
-    #             continue
-    #
-    #         sale_orders = move.invoice_line_ids.sale_line_ids.mapped('order_id')
-    #         if sale_orders:
-    #             move.payment_type = sale_orders[0].payment_type
-    #         else:
-    #             move.payment_type = False
     @api.depends('invoice_line_ids.sale_line_ids.order_id.payment_type')
     def _compute_payment_type(self):
         for move in self:
@@ -58,6 +46,7 @@ class AccountMove(models.Model):
                 move.payment_type = sale_orders[0].payment_type
             else:
                 move.payment_type = False
+
     # @api.model
     # def create(self, vals_list):
     #     print('createeeeeeee')
@@ -98,9 +87,8 @@ class AccountMove(models.Model):
     def action_print_pdf(self):
         self.ensure_one()
         if self.is_pos_invoice:
-            invoice_template = self.env.ref('invoice_sequence_custom.dot_matrix_a5')
+            invoice_template = self.env.ref('invoice_sequence_custom.action_print_pdf_a5')
         else:
-            invoice_template = self.env.ref('account.account_invoices_without_payment')
             invoice_template = self.env.ref('invoice_sequence_custom.account_invoices_a4')
         report_action = invoice_template.report_action(self.id, config=False)
         return self._get_action_with_base_document_layout_configurator(report_action)
