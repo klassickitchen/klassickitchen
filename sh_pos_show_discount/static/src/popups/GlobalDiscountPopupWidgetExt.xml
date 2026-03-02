@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="sh_pos_show_discount.GlobalDiscountPopupWidget"
+       t-inherit="sh_pos_order_discount.GlobalDiscountPopupWidget"
+       t-inherit-mode="extension">
+
+        <!-- Add equivalent row right after the discount_amount_div -->
+        <xpath expr="//div[hasclass('discount_amount_div')]" position="after">
+            <div class="discount_equiv_div d-flex justify-content-center align-items-center gap-2 mt-2">
+                <span class="tax-info subentry fs-6 text-muted d-flex flex-row-reverse align-items-start gap-2 sh_discount_label">Equivalent : </span>
+                <input type="text" class="form-control form-control-lg sh_discount_equiv_value w-25 text-left" readonly="1"
+                       t-att-value="state.equivDisplay"/>
+            </div>
+        </xpath>
+
+        <!-- Add t-on-input handler to value input -->
+        <xpath expr="//div[hasclass('discount_amount_div')]/input" position="attributes">
+            <attribute name="t-on-input">onValueInput</attribute>
+        </xpath>
+
+        <!-- Add t-on-change to radio buttons -->
+        <xpath expr="//input[@id='discount_fixed_radio']" position="attributes">
+            <attribute name="t-on-change">onRadioChange</attribute>
+        </xpath>
+        <xpath expr="//input[@id='discount_percentage_radio']" position="attributes">
+            <attribute name="t-on-change">onRadioChange</attribute>
+        </xpath>
+
+    </t>
+</templates>
+

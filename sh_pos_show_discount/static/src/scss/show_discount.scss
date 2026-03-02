@@ -1,0 +1,35 @@
+.pos {
+    .o-main-components-container {
+        .o_technical_modal {
+            .modal-dialog {
+                .modal-content {
+                    .modal-body {
+                        .sh_modul_body {
+                            // Ensure both Value and Equivalent labels have equal width for alignment
+                            .discount_amount_div,
+                            .discount_equiv_div {
+                                .sh_discount_label {
+                                    display: inline-block !important;
+                                    width: 110px;
+                                    min-width: 110px;
+                                    text-align: right;
+                                    font-size: 16px !important;
+                                    white-space: nowrap;
+                                }
+                            }
+                            .discount_equiv_div {
+                                .sh_discount_equiv_value {
+                                    background-color: #f8f9fa;
+                                    font-weight: 600;
+                                    color: #495057;
+                                    cursor: default;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
