@@ -36,5 +36,13 @@ class AccountMove(models.Model):
     def _compute_number_to_words(self):
         """Compute the amount to words in Invoice"""
         for rec in self:
-            rec.number_to_words = rec.currency_id.amount_to_text(rec.amount_total)
+            words = rec.currency_id.amount_to_text(rec.amount_total)
+            if rec.currency_id.name == 'QAR':
+                import re
+                # Replace Rial with Qatari Rials
+                words = re.sub(r'\bRials?\b', 'Qatari Rials', words)
+                # Add "Only" at the end
+                if not words.strip().endswith('Only'):
+                    words = f"{words.strip()} Only"
+            rec.number_to_words = words
             print("Amount", rec.number_to_words)
