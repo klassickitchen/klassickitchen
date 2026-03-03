@@ -90,8 +90,7 @@
                         <div class="clearfix invoice_main"
                              style="font-family: 'RobotoMono-Bold', monospace !important;">
                             <div class="page mb-4">
-                                <div class="row mb-4" style="margin-top: 100px;">
-
+                                <div class="row mb-4" style="margin-top: 10px;">
                                     <t t-set="layout_document_title">
 
                                         <!-- Optional: your existing conditional spans for proforma / draft / credit note -->
@@ -99,60 +98,59 @@
                                         <span t-else="">PROFORMA</span>
                                         <span t-if="o.move_type == 'out_invoice' and o.state == 'posted'"></span>
                                         <span t-elif="o.move_type == 'out_invoice' and o.state == 'draft'"
-                                              style="font-size:23px; color:black;">Draft Invoice
+                                              style="font-size:16px; color:black;">Draft Invoice
                                         </span>
                                         <span t-elif="o.move_type == 'out_invoice' and o.state == 'cancel'"
-                                              style="font-size:23px; color:black;">Cancelled Invoice
+                                              style="font-size:16px; color:black;">Cancelled Invoice
                                         </span>
                                         <span t-elif="o.move_type == 'out_refund' and o.state == 'posted'"
-                                              style="font-size:23px; color:black;">Credit Note
+                                              style="font-size:16px; color:black;">Credit Note
                                         </span>
                                         <span t-elif="o.move_type == 'out_refund' and o.state == 'draft'"
-                                              style="font-size:23px; color:black;">Draft Credit Note
+                                              style="font-size:16px; color:black;">Draft Credit Note
                                         </span>
                                         <span t-elif="o.move_type == 'out_refund' and o.state == 'cancel'"
-                                              style="font-size:23px; color:black;">Cancelled Credit Note
+                                              style="font-size:16px; color:black;">Cancelled Credit Note
                                         </span>
-                                        <span t-elif="o.move_type == 'in_refund'" style="font-size:23px; color:black;">
+                                        <span t-elif="o.move_type == 'in_refund'" style="font-size:16px; color:black;">
                                             Vendor Credit
                                             Note
                                         </span>
-                                        <span t-elif="o.move_type == 'in_invoice'" style="font-size:23px; color:black;">
+                                        <span t-elif="o.move_type == 'in_invoice'" style="font-size:16px; color:black;">
                                             Vendor Bill
                                         </span>
 
                                         <!--payment type title-->
                                         <div t-if="o.payment_type" class="text-center mb-2"
                                              style="position: relative; top: 50px; font-family: 'RobotoMono-Bold', monospace !important;">
-                                            <h2 class="text-uppercase fw-bold mb-4">
+                                            <h2 class="text-uppercase fw-bold mb-4" style="font-size: 18px; font-weight: bold !important;">
                                                 <t t-if="o.payment_type == 'cash'">CASH INVOICE</t>
                                                 <t t-elif="o.payment_type == 'credit'">CREDIT INVOICE</t>
                                             </h2>
                                         </div>
 
                                         <!-- New layout row for invoice number, customer, and date -->
-                                        <div class="row" style="align-items: center; margin-top: 70px;">
+                                        <div class="row" style="align-items: center; margin-top: 20px;">
                                             <!-- Left: Invoice Number -->
                                             <div class="col-4 text-start">
                                                 <span t-if="o.name and o.name != '/'" t-field="o.name"
-                                                      style="font-size:23px; color:black; font-family: 'RobotoMono-Bold', monospace !important;"/>
+                                                      style="font-size:18px; color:black; font-family: 'RobotoMono-Bold', monospace !important;"/>
                                             </div>
 
                                             <!-- Center: Customer Name -->
                                             <div class="col-4 text-center">
-                                                <span style="font-size:23px; color:black; font-family: 'RobotoMono-Bold', monospace !important;">
+                                                <span style="font-size:18px; color:black; font-family: 'RobotoMono-Bold', monospace !important;">
                                                     <t t-esc="o.partner_id.name"/>
                                                 </span>
                                             </div>
 
                                             <!-- Right: Invoice Date -->
                                             <div class="col-4 text-end">
-                                                <span style="font-size:20px; color:black; font-family: 'RobotoMono-Bold', monospace !important;">
+                                                <span style="font-size:18px; color:black; font-family: 'RobotoMono-Bold', monospace !important;">
                                                     <t t-esc="o.invoice_date.strftime('%d/%m/%Y')"/>
                                                 </span>
                                             </div>
                                         </div>
-
                                     </t>
                                 </div>
                                 <div class="oe_structure"></div>
@@ -213,7 +211,7 @@
                                    t-value="any(line.name and line.name.count('\n') > 30 for line in o.invoice_line_ids if line.name)"/>
                                 <table class="o_has_total_table table o_main_table table-borderless mb-0"
                                        name="invoice_line_table"
-                                       style="width: 103%; position: relative; right: 1.5%; font-size: 19px; bottom: 60px; font-family: 'RobotoMono-Bold', monospace !important;">
+                                       style="width: 100%; position: relative; font-size: 9px; bottom: 60px; font-family: 'RobotoMono-Bold', monospace !important;">
                                     <thead t-attf-style="#{has_long_desc and 'display: table-row-group;' or ''}">
                                         <tr>
                                             <th name="th_d" class="text-start">No.</th>
@@ -262,7 +260,7 @@
                                                               t-options="{'widget': 'text'}">Bacon Burger
                                                         </span>
                                                         /
-                                                        <span t-if="line.product_id.arabic_name"
+                                                        <span t-if="line.product_id.arabic_name" style="font-size: 9px;"
                                                               t-esc="line.product_id.arabic_name"/>
 
                                                     </td>
@@ -330,7 +328,7 @@
                                 </table>
                                 <!-- === NEW TOTAL BLOCK (CUSTOM) === -->
                                 <div class="row mt-1"
-                                     style="font-size:19px; font-family: 'RobotoMono-Bold', monospace !important; position: relative; bottom: 50px;">
+                                     style="font-size:9px; font-family: 'RobotoMono-Bold', monospace !important; position: relative; bottom: 50px;">
                                     <div class="col-6"></div>
 
                                     <div class="col-6">
@@ -384,7 +382,7 @@
                                 </div>
                                 <!-- === END TOTAL BLOCK === -->
 
-                                <div style="font-size:19px; padding15px; font-family: 'RobotoMono-Bold', monospace !important;">
+                                <div style="font-size:11px; padding15px; font-family: 'RobotoMono-Bold', monospace !important;">
                                     <span>
                                         <strong>Amount in Words (Total) :</strong>
                                     </span>

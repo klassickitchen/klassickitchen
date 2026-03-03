@@ -1,11 +1,11 @@
 {
 	'name': "Custom invoice sequence number",
-	'version': '18.0.3.9.1',
+	'version': '18.0.3.10.0',
 	'category': 'Point of Sale',
 	'summary': "This module is used to add custom serial number for invoices",
     'author': 'AGM Global Services',
     'website': 'http://agmglobal.co',
-    'depends': ['base','point_of_sale','account','res_company_code'],
+    'depends': ['base','point_of_sale','account','res_company_code', 'stock_picking_invoice_link', 'amount_in_words_invoice', 'order_line_sequence_invoice'],
 	'data': [
         'report/custom_report_a5.xml',
         'report/report_invoice_a5.xml',
