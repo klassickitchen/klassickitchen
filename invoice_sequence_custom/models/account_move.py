@@ -87,7 +87,7 @@ class AccountMove(models.Model):
     def action_print_pdf(self):
         self.ensure_one()
         if self.is_pos_invoice:
-            invoice_template = self.env.ref('invoice_sequence_custom.dot_matrix_a5')
+            invoice_template = self.env.ref('invoice_sequence_custom.action_print_pdf_a5')
         else:
             invoice_template = self.env.ref('invoice_sequence_custom.account_invoices_a4')
         report_action = invoice_template.report_action(self.id, config=False)
