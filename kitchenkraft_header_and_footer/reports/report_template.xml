@@ -6,8 +6,11 @@
         <!-- Custom Header -->
         <xpath expr="//div[contains(@t-attf-class, 'o_company_#{company.id}_layout header')]" position="replace">
 
-                            <!--  HEADER  -->
-                    <t t-if="company.report_header_image">
+                    <!--  HEADER  -->
+                    <t t-if="o and 'is_pos_invoice' in o and o.is_pos_invoice">
+                        <div class="header" style="margin: 0; padding: 0;"></div>
+                    </t>
+                    <t t-elif="company.report_header_image">
                         <div class="header" style="text-align: center; margin: 0; padding: 0;">
                             <img t-att-src="image_data_uri(company.report_header_image)"
                                  alt="Header Image" style="width: 100%; height: auto;"/>
@@ -61,7 +64,10 @@
         <!-- Custom Footer -->
         <xpath expr="//div[contains(@t-attf-class, 'footer o_company_#{company.id}_layout')]" position="replace">
 
-            <t t-if="company.report_footer_image">
+            <t t-if="o and 'is_pos_invoice' in o and o.is_pos_invoice">
+                <div class="footer" style="margin: 0; padding: 0;"></div>
+            </t>
+            <t t-elif="company.report_footer_image">
                 <div class="footer" style="text-align: center; margin: 0; padding: 0;">
                     <img t-att-src="image_data_uri(company.report_footer_image)"
                          alt="Footer Image" style="width: 100%; height: auto;"/>
@@ -95,7 +101,10 @@
         <!-- Custom Header -->
         <xpath expr="//div[contains(@t-attf-class, 'header o_company_#{company.id}_layout')]" position="replace">
 
-            <t t-if="company.report_header_image">
+            <t t-if="o and 'is_pos_invoice' in o and o.is_pos_invoice">
+                <div class="header" style="margin: 0; padding: 0;"></div>
+            </t>
+            <t t-elif="company.report_header_image">
                 <div class="header" style="text-align: center; margin: 0; padding: 0;">
                     <img t-att-src="image_data_uri(company.report_header_image)"
                          alt="Header Image" style="width: 100%; height: auto;"/>
@@ -133,7 +142,10 @@
         <!-- Custom Footer -->
         <xpath expr="//div[contains(@t-attf-class, 'footer o_company_#{company.id}_layout')]" position="replace">
 
-            <t t-if="company.report_footer_image">
+            <t t-if="o and 'is_pos_invoice' in o and o.is_pos_invoice">
+                <div class="footer" style="margin: 0; padding: 0;"></div>
+            </t>
+            <t t-elif="company.report_footer_image">
                 <div class="footer" style="text-align: center; margin: 0; padding: 0;">
                     <img t-att-src="image_data_uri(company.report_footer_image)"
                          alt="Footer Image" style="width: 100%; height: auto;"/>
@@ -167,7 +179,10 @@
         <!-- Custom Header -->
         <xpath expr="//div[contains(@t-attf-class, 'header o_company_#{company.id}_layout')]" position="replace">
 
-            <t t-if="company.report_header_image">
+            <t t-if="o and 'is_pos_invoice' in o and o.is_pos_invoice">
+                <div class="header" style="margin: 0; padding: 0;"></div>
+            </t>
+            <t t-elif="company.report_header_image">
                 <div class="header" style="text-align: center; margin: 0; padding: 0;">
                     <img t-att-src="image_data_uri(company.report_header_image)"
                          alt="Header Image" style="width: 100%; height: auto;"/>
@@ -205,7 +220,10 @@
         <!-- Custom Footer -->
         <xpath expr="//div[contains(@t-attf-class, 'footer o_company_#{company.id}_layout')]" position="replace">
 
-            <t t-if="company.report_footer_image">
+            <t t-if="o and 'is_pos_invoice' in o and o.is_pos_invoice">
+                <div class="footer" style="margin: 0; padding: 0;"></div>
+            </t>
+            <t t-elif="company.report_footer_image">
                 <div class="footer" style="text-align: center; margin: 0; padding: 0;">
                     <img t-att-src="image_data_uri(company.report_footer_image)"
                          alt="Footer Image" style="width: 100%; height: auto;"/>
@@ -239,7 +257,10 @@
         <!-- Custom Header -->
         <xpath expr="//div[contains(@t-attf-class, 'header o_company_#{company.id}_layout')]" position="replace">
 
-            <t t-if="company.report_header_image">
+            <t t-if="o and 'is_pos_invoice' in o and o.is_pos_invoice">
+                <div class="header" style="margin: 0; padding: 0;"></div>
+            </t>
+            <t t-elif="company.report_header_image">
                 <div class="header" style="text-align: center; margin: 0; padding: 0;">
                     <img t-att-src="image_data_uri(company.report_header_image)"
                          alt="Header Image" style="width: 100%; height: auto;"/>
@@ -277,7 +298,10 @@
         <!-- Custom Footer -->
         <xpath expr="//div[contains(@t-attf-class, 'footer o_company_#{company.id}_layout')]" position="replace">
 
-            <t t-if="company.report_footer_image">
+            <t t-if="o and 'is_pos_invoice' in o and o.is_pos_invoice">
+                <div class="footer" style="margin: 0; padding: 0;"></div>
+            </t>
+            <t t-elif="company.report_footer_image">
                 <div class="footer" style="text-align: center; margin: 0; padding: 0;">
                     <img t-att-src="image_data_uri(company.report_footer_image)"
                          alt="Footer Image" style="width: 100%; height: auto;"/>
@@ -311,7 +335,10 @@
         <!-- Custom Header -->
         <xpath expr="//div[contains(@t-attf-class, 'header o_company_#{company.id}_layout')]" position="replace">
 
-            <t t-if="company.report_header_image">
+            <t t-if="o and 'is_pos_invoice' in o and o.is_pos_invoice">
+                <div class="header" style="margin: 0; padding: 0;"></div>
+            </t>
+            <t t-elif="company.report_header_image">
                 <div class="header" style="text-align: center; margin: 0; padding: 0;">
                     <img t-att-src="image_data_uri(company.report_header_image)"
                          alt="Header Image" style="width: 100%; height: auto;"/>
@@ -349,7 +376,10 @@
         <!-- Custom Footer -->
         <xpath expr="//div[contains(@t-attf-class, 'footer o_company_#{company.id}_layout')]" position="replace">
 
-            <t t-if="company.report_footer_image">
+            <t t-if="o and 'is_pos_invoice' in o and o.is_pos_invoice">
+                <div class="footer" style="margin: 0; padding: 0;"></div>
+            </t>
+            <t t-elif="company.report_footer_image">
                 <div class="footer" style="text-align: center; margin: 0; padding: 0;">
                     <img t-att-src="image_data_uri(company.report_footer_image)"
                          alt="Footer Image" style="width: 100%; height: auto;"/>
@@ -383,7 +413,10 @@
         <!-- Custom Header -->
         <xpath expr="//div[contains(@t-attf-class, 'header o_company_#{company.id}_layout')]" position="replace">
 
-            <t t-if="company.report_header_image">
+            <t t-if="o and 'is_pos_invoice' in o and o.is_pos_invoice">
+                <div class="header" style="margin: 0; padding: 0;"></div>
+            </t>
+            <t t-elif="company.report_header_image">
                 <div class="header" style="text-align: center; margin: 0; padding: 0;">
                     <img t-att-src="image_data_uri(company.report_header_image)"
                          alt="Header Image" style="width: 100%; height: auto;"/>
@@ -421,7 +454,10 @@
         <!-- Custom Footer -->
         <xpath expr="//div[contains(@t-attf-class, 'footer o_company_#{company.id}_layout')]" position="replace">
 
-            <t t-if="company.report_footer_image">
+            <t t-if="o and 'is_pos_invoice' in o and o.is_pos_invoice">
+                <div class="footer" style="margin: 0; padding: 0;"></div>
+            </t>
+            <t t-elif="company.report_footer_image">
                 <div class="footer" style="text-align: center; margin: 0; padding: 0;">
                     <img t-att-src="image_data_uri(company.report_footer_image)"
                          alt="Footer Image" style="width: 100%; height: auto;"/>
@@ -458,7 +494,10 @@
     <!--            <t t-foreach="docs" t-as="o">-->
     <!--                <t t-set="company" t-value="o.company_id"/>-->
                     <!--  HEADER  -->
-<!--                    <t t-if="company.report_header_image">-->
+<!--                    <t t-if="o and 'is_pos_invoice' in o and o.is_pos_invoice">
+                <div class="header" style="margin: 0; padding: 0;"></div>
+            </t>
+            <t t-elif="company.report_header_image">-->
 <!--                        <div class="header" style="text-align: center; margin: 0; padding: 0;">-->
 <!--                            <img t-att-src="image_data_uri(company.report_header_image)"-->
 <!--                                 alt="Header Image" style="width: 100%; height: auto;"/>-->
