@@ -1377,6 +1377,209 @@ class UiPython(models.Model):
 
 
 
+    def import_products_barcode_flow(self):
+
+        if not self.worksheet:
+            raise UserError(_('Please upload an Excel file'))
+
+        excel_data = base64.b64decode(self.worksheet)
+
+        try:
+            wb = openpyxl.load_workbook(BytesIO(excel_data))
+            sheet = wb.active
+        except Exception as e:
+            raise UserError(f"Error opening Excel: {e}")
+
+        # Excel Columns
+        INTERNAL_REF_COL = 1
+        NAME_COL = 2
+        DESC_COL = 3
+        BARCODE_COL = 4
+        UOM_COL = 5
+        CATEGORY_COL = 6
+        BRAND_COL = 7
+        COST_COL = 8
+        SALE_PRICE_COL = 9
+        PURCHASE_COL = 10
+        SALES_COL = 11
+        POS_COL = 12
+        TRACK_COL = 13
+
+        results = []
+
+        created_products = 0
+        barcode_created = 0
+        skipped = 0
+
+        created_categories = set()
+
+        # Company KL
+        company_kl = self.env['res.company'].sudo().search(
+            [('code', '=', 'KL')], limit=1)
+
+        if not company_kl:
+            raise UserError("Company KL not found")
+
+        for row in range(3, sheet.max_row + 1):
+
+            internal_ref = str(sheet.cell(row=row, column=INTERNAL_REF_COL).value or '').strip()
+            name = str(sheet.cell(row=row, column=NAME_COL).value or '').strip()
+            desc = str(sheet.cell(row=row, column=DESC_COL).value or '').strip()
+            barcode = str(sheet.cell(row=row, column=BARCODE_COL).value or '').strip()
+            uom_name = str(sheet.cell(row=row, column=UOM_COL).value or '').strip()
+            categ_name = str(sheet.cell(row=row, column=CATEGORY_COL).value or '').strip()
+            brand = str(sheet.cell(row=row, column=BRAND_COL).value or '').strip()
+
+            cost = sheet.cell(row=row, column=COST_COL).value or 0
+            sale_price = sheet.cell(row=row, column=SALE_PRICE_COL).value or 0
+
+            purchase_ok = sheet.cell(row=row, column=PURCHASE_COL).value
+            sale_ok = sheet.cell(row=row, column=SALES_COL).value
+            pos_ok = sheet.cell(row=row, column=POS_COL).value
+            track_inventory = sheet.cell(row=row, column=TRACK_COL).value
+
+            if not internal_ref and not barcode and not name:
+                skipped += 1
+                print("skipped",row,internal_ref,barcode,name)
+                continue
+
+            try:
+                cost = float(cost)
+            except:
+                cost = 0.0
+
+            try:
+                sale_price = float(sale_price)
+            except:
+                sale_price = 0.0
+
+            # Find UOM
+            uom = self.env['uom.uom'].sudo().search(
+                [('name', '=', uom_name)], limit=1)
+
+            # Find Category
+            categ_name = (categ_name or '').strip()
+
+            category = False
+
+            if categ_name and categ_name != '-':
+                category = self.env['product.category'].sudo().search(
+                    [('name', '=ilike', categ_name)], limit=1)
+
+                if not category:
+                    category = self.env['product.category'].sudo().create({
+                        'name': categ_name
+                    })
+                    created_categories.add(categ_name)    
+
+            # Search existing product
+            product = self.env['product.product'].sudo().search([
+                '|',
+                ('default_code', '=', internal_ref),
+                ('barcode', '=', barcode)
+            ], limit=1)
+            print("product exists",product.name,product.barcode)
+
+            # ----------------------------
+            # PRODUCT EXISTS
+            # ----------------------------
+            if product:
+
+                barcode_record = self.env['product.barcode'].sudo().search([
+                    ('barcode', '=', barcode),
+                    ('product_id', '=', product.id),
+                    ('company_id', '=', company_kl.id)
+                ], limit=1)
+
+                # BARCODE EXISTS
+                if barcode_record:
+
+                    results.append(
+                        f"{product.name} | {internal_ref} | {barcode} | SKIPPED (Barcode Exists)"
+                    )
+
+                    skipped += 1
+                    continue
+
+                # CREATE BARCODE
+                self.env['product.barcode'].sudo().create({
+                    'product_id': product.id,
+                    'barcode': barcode,
+                    'uom_id': product.uom_id.id,
+                    'price': product.list_price,
+                    'company_id': company_kl.id,
+                    'arabic_price_alt': getattr(product, 'arabic_price_alt', '') or '',
+                })
+
+                barcode_created += 1
+
+                results.append(
+                    f"{product.name} | {internal_ref} | {barcode} | BARCODE CREATED"
+                )
+
+                continue
+
+            # ----------------------------
+            # PRODUCT NOT EXISTS
+            # ----------------------------
+
+            tmpl_vals = {
+                'name': name,
+                'default_code': internal_ref,
+                'description': desc,
+                'brand': brand,
+
+                'categ_id': category.id if category else False,
+
+                'uom_id': uom.id if uom else False,
+                'uom_po_id': uom.id if uom else False,
+
+                'purchase_ok': bool(purchase_ok),
+                'sale_ok': bool(sale_ok),
+                'available_in_pos': bool(pos_ok),
+
+                'list_price': sale_price,
+            }
+
+            tmpl = self.env['product.template'].sudo().create(tmpl_vals)
+
+            # Cost only for KL company
+            tmpl.with_company(company_kl).sudo().write({
+                'standard_price': cost
+            })
+
+            product_variant = tmpl.product_variant_id
+            # Create Barcode
+            self.env['product.barcode'].sudo().create({
+                'product_id': product_variant.id,
+                'barcode': barcode,
+                'uom_id': product_variant.uom_id.id,
+                'price': sale_price,
+                'company_id': company_kl.id,
+                'arabic_price_alt': getattr(product_variant, 'arabic_price_alt', '') or '',
+            })
+
+            created_products += 1
+
+            results.append(
+                f"{name} | {internal_ref} | {barcode} | PRODUCT CREATED"
+            )
+
+        self.results = (
+                    f"Products Created: {created_products}\n"
+                    f"Barcode Created: {barcode_created}\n"
+                    f"Skipped: {skipped}\n"
+                    f"New Categories Created: {len(created_categories)}\n\n"
+                    f"Created Categories:\n"
+                    + "\n".join(created_categories)
+                + "\n\nProduct Results:\n"
+                + "\n".join(results)
+            )
+        return True
+
+
+
+
 
 
 
