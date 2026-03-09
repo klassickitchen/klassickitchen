@@ -1405,7 +1405,9 @@ class UiPython(models.Model):
         POS_COL = 12
         TRACK_COL = 13
 
-        results = []
+        product_created_results = []
+        barcode_created_results = []
+        skipped_results = []
 
         created_products = 0
         barcode_created = 0
@@ -1466,11 +1468,11 @@ class UiPython(models.Model):
                 category = self.env['product.category'].sudo().search(
                     [('name', '=ilike', categ_name)], limit=1)
 
-                if not category:
-                    category = self.env['product.category'].sudo().create({
-                        'name': categ_name
-                    })
-                    created_categories.add(categ_name)    
+                # if not category:
+                #     category = self.env['product.category'].sudo().create({
+                #         'name': categ_name
+                #     })
+                #     created_categories.add(categ_name)    
 
             # Search existing product
             product = self.env['product.product'].sudo().search([
@@ -1494,8 +1496,8 @@ class UiPython(models.Model):
                 # BARCODE EXISTS
                 if barcode_record:
 
-                    results.append(
-                        f"{product.name} | {internal_ref} | {barcode} | SKIPPED (Barcode Exists)"
+                    skipped_results.append(
+                        f"{product.name} | {internal_ref} | {barcode}"
                     )
 
                     skipped += 1
@@ -1513,8 +1515,8 @@ class UiPython(models.Model):
 
                 barcode_created += 1
 
-                results.append(
-                    f"{product.name} | {internal_ref} | {barcode} | BARCODE CREATED"
+                barcode_created_results.append(
+                    f"{product.name} | {internal_ref} | {barcode}"
                 )
 
                 continue
@@ -1561,25 +1563,59 @@ class UiPython(models.Model):
 
             created_products += 1
 
-            results.append(
-                f"{name} | {internal_ref} | {barcode} | PRODUCT CREATED"
+            product_created_results.append(
+                f"{name} | {internal_ref} | {barcode}"
             )
 
-        self.results = (
-                    f"Products Created: {created_products}\n"
-                    f"Barcode Created: {barcode_created}\n"
-                    f"Skipped: {skipped}\n"
-                    f"New Categories Created: {len(created_categories)}\n\n"
-                    f"Created Categories:\n"
-                    + "\n".join(created_categories)
-                + "\n\nProduct Results:\n"
-                + "\n".join(results)
-            )
+        # Build section header format
+        section_header = "Product Name | Internal Reference | Barcode"
+        separator = "-" * 60
+
+        output_parts = [
+            f"Products Created: {created_products}",
+            f"Barcode Created: {barcode_created}",
+            f"Skipped: {skipped}",
+            f"New Categories Created: {len(created_categories)}",
+        ]
+
+        if created_categories:
+            output_parts.append(f"\nCreated Categories:\n" + "\n".join(created_categories))
+
+        # Section 1: New Products & Barcode Created
+        output_parts.append(f"\n{separator}")
+        output_parts.append(f"NEW PRODUCTS CREATED ({len(product_created_results)})")
+        output_parts.append(separator)
+        output_parts.append(section_header)
+        output_parts.append(separator)
+        if product_created_results:
+            output_parts.extend(product_created_results)
+        else:
+            output_parts.append("(none)")
+
+        # Section 2: Product Existed, Barcode Created
+        output_parts.append(f"\n{separator}")
+        output_parts.append(f"PRODUCT EXISTED - BARCODE CREATED ({len(barcode_created_results)})")
+        output_parts.append(separator)
+        output_parts.append(section_header)
+        output_parts.append(separator)
+        if barcode_created_results:
+            output_parts.extend(barcode_created_results)
+        else:
+            output_parts.append("(none)")
+
+        # Section 3: Skipped (Product & Barcode Already Exist)
+        output_parts.append(f"\n{separator}")
+        output_parts.append(f"SKIPPED - PRODUCT & BARCODE ALREADY EXIST ({len(skipped_results)})")
+        output_parts.append(separator)
+        output_parts.append(section_header)
+        output_parts.append(separator)
+        if skipped_results:
+            output_parts.extend(skipped_results)
+        else:
+            output_parts.append("(none)")
+
+        self.results = "\n".join(output_parts)
         return True
-
-
-
-
 
 
 
