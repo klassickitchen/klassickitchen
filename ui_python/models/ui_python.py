@@ -1408,10 +1408,12 @@ class UiPython(models.Model):
         product_created_results = []
         barcode_created_results = []
         skipped_results = []
+        updated_cost_results = []
 
         created_products = 0
         barcode_created = 0
         skipped = 0
+        cost_updated = 0
 
         created_categories = set()
 
@@ -1467,12 +1469,7 @@ class UiPython(models.Model):
             if categ_name and categ_name != '-':
                 category = self.env['product.category'].sudo().search(
                     [('name', '=ilike', categ_name)], limit=1)
-
-                # if not category:
-                #     category = self.env['product.category'].sudo().create({
-                #         'name': categ_name
-                #     })
-                #     created_categories.add(categ_name)    
+   
 
             # Search existing product
             product = self.env['product.product'].sudo().search([
@@ -1486,6 +1483,18 @@ class UiPython(models.Model):
             # PRODUCT EXISTS
             # ----------------------------
             if product:
+                tmpl = product.product_tmpl_id
+                old_cost = tmpl.with_company(company_kl).standard_price
+                
+                # Check if cost needs to be updated
+                if old_cost != cost:
+                    tmpl.with_company(company_kl).sudo().write({
+                        'standard_price': cost
+                    })
+                    cost_updated += 1
+                    updated_cost_results.append(
+                        f"{product.name} | {internal_ref} | {old_cost} | {cost}"
+                    )
 
                 barcode_record = self.env['product.barcode'].sudo().search([
                     ('barcode', '=', barcode),
@@ -1575,6 +1584,7 @@ class UiPython(models.Model):
             f"Products Created: {created_products}",
             f"Barcode Created: {barcode_created}",
             f"Skipped: {skipped}",
+            f"Cost Updated: {cost_updated}",
             f"New Categories Created: {len(created_categories)}",
         ]
 
@@ -1611,6 +1621,17 @@ class UiPython(models.Model):
         output_parts.append(separator)
         if skipped_results:
             output_parts.extend(skipped_results)
+        else:
+            output_parts.append("(none)")
+
+        # Section 4: Cost Updated
+        output_parts.append(f"\n{separator}")
+        output_parts.append(f"COST UPDATED ({len(updated_cost_results)})")
+        output_parts.append(separator)
+        output_parts.append("Product Name | Internal Reference | Old Cost | New Cost")
+        output_parts.append(separator)
+        if updated_cost_results:
+            output_parts.extend(updated_cost_results)
         else:
             output_parts.append("(none)")
 
