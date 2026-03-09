@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': "User interface Python",
-    'version': '16.0.3',
+    'version': '16.0.4',
     'summary': 'Execute Python Codes',
     'sequence': -100,
     'description': """Execute Python Codes""",

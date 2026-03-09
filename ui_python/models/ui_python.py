@@ -1443,7 +1443,7 @@ class UiPython(models.Model):
             track_inventory = sheet.cell(row=row, column=TRACK_COL).value
             print("track_inventory",track_inventory,name,row)
 
-            if not internal_ref and not barcode and not name:
+            if not internal_ref:
                 skipped += 1
                 print("skipped",row,internal_ref,barcode,name)
                 continue
