@@ -1441,6 +1441,7 @@ class UiPython(models.Model):
             sale_ok = sheet.cell(row=row, column=SALES_COL).value
             pos_ok = sheet.cell(row=row, column=POS_COL).value
             track_inventory = sheet.cell(row=row, column=TRACK_COL).value
+            print("track_inventory",track_inventory,name,row)
 
             if not internal_ref and not barcode and not name:
                 skipped += 1
@@ -1539,16 +1540,13 @@ class UiPython(models.Model):
                 'default_code': internal_ref,
                 'description': desc,
                 'brand': brand,
-
                 'categ_id': category.id if category else False,
-
                 'uom_id': uom.id if uom else False,
                 'uom_po_id': uom.id if uom else False,
-
                 'purchase_ok': bool(purchase_ok),
                 'sale_ok': bool(sale_ok),
                 'available_in_pos': bool(pos_ok),
-
+                'is_storable': bool(track_inventory),
                 'list_price': sale_price,
             }
 
