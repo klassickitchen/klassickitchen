@@ -1,6 +1,6 @@
 {
     'name': "Header and Footer for KitchenKraft",
-    'version': '18.1.7',
+    'version': '18.1.8',
     'author': 'AGM Global Services',
     'description': """Header and Footer for KitchenKraft""",
     'depends': ['sale_management', 'sale', 'stock', 'web', 'base', 'account'],

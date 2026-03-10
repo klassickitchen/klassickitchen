@@ -411,15 +411,61 @@
     <template id="kitchen_custom_external_layout_bubble" inherit_id="web.external_layout_bubble">
 
         <!-- Custom Header -->
-        <xpath expr="//div[contains(@t-attf-class, 'header o_company_#{company.id}_layout')]" position="replace">
+<!--        <xpath expr="//div[contains(@t-attf-class, 'header o_company_#{company.id}_layout')]" position="replace">-->
 
-            <t t-if="o and 'is_pos_invoice' in o and o.is_pos_invoice">
-                <div class="header" style="margin: 0; padding: 0;"></div>
-            </t>
-            <t t-elif="company.report_header_image">
-                <div class="header" style="text-align: center; margin: 0; padding: 0;">
-                    <img t-att-src="image_data_uri(company.report_header_image)"
-                         alt="Header Image" style="width: 100%; height: auto;"/>
+<!--            <t t-if="o and 'is_pos_invoice' in o and o.is_pos_invoice">-->
+<!--                <div class="header" style="margin: 0; padding: 0;"></div>-->
+<!--            </t>-->
+<!--            <t t-elif="company.report_header_image">-->
+<!--                <div class="header" style="text-align: center; margin: 0; padding: 0;">-->
+<!--                    <img t-att-src="image_data_uri(company.report_header_image)"-->
+<!--                         alt="Header Image" style="width: 100%; height: auto;"/>-->
+<!--                </div>-->
+<!--            </t>-->
+<!--            <t t-else="">-->
+<!--                <div class="row mb8">-->
+<!--                    <div class="col-4">-->
+<!--                        <img t-if="company.logo" class="o_company_logo_big"-->
+<!--                             t-att-src="image_data_uri(company.logo)" alt="Logo"/>-->
+<!--                    </div>-->
+<!--                    <div class="col-8 text-end mb4">-->
+<!--                        <div name="company_address" class="float-end mb4">-->
+<!--                            <ul class="list-unstyled" name="company_address_list">-->
+<!--                                <li t-if="company.is_company_details_empty">-->
+<!--                                    <span t-field="company.partner_id"-->
+<!--                                          t-options='{"widget": "contact", "fields": ["address", "name"], "no_marker": true}'/>-->
+<!--                                </li>-->
+<!--                                <li t-else="">-->
+<!--                                    <span t-field="company.company_details"/>-->
+<!--                                </li>-->
+<!--                                <li t-if="not forced_vat"/>-->
+<!--                                <li t-else="">-->
+<!--                                    <t t-esc="company.country_id.vat_label or 'Tax ID'"/>:-->
+<!--                                    <span t-esc="forced_vat"/>-->
+<!--                                </li>-->
+<!--                            </ul>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </t>-->
+
+<!--        </xpath>-->
+
+        <!-- Custom Header -->
+    <xpath expr="//div[contains(@t-attf-class, 'header o_company_#{company.id}_layout')]" position="replace">
+        <div t-attf-class="header o_company_#{company.id}_layout {{report_type == 'pdf' and 'pt-3'}}" t-if="not hide_report_footer">
+            <t t-if="company.report_header_image">
+                <!--             Background Shape -->
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     t-attf-class="o_shape_bubble_1 z-n1 {{report_type == 'pdf' and 'position-fixed' or 'position-absolute'}}"
+                     width="1100" height="1100">
+                    <circle cx="550" cy="550" r="550" t-att-fill="company.primary_color" fill-opacity=".1"/>
+                </svg>
+
+                <!--             Full Width Header Image -->
+                <div>
+                    <img t-if="company.report_header_image" t-att-src="image_data_uri(company.report_header_image)"
+                         alt="Header Image" style="width:100%; height:auto;"/>
                 </div>
             </t>
             <t t-else="">
@@ -448,41 +494,59 @@
                     </div>
                 </div>
             </t>
+        </div>
+    </xpath>
 
+         Custom Footer
+        <xpath expr="//div[contains(@t-attf-class, 'footer o_company_#{company.id}_layout')]" position="replace">
+        <t t-if="not hide_report_footer">
+            <div t-attf-class="footer o_company_#{company.id}_layout {{report_type != 'pdf' and 'position-relative mt-auto mx-n5'}}">
+                <svg xmlns="http://www.w3.org/2000/svg" t-attf-class="{{report_type == 'pdf' and 'position-fixed start-0'}}" width="500" height="228" viewBox="0 0 500 228" fill="none">
+                    <path d="M500 228H0V6.52743C26.3323 2.23278 53.3561 0 80.9008 0C256.522 0 410.969 90.7656 500 228Z" t-att-fill="company.secondary_color" fill-opacity=".1"/>
+                </svg>
+                <div t-attf-class="o_footer_content {{report_type != 'pdf' and 'position-absolute end-0 start-0 bottom-0 mx-5'}} pt-4 text-center">
+                    <div class="border-top pt-2" t-field="company.report_footer"/>
+                    <span t-if="report_type == 'pdf' and display_name_in_footer" class="text-muted" t-out="str(o.name) + ', '">(document name)</span>
+                    <span t-if="report_type == 'pdf'" class="text-muted">Page <span class="page"/> / <span class="topage"/></span>
+                </div>
+            </div>
+        </t>
         </xpath>
+
+
 
         <!-- Custom Footer -->
-        <xpath expr="//div[contains(@t-attf-class, 'footer o_company_#{company.id}_layout')]" position="replace">
+<!--        <xpath expr="//div[contains(@t-attf-class, 'footer o_company_#{company.id}_layout')]" position="replace">-->
 
-            <t t-if="o and 'is_pos_invoice' in o and o.is_pos_invoice">
-                <div class="footer" style="margin: 0; padding: 0;"></div>
-            </t>
-            <t t-elif="company.report_footer_image">
-                <div class="footer" style="text-align: center; margin: 0; padding: 0;">
-                    <img t-att-src="image_data_uri(company.report_footer_image)"
-                         alt="Footer Image" style="width: 100%; height: auto;"/>
-                </div>
-            </t>
-            <t t-else="">
-                <div class="o_footer_content row border-top pt-2">
-                    <div class="col-8">
-                        <span t-field="company.report_footer"/>
-                    </div>
-                    <div class="col-4 text-end">
-                        <strong t-if="company.report_header" t-field="company.report_header"
-                                class="o_company_tagline"/>
-                        <span t-if="report_type == 'pdf' and display_name_in_footer"
-                              class="text-muted" t-out="str(o.name) + ', '"/>
-                        <span t-if="report_type == 'pdf'" class="text-muted">
-                            Page
-                            <span class="page"/>
-                            /
-                            <span class="topage"/>
-                        </span>
-                    </div>
-                </div>
-            </t>
-        </xpath>
+<!--            <t t-if="o and 'is_pos_invoice' in o and o.is_pos_invoice">-->
+<!--                <div class="footer" style="margin: 0; padding: 0;"></div>-->
+<!--            </t>-->
+<!--            <t t-elif="company.report_footer_image">-->
+<!--                <div class="footer" style="text-align: center; margin: 0; padding: 0;">-->
+<!--                    <img t-att-src="image_data_uri(company.report_footer_image)"-->
+<!--                         alt="Footer Image" style="width: 100%; height: auto;"/>-->
+<!--                </div>-->
+<!--            </t>-->
+<!--            <t t-else="">-->
+<!--                <div class="o_footer_content row border-top pt-2">-->
+<!--                    <div class="col-8">-->
+<!--                        <span t-field="company.report_footer"/>-->
+<!--                    </div>-->
+<!--                    <div class="col-4 text-end">-->
+<!--                        <strong t-if="company.report_header" t-field="company.report_header"-->
+<!--                                class="o_company_tagline"/>-->
+<!--                        <span t-if="report_type == 'pdf' and display_name_in_footer"-->
+<!--                              class="text-muted" t-out="str(o.name) + ', '"/>-->
+<!--                        <span t-if="report_type == 'pdf'" class="text-muted">-->
+<!--                            Page-->
+<!--                            <span class="page"/>-->
+<!--                            /-->
+<!--                            <span class="topage"/>-->
+<!--                        </span>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </t>-->
+<!--        </xpath>-->
 
     </template>
 
