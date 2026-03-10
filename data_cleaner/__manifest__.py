@@ -1,0 +1,20 @@
+{
+    'name': 'Odoo Data Cleaner',
+    'version': '18.0.1.0.0',
+    "author": "Codefusion Odooworks",
+    'category': 'Tools',
+    'description': 'Cleans and deduplicates records across various Odoo models to ensure data accuracy and consistency.',
+    'summary': 'Cleans and deduplicates records across various Odoo models to ensure data accuracy and consistency.',
+    "maintainer": "yashsuvta1236@gmail.com, nitinupmanyu12@gmail.com",
+    "company" : "https://codefusion-odooworks.odoo.com",
+    "contributor": "Yash Suvta, Mayur Kukreja, Nitin Upmanyu",
+    'depends': ['base'],
+    'data': [
+        'views/res_config_settings.xml',
+    ],
+    'installable': True,
+    'application': False,
+    "license": "OPL-1",
+    "auto_install": False,
+    'images': ['static/description/banner.png'],
+}
