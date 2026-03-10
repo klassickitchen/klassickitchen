@@ -3,11 +3,11 @@
     <data>
         <template id="invoice_report" inherit_id="account.report_invoice_document">
             <xpath expr="//tr/th[@name='th_description']" position="before">
-                    <th name="th_d" class="text-start">No.</th>
+                    <th name="th_d" class="text-center">No.</th>
             </xpath>
             <xpath expr="//table[hasclass('o_main_table')]/tbody/t/tr/t/td[1]" position="before">
-                    <td>
-                        <span t-field="line.invoice_sequence_number" />
+                    <td style="text-align: center;">
+                        <span t-field="line.invoice_sequence_number"/>
                     </td>
             </xpath>
         </template>

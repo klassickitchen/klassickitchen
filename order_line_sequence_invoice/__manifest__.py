@@ -1,6 +1,6 @@
 {
     'name': 'Invoice Line Sequence Number',
-    'version': '18.0.1.0.0',
+    'version': '18.0.1.0.1',
     'summary': 'Adds sequence numbers to invoice lines in form view and PDF report',
     'description': """This module adds automatic sequence numbers to the invoice lines """,
     'category': 'Accounting',
