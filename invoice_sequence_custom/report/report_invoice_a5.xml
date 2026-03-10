@@ -79,10 +79,10 @@
                 <t t-set="layout_document_title">
                     <div class="row" style="margin-top: 0px !important; margin-bottom: 0px !important; padding-top: 0px !important; padding-bottom: 0px !important;">
                         <div class="w-100" style="position: relative; min-height: 20px;">
-                            <div t-if="not o.is_pos_invoice and o.invoice_date" style="font-size: 15px; color: black; test-align: right;">
+                            <div t-if="not o.is_pos_invoice and o.invoice_date" style="font-size: 15px; color: black; test-align: right; font-weight: 900;">
                                 <br/>
-                                <strong>تاریخ الفاتورة</strong>
-                                <strong>/Invoice Date:</strong>
+                                <strong style="font-size: 12.5px;">تاریخ الفاتورة</strong>
+                                <strong style="font-size: 12.5px;">/Invoice Date:</strong>
                                 <span t-field="o.invoice_date"/>
                             </div>
                             <div class="text-center w-100">
@@ -123,7 +123,7 @@
                                 </t>
                             </div>
                             <div t-if="copy_label"
-                                 style="position: absolute; right: 0; top: 0; font-weight: normal; font-size: 9px; color: #777;">
+                                 style="position: absolute; right: 0; top: 0; font-weight: bold; font-size: 9px; color: #777;">
                                 <t t-esc="copy_label"/>
                             </div>
                         </div>
@@ -170,6 +170,9 @@
                 <span class="text-nowrap">
                     <t t-esc="int(line.quantity) if float(line.quantity).is_integer() else ('%.0f' % line.quantity)"/>
                 </span>
+            </xpath>
+            <xpath expr="//td[@name='td_quantity']" position="attributes">
+                <attribute name="class">o_td_quantity text-center</attribute>
             </xpath>
 
             <!-- Unit Price column -->
@@ -240,11 +243,11 @@
                         </div>
                     </div>
                     <div t-if="o.is_pos_invoice" class="col-6 text-end" style="color: black; padding-right: 0;">
-                        <span style="font-weight: bold; font-size: 20px;">Invoice No / رقم الفاتورة : </span>
+                        <span style="font-weight: bold; font-size: 15px;">Invoice No / رقم الفاتورة : </span>
                         <span style="font-weight: bold; font-size: 20px;" t-field="o.name"/>
                     </div>
                     <div t-if="not o.is_pos_invoice" class="col-6 text-end" style="color: black; padding-right: 0;">
-                        <span style="font-weight: bold; font-size: 15px;">Invoice No / رقم الفاتورة : </span>
+                        <span style="font-weight: bold; font-size: 12.5px;">Invoice No / رقم الفاتورة : </span>
                         <span style="font-weight: bold; font-size: 15px;" t-field="o.name"/>
                     </div>
                 </div>
@@ -256,14 +259,14 @@
                     
                     <!-- Invoice Date -->
                     <div class="col text-center" t-if="o.is_pos_invoice and o.invoice_date">
-                        <span style="font-weight: bold; font-size: 11px; color: #000000;">تاريخ الفاتورة / Invoice Date : </span>
-                        <span style="font-size: 11px; color: black;" t-field="o.invoice_date"/>
+                        <span style="font-weight: 900; font-size: 11px; color: #000000;">تاريخ الفاتورة / Invoice Date : </span>
+                        <span style="font-weight: 900; font-size: 11px; color: black;" t-field="o.invoice_date"/>
                     </div>
 
                     <!-- LPO No -->
                     <div class="col text-center" t-if="o.ref">
-                        <span style="font-weight: bold; font-size: 11px; color: #000000;">رقم طلب الشراء / LPO No : </span>
-                        <span style="font-size: 11px; color: black;" t-field="o.ref"/>
+                        <span style="font-weight: 900; font-size: 11px; color: #000000;">رقم طلب الشراء / LPO No : </span>
+                        <span style="font-weight: 900; font-size: 11px; color: black;" t-field="o.ref"/>
                     </div>
 
                     <!-- Delivery Note -->
