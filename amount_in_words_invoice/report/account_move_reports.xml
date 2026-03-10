@@ -9,7 +9,12 @@
                     <strong>Amount in Words (Total) :</strong>
                 </span>
                 <span t-field="o.number_to_words"/>
+                <div t-if="o.number_to_words_ar">
+                    <strong>المبلغ بالكلمات (الإجمالي):</strong>
+                    <span t-field="o.number_to_words_ar"/>
+                </div>
             </div>
+
 <!--            <div style="margin-top:10px; font-size:19px;" class="mb-3"-->
 <!--                 t-if="o.move_type in ('out_invoice', 'in_refund') and o.payment_reference">-->
 <!--                <p name="payment_communication">-->

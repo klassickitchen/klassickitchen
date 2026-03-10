@@ -32,6 +32,7 @@ class AccountMove(models.Model):
     number_to_words = fields.Char(string="Amount in Words (Total) : ",
                                   compute='_compute_number_to_words',
                                   help="To showing total amount in words")
+    number_to_words_ar = fields.Char(string="Amount in Words (Arabic)", compute='_compute_number_to_words', store=True, help="Total amount written in Arabic words")
 
     def _compute_number_to_words(self):
         """Compute the amount to words in Invoice"""
@@ -40,9 +41,20 @@ class AccountMove(models.Model):
             if rec.currency_id.name == 'QAR':
                 import re
                 # Replace Rial with Qatari Rials
-                words = re.sub(r'\bRials?\b', 'Qatari Rials', words)
+                words = re.sub(r'\bRials?\b', 'Qatari Riyals', words) #Edited
                 # Add "Only" at the end
                 if not words.strip().endswith('Only'):
                     words = f"{words.strip()} Only"
             rec.number_to_words = words
-            print("Amount", rec.number_to_words)
+            # skip if ar_001 is not installed
+            arabic_words = False
+            try:
+                arabic_words = rec.with_context(lang='ar_001').currency_id.amount_to_text(rec.amount_total)
+                if arabic_words and rec.currency_id.name == 'QAR':
+                    import re
+                    arabic_words = re.sub(r'Rials?|Rial', 'ريال قطري', arabic_words)
+            except Exception:
+                arabic_words = False
+
+            rec.number_to_words_ar = arabic_words
+            print("Amount", rec.number_to_words, rec.number_to_words_ar)
