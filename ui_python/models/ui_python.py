@@ -1466,7 +1466,7 @@ class UiPython(models.Model):
                 print("uom not found",uom_name,row)
                 break;
 
-            Find Category
+          
             categ_name = (categ_name or '').strip()
 
             category = False
