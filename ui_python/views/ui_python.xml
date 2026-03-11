@@ -53,6 +53,10 @@
                 <button name="assign_pos_categories_based_on_company"
                     string="assign_pos_categories_based_on_company" type="object"
                     class="btn btn-primary ms-2" />
+                <button name="import_products_barcode_flo"
+                    type="object"
+                    string="Import Products(KL)"
+                    class="btn-primary" />
                 <button name="import_products_barcode_flow"
                     type="object"
                     string="Import Products"
