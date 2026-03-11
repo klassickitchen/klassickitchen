@@ -1409,11 +1409,13 @@ class UiPython(models.Model):
         barcode_created_results = []
         skipped_results = []
         updated_cost_results = []
+        category_not_found_results = []
 
         created_products = 0
         barcode_created = 0
         skipped = 0
         cost_updated = 0
+        category_not_found = 0
 
         created_categories = set()
 
@@ -1461,20 +1463,26 @@ class UiPython(models.Model):
             # Find UOM
             uom = self.env['uom.uom'].sudo().search(
                 [('name', '=', uom_name)], limit=1)
-            print("uom",uom.name,uom.id,row)
-            if not uom:
-                print("uom not found",uom_name,row)
-                break;
+
 
 
             categ_name = (categ_name or '').strip()
 
             category = False
 
-            if categ_name and categ_name != '-':
+            if categ_name:
                 category = self.env['product.category'].sudo().search(
                     [('name', '=ilike', categ_name)], limit=1)
-   
+
+                # Category not found in DB - skip this product
+                if not category:
+                    category_not_found += 1
+                    category_not_found_results.append(
+                        f"{name} | {internal_ref} | {barcode} | {categ_name}"
+                    )
+                    print("category not found, skipping", categ_name, row)
+                    continue
+
 
             # Search existing product
             product = self.env['product.product'].sudo().search([
@@ -1546,7 +1554,7 @@ class UiPython(models.Model):
                 'default_code': internal_ref,
                 'description': desc,
                 'brand': brand,
-                'categ_id': category.id if category else False,
+                'categ_id': category.id if category else self.env.ref('product.product_category_all').id,
                 'uom_id': uom.id if uom else False,
                 'purchase_ok': bool(purchase_ok),
                 'sale_ok': bool(sale_ok),
@@ -1589,6 +1597,7 @@ class UiPython(models.Model):
             f"Skipped: {skipped}",
             f"Cost Updated: {cost_updated}",
             f"New Categories Created: {len(created_categories)}",
+            f"Category Not Found (Skipped): {category_not_found}",
         ]
 
         if created_categories:
@@ -1635,6 +1644,17 @@ class UiPython(models.Model):
         output_parts.append(separator)
         if updated_cost_results:
             output_parts.extend(updated_cost_results)
+        else:
+            output_parts.append("(none)")
+
+        # Section 5: Category Not Found (Skipped)
+        output_parts.append(f"\n{separator}")
+        output_parts.append(f"CATEGORY NOT FOUND - SKIPPED ({len(category_not_found_results)})")
+        output_parts.append(separator)
+        output_parts.append("Product Name | Internal Reference | Barcode | Category Name")
+        output_parts.append(separator)
+        if category_not_found_results:
+            output_parts.extend(category_not_found_results)
         else:
             output_parts.append("(none)")
 
