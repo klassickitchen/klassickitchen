@@ -1711,6 +1711,14 @@ class UiPython(models.Model):
         if not company_kl:
             raise UserError("Company KK not found")
 
+        # Find or create the KRsample category for all new products
+        krsample_category = self.env['product.category'].sudo().search(
+            [('name', '=', 'KRsample')], limit=1)
+        if not krsample_category:
+            krsample_category = self.env['product.category'].sudo().create({
+                'name': 'KRsample',
+            })
+
         for row in range(3, sheet.max_row + 1):
 
             internal_ref = str(sheet.cell(row=row, column=INTERNAL_REF_COL).value or '').strip()
@@ -1872,6 +1880,7 @@ class UiPython(models.Model):
             tmpl_vals = {
                 'name': name,
                 'default_code': internal_ref,
+                'categ_id': krsample_category.id,
                 'uom_id': uom.id if uom else False,
                 'purchase_ok': bool(purchase_ok),
                 'sale_ok': bool(sale_ok),
