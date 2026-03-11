@@ -1466,7 +1466,7 @@ class UiPython(models.Model):
                 print("uom not found",uom_name,row)
                 break;
 
-          
+
             categ_name = (categ_name or '').strip()
 
             category = False
@@ -1478,9 +1478,7 @@ class UiPython(models.Model):
 
             # Search existing product
             product = self.env['product.product'].sudo().search([
-                '|',
-                ('default_code', '=', internal_ref),
-                ('barcode', '=', barcode)
+                ('default_code', '=', internal_ref)
             ], limit=1)
             print("product exists",product.name,product.barcode)
 
@@ -1488,50 +1486,54 @@ class UiPython(models.Model):
             # PRODUCT EXISTS
             # ----------------------------
             if product:
-                tmpl = product.product_tmpl_id
-                old_cost = tmpl.with_company(company_kl).standard_price
-                
-                # Check if cost needs to be updated
-                if old_cost != cost:
-                    tmpl.with_company(company_kl).sudo().write({
-                        'standard_price': cost
-                    })
-                    cost_updated += 1
-                    updated_cost_results.append(
-                        f"{product.name} | {internal_ref} | {old_cost} | {cost}"
-                    )
+                # tmpl = product.product_tmpl_id
+                # old_cost = tmpl.with_company(company_kl).standard_price
+                #
+                # # Check if cost needs to be updated
+                # if old_cost != cost:
+                #     tmpl.with_company(company_kl).sudo().write({
+                #         'standard_price': cost
+                #     })
+                #     cost_updated += 1
+                #     updated_cost_results.append(
+                #         f"{product.name} | {internal_ref} | {old_cost} | {cost}"
+                #     )
 
-                barcode_record = self.env['product.barcode'].sudo().search([
-                    ('barcode', '=', barcode),
-                    ('product_id', '=', product.id),
-                    ('company_id', '=', company_kl.id)
-                ], limit=1)
+                # barcode_record = self.env['product.barcode'].sudo().search([
+                #     ('barcode', '=', barcode),
+                #     ('product_id', '=', product.id),
+                #     ('company_id', '=', company_kl.id)
+                # ], limit=1)
+                #
+                # # BARCODE EXISTS
+                # if barcode_record:
+                #
+                #     skipped_results.append(
+                #         f"{product.name} | {internal_ref} | {barcode}"
+                #     )
+                #
+                #     skipped += 1
+                #     continue
+                #
+                # # CREATE BARCODE
+                # self.env['product.barcode'].sudo().create({
+                #     'product_id': product.id,
+                #     'barcode': barcode,
+                #     'uom_id': product.uom_id.id,
+                #     'price': product.list_price,
+                #     'company_id': company_kl.id,
+                #     'arabic_price_alt': getattr(product, 'arabic_price_alt', '') or '',
+                # })
+                #
+                # barcode_created += 1
+                #
+                # barcode_created_results.append(
+                #     f"{product.name} | {internal_ref} | {barcode}"
+                # )
 
-                # BARCODE EXISTS
-                if barcode_record:
-
-                    skipped_results.append(
-                        f"{product.name} | {internal_ref} | {barcode}"
-                    )
-
-                    skipped += 1
-                    continue
-
-                # CREATE BARCODE
-                self.env['product.barcode'].sudo().create({
-                    'product_id': product.id,
-                    'barcode': barcode,
-                    'uom_id': product.uom_id.id,
-                    'price': product.list_price,
-                    'company_id': company_kl.id,
-                    'arabic_price_alt': getattr(product, 'arabic_price_alt', '') or '',
-                })
-
-                barcode_created += 1
-
-                barcode_created_results.append(
-                    f"{product.name} | {internal_ref} | {barcode}"
-                )
+                skipped_results.append(
+                     f"{product.name} | {internal_ref} | {barcode}"
+                  )
 
                 continue
 
@@ -1546,7 +1548,6 @@ class UiPython(models.Model):
                 'brand': brand,
                 'categ_id': category.id if category else False,
                 'uom_id': uom.id if uom else False,
-                'uom_po_id': uom.id if uom else False,
                 'purchase_ok': bool(purchase_ok),
                 'sale_ok': bool(sale_ok),
                 'available_in_pos': bool(pos_ok),
