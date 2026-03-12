@@ -1985,7 +1985,125 @@ class UiPython(models.Model):
             output_parts.append("(none)")
 
         self.results = "\n".join(output_parts)
-        return True    
+        return True
+
+
+
+
+    def assign_pos_category_by_companys(self):
+        """
+        Assign POS categories to products based on which company's product.barcode records exist.
+        """
+        Product = self.env['product.product']
+        POSCategory = self.env['pos.category']
+        Barcode = self.env['product.barcode'].sudo()
+
+        # --- Step 1: Look up companies by code ---
+        company_kk = self.env['res.company'].sudo().search([('code', '=', 'KK')], limit=1)
+        company_kl = self.env['res.company'].sudo().search([('code', '=', 'KL')], limit=1)
+
+        if not company_kk or not company_kl:
+            raise UserError(_("Both companies with code 'KK' and 'KL' must exist."))
+
+        # --- Step 2: Ensure the 3 fixed POS categories exist ---
+        kitchenkraft_categ = POSCategory.search([('name', '=', 'Kitchenkraft')], limit=1)
+        if not kitchenkraft_categ:
+            kitchenkraft_categ = POSCategory.create({'name': 'Kitchenkraft'})
+
+        klassic_categ = POSCategory.search([('name', '=', 'Klassic Kitchen')], limit=1)
+        if not klassic_categ:
+            klassic_categ = POSCategory.create({'name': 'Klassic Kitchen'})
+
+        common_categ = POSCategory.search([('name', '=', 'Common')], limit=1)
+        if not common_categ:
+            common_categ = POSCategory.create({'name': 'Common'})
+
+        updated_prod = 0
+        skipped = 0
+        common_count = 0
+        kitchenkraft_count = 0
+        klassic_count = 0
+
+        # Set to track products that exist but have no product.barcode records
+        # Format: "product_name | internal_reference | company"
+        no_barcode_products = set()
+
+        all_products = Product.search([])
+
+        for product in all_products:
+            # --- Step 3: Check if product.barcode exists for each company ---
+            barcode_kk = Barcode.search([
+                ('product_id', '=', product.id),
+                ('company_id', '=', company_kk.id)
+            ], limit=1)
+            print("product name",product.name,"barcode_kk",barcode_kk.barcode if barcode_kk else "No Barcode")
+
+            barcode_kl = Barcode.search([
+                ('product_id', '=', product.id),
+                ('company_id', '=', company_kl.id)
+            ], limit=1)
+            print("product name", product.name, "barcode_kl", barcode_kl.barcode if barcode_kl else "No Barcode")
+
+            has_kk = bool(barcode_kk)
+            has_kl = bool(barcode_kl)
+
+            print("Processing Product:", product.name, "(ID:", product.id, ")",
+                  "| KK:", has_kk, "| KL:", has_kl)
+
+            if has_kk and has_kl:
+                # Barcode exists in BOTH companies → Common
+                pos_category = common_categ
+                common_count += 1
+            elif has_kk:
+                # Barcode exists ONLY in KK → Kitchenkraft
+                pos_category = kitchenkraft_categ
+                kitchenkraft_count += 1
+            elif has_kl:
+                # Barcode exists ONLY in KL → Klassic Kitchen
+                pos_category = klassic_categ
+                klassic_count += 1
+            else:
+                # No barcode in either company → skip & track
+                company_name = product.company_id.name if product.company_id else 'No Company'
+                internal_ref = product.default_code or 'N/A'
+                no_barcode_products.add(
+                    f"{product.name} | {internal_ref} | {company_name}"
+                )
+                skipped += 1
+                continue
+
+            # --- Step 4: Assign POS category to product template (replace) ---
+            template = product.product_tmpl_id
+            if pos_category not in template.pos_categ_ids:
+                template.pos_categ_ids = [(6, 0, [pos_category.id])]
+                updated_prod += 1
+            else:
+                skipped += 1
+
+        # --- Step 5: Build the no-barcode product list ---
+        no_barcode_list = "\n".join(sorted(no_barcode_products)) if no_barcode_products else "None"
+
+        result_msg = (
+            f"POS Category Assignment Completed\n"
+            f"Updated Products: {updated_prod}\n"
+            f"Skipped: {skipped}\n\n"
+            f"--- Category Breakdown ---\n"
+            f"Common: {common_count}\n"
+            f"Kitchenkraft: {kitchenkraft_count}\n"
+            f"Klassic Kitchen: {klassic_count}\n\n"
+            f"--- Products with NO product.barcode ({len(no_barcode_products)}) ---\n"
+            f"Name | Internal Reference | Company\n"
+            f"{no_barcode_list}"
+        )
+
+        self.results = result_msg
+        print(result_msg)
+        return True
+
+
+
+
+
 
 
 
