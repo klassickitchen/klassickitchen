@@ -48,7 +48,17 @@
                         .totals_taxes_company_currency td { background-color: transparent
                         !important; background: none !important; color: black !important; } /*
                         Information box transparency */ .pos-report #informations {
-                        background-color: transparent !important; } </style>
+                        background-color: transparent !important; } /* Remove outer border from the
+                        table wrapper so it doesn't wrap our custom header */
+                        table[name="invoice_line_table"] { border: none !important; border-top: none
+                        !important; border-left: none !important; border-right: none !important;
+                        border-bottom: none !important; outline: none !important; }
+                        tr.no-border-header, tr.no-border-header > th { border-top: none !important;
+                        border-left: none !important; border-right: none !important; border-bottom:
+                        none !important; border: none !important; border-style: hidden !important; }
+                        /* Ensure the actual header row gets its top border back in standard
+                        standard Odoo gray */ table[name="invoice_line_table"] > thead >
+                        tr:not(.no-border-header) > th { border-top: 1px solid #dee2e6 !important; } </style>
                 </t>
                 <t t-set="layout_document_title">
                     <div class="row"
@@ -192,7 +202,7 @@
 
             <!-- increase table width and fix overlap -->
             <xpath expr="//table[@name='invoice_line_table']" position="attributes">
-                <attribute name="style">width: 100%; table-layout: fixed; background-color:
+                <attribute name="style">width: 100%; border-collapse: collapse; background-color:
                     transparent !important; font-size: 10px; margin-top: 0 !important;</attribute>
             </xpath>
 
@@ -234,72 +244,89 @@
                 </attribute>
             </xpath>
 
-            <!-- Add Invoice Number Heading (Right Aligned) and Customer Name -->
-            <xpath expr="//div[@id='informations']" position="before">
-                <div class="row mb-0"
-                    style="margin-left: 0; margin-right: 0; margin-top: -35px !important;">
-                    <div class="col-6 text-start" style="color: black; padding-left: 0;">
-                        <div>
-                            <span style="font-weight: bold; font-size: 11px;">العميل / Customer : </span>
-                            <span style="font-weight: bold; font-size: 14px;"
-                                t-field="o.partner_id.name" />
-                        </div>
-                        <div t-if="o.partner_id.street or o.partner_id.city"
-                            style="font-weight: bold; font-size: 11px; line-height: 1.1;">
-                            <span t-field="o.partner_id.street" />
-                            <t t-if="o.partner_id.street and o.partner_id.city">, </t>
-                            <span t-field="o.partner_id.city" />
-                        </div>
-                        <div t-if="o.partner_id.phone or o.partner_id.mobile"
-                            style="font-weight: bold; font-size: 11px; line-height: 1.1;">
-                            <span t-if="o.partner_id.phone" t-field="o.partner_id.phone" />
-                            <t t-if="o.partner_id.phone and o.partner_id.mobile"> / </t>
-                            <span t-if="o.partner_id.mobile" t-field="o.partner_id.mobile" />
-                        </div>
-                    </div>
-                    <div t-if="o.is_pos_invoice" class="col-6 text-end"
-                        style="color: black; padding-right: 0;">
-                        <span style="font-weight: bold; font-size: 15px;">Invoice No / رقم الفاتورة
-                            : </span>
-                        <span style="font-weight: bold; font-size: 20px;" t-field="o.name" />
-                    </div>
-                    <div t-if="not o.is_pos_invoice" class="col-6 text-end"
-                        style="color: black; padding-right: 0;">
-                        <span style="font-weight: bold; font-size: 12.5px;">Invoice No / رقم
-                            الفاتورة : </span>
-                        <span style="font-weight: bold; font-size: 15px;" t-field="o.name" />
-                    </div>
-                </div>
-            </xpath>
-            <!-- Restore and Customize Information Section with Boxed Design -->
-            <xpath expr="//div[@id='informations']" position="replace">
-                <div id="informations" class="row mt-1"
-                    t-attf-style="background-color: #{'transparent' if o and o.is_pos_invoice else '#eaeff3'}; border: 2px solid #000000; border-radius: 10px; padding: 3px 5px; margin-left: 0; margin-right: 0; margin-bottom: 5px !important; font-family: sans-serif;">
+            <!-- Hide the original informations block so it doesn't appear twice -->
+            <xpath expr="//div[@id='informations']" position="replace" />
 
-                    <!-- Invoice Date -->
-                    <div class="col text-center" t-if="o.is_pos_invoice and o.invoice_date">
-                        <span style="font-weight: 900; font-size: 15px; color: #000000;">تاريخ
-                            الفاتورة / Invoice Date : </span>
-                        <span style="font-weight: 900; font-size: 15px; color: black;"
-                            t-field="o.invoice_date" />
-                    </div>
+            <!-- Add Invoice Number Heading, Customer Name, and Informations inside table header to
+            repeat on every page -->
+            <xpath expr="//table[@name='invoice_line_table']/thead/tr[1]" position="before">
+                <tr class="no-border-header"
+                    style="border-style: hidden !important; border-width: 0 !important; border: none !important;">
+                    <th colspan="99" class="no-border-header"
+                        style="border-style: hidden !important; border-width: 0 !important; border: none !important; padding: 0 0 3px 0 !important; font-weight: normal; background-color: transparent !important; text-align: left;">
+                        <div class="row mb-0"
+                            style="margin-left: 0; margin-right: 0;">
+                            <div class="col-6 text-start" style="color: black; padding-left: 0;">
+                                <div>
+                                    <span style="font-weight: bold; font-size: 11px;">العميل /
+                                        Customer : </span>
+                                    <span style="font-weight: bold; font-size: 14px;"
+                                        t-field="o.partner_id.name" />
+                                </div>
+                                <div t-if="o.partner_id.street or o.partner_id.city"
+                                    style="font-weight: bold; font-size: 11px; line-height: 1.1;">
+                                    <span t-field="o.partner_id.street" />
+                                    <t t-if="o.partner_id.street and o.partner_id.city">, </t>
+                                    <span t-field="o.partner_id.city" />
+                                </div>
+                                <div t-if="o.partner_id.phone or o.partner_id.mobile"
+                                    style="font-weight: bold; font-size: 11px; line-height: 1.1;">
+                                    <span t-if="o.partner_id.phone" t-field="o.partner_id.phone" />
+                                    <t t-if="o.partner_id.phone and o.partner_id.mobile"> / </t>
+                                    <span t-if="o.partner_id.mobile" t-field="o.partner_id.mobile" />
+                                </div>
+                            </div>
+                            <div t-if="o.is_pos_invoice" class="col-6 text-end"
+                                style="color: black; padding-right: 0;">
+                                <span style="font-weight: bold; font-size: 15px;">Invoice No / رقم
+                                    الفاتورة
+                                    : </span>
+                                <span style="font-weight: bold; font-size: 20px;" t-field="o.name" />
+                            </div>
+                            <div t-if="not o.is_pos_invoice" class="col-6 text-end"
+                                style="color: black; padding-right: 0;">
+                                <span style="font-weight: bold; font-size: 12.5px;">Invoice No / رقم
+                                    الفاتورة : </span>
+                                <span style="font-weight: bold; font-size: 15px;" t-field="o.name" />
+                            </div>
+                        </div>
 
-                    <!-- LPO No -->
-                    <div class="col text-center" t-if="o.ref">
-                        <span style="font-weight: 900; font-size: 15px; color: #000000;">رقم طلب
-                            الشراء / LPO No : </span>
-                        <span style="font-weight: 900; font-size: 15px; color: black;"
-                            t-field="o.ref" />
-                    </div>
+                        <div id="informations" class="row mt-1"
+                            t-attf-style="background-color: #{'transparent' if o and o.is_pos_invoice else '#eaeff3'}; border: 2px solid #000000; border-radius: 10px; padding: 3px 5px; margin-left: 0; margin-right: 0; margin-bottom: 0px !important; font-family: sans-serif;">
 
-                    <!-- Delivery Note -->
-                    <div class="col text-center" t-if="o.picking_ids">
-                        <span style="font-weight: bold; font-size: 11px; color: #000000;">مذكرة
-                            تسليم / Delivery Note : </span>
-                        <span style="font-size: 11px; color: black;"
-                            t-esc="', '.join(o.picking_ids.filtered(lambda p: p.state != 'cancel').mapped('name'))" />
-                    </div>
-                </div>
+                            <!-- Invoice Date -->
+                            <div class="col text-center" t-if="o.is_pos_invoice and o.invoice_date">
+                                <span style="font-weight: 900; font-size: 15px; color: #000000;">تاريخ
+                                    الفاتورة / Invoice Date : </span>
+                                <span style="font-weight: 900; font-size: 15px; color: black;"
+                                    t-field="o.invoice_date" />
+                            </div>
+
+                            <!-- LPO No -->
+                            <div class="col text-center" t-if="o.ref">
+                                <span style="font-weight: 900; font-size: 15px; color: #000000;">رقم
+                                    طلب
+                                    الشراء / LPO No : </span>
+                                <span style="font-weight: 900; font-size: 15px; color: black;"
+                                    t-field="o.ref" />
+                            </div>
+
+                            <!-- Delivery Note -->
+                            <div class="col text-center" t-if="o.picking_ids">
+                                <span style="font-weight: bold; font-size: 11px; color: #000000;">مذكرة
+                                    تسليم / Delivery Note : </span>
+                                <span style="font-size: 11px; color: black;"
+                                    t-esc="', '.join(o.picking_ids.filtered(lambda p: p.state != 'cancel').mapped('name'))" />
+                            </div>
+                        </div>
+                    </th>
+                </tr>
+                <!-- Spacer row to enforce EXACTLY 3px gap -->
+                <tr class="no-border-header"
+                    style="height: 3px !important; border: none !important; background-color: transparent !important;">
+                    <th colspan="99"
+                        style="height: 3px !important; border: none !important; padding: 0 !important; margin: 0 !important; font-size: 0px !important; line-height: 0px !important; background-color: transparent !important;"></th>
+                </tr>
             </xpath>
 
             <xpath expr="//div[hasclass('clearfix')]" position="after">
