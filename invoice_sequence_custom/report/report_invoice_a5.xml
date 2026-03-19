@@ -28,7 +28,7 @@
                         .o_address_block { margin-bottom: 0px !important; padding-bottom: 0px
                         !important; margin-top: 0px !important; } #informations_table th {
                         font-size: 9px !important; padding-top: 1px !important; padding-bottom: 1px
-                        !important; } table[name="invoice_line_table"] thead th { font-size: 11px
+                        !important; } table[name="invoice_line_table"] thead th { font-size: 12px
                         !important; padding-top: 1px !important; padding-bottom: 1px !important; }
                         /* background removal - ONLY for A5 POS invoice */ .article[data-oe-id="<t
                             t-esc="o.id" />"], .article[data-oe-id="<t t-esc="o.id" />"] .watermark,
@@ -59,6 +59,53 @@
                         /* Ensure the actual header row gets its top border back in standard
                         standard Odoo gray */ table[name="invoice_line_table"] > thead >
                         tr:not(.no-border-header) > th { border-top: 1px solid #dee2e6 !important; } </style>
+                </t>
+                <t t-if="o and o.is_pos_invoice and hide_report_footer">
+                    <style t-attf-id="pos_style_#{o.id}"> /* Compressed header only for A5 POS */
+                        .header, .o_company_header, .o_background_header { margin-bottom: 0px
+                        !important; padding-bottom: 0px !important; height: auto !important;
+                        min-height: 0px !important; } .page { margin-top: 0px !important;
+                        padding-top: 0px !important; } /* Compress document title area */
+                        .o_layout_document_title { margin-bottom: 0px !important; padding-bottom:
+                        0px !important; } /* Compress address block */ .address-block,
+                        .o_address_block { margin-bottom: 0px !important; padding-bottom: 0px
+                        !important; margin-top: 0px !important; } #informations_table th {
+                        font-size: 9px !important; padding-top: 1px !important; padding-bottom: 1px
+                        !important; } table[name="invoice_line_table"] thead th { font-size: 14.5px
+                        !important; padding-top: 1px !important; padding-bottom: 1px !important; font-weight: bold !important;}
+                        /* background removal - ONLY for A5 POS invoice */ .article[data-oe-id="<t
+                            t-esc="o.id" />"], .article[data-oe-id="<t t-esc="o.id" />"] .watermark,
+                        .article[data-oe-id="<t t-esc="o.id" />"] .o_watermark,
+                        .article[data-oe-id="<t t-esc="o.id" />"] .o_report_layout_background {
+                        background-image: none !important; background: none !important; } /* Remove
+                        th background for POS reports */ .pos-report
+                        table[name="invoice_line_table"] thead th { background-color: transparent
+                        !important; color: black !important; } /* Ensure titles are black for POS */
+                        .pos-report h2, .pos-report .h2, .pos-report h3, .pos-report .h3 { color:
+                        black !important; } /* Aggressive Totals Color Removal for POS */
+                        .pos-report .o_total, .pos-report .o_total td, .pos-report .o_total strong,
+                        .pos-report .o_subtotal, .pos-report .o_subtotal td, .pos-report .o_taxes,
+                        .pos-report .o_taxes td, .pos-report .totals_taxes_company_currency,
+                        .pos-report .totals_taxes_company_currency table, .pos-report
+                        .totals_taxes_company_currency tr, .pos-report
+                        .totals_taxes_company_currency td { background-color: transparent
+                        !important; background: none !important; color: black !important; } /*
+                        Information box transparency */ .pos-report #informations {
+                        background-color: transparent !important; } /* Remove outer border from the
+                        table wrapper so it doesn't wrap our custom header */
+                        table[name="invoice_line_table"] { border: none !important; border-top: none
+                        !important; border-left: none !important; border-right: none !important;
+                        border-bottom: none !important; outline: none !important; }
+                        tr.no-border-header, tr.no-border-header > th { border-top: none !important;
+                        border-left: none !important; border-right: none !important; border-bottom:
+                        none !important; border: none !important; border-style: hidden !important; }
+                        /* Ensure the actual header row gets its top border back in standard
+                        standard Odoo gray */ table[name="invoice_line_table"] > thead >
+                        tr:not(.no-border-header) > th { border-top: 1px solid #dee2e6 !important; }
+                        /* Force pure black on all table content */
+                        .pos-report table, .pos-report table td, .pos-report table th, .pos-report table * { color:
+                        #000000 !important; }
+                    </style>
                 </t>
                 <t t-set="layout_document_title">
                     <div class="row"
@@ -146,14 +193,19 @@
             <!--                </t>-->
             <!--            </xpath>-->
             <xpath expr="//td[@name='td_quantity']" position="before">
-                <td name="account_invoice_line_name">
-                    <span t-if="line.name" t-field="line.name" style="font-size: 11px;"
+                <td name="account_invoice_line_name" style="font-size: 11px;">
+                    <span t-if="line.name" t-field="line.name"
                         t-options="{'widget': 'text'}" />
                     <t t-if="line.product_id.arabic_name">
-                        <span style="font-size: 11px;"> / </span>
-                        <span style="font-size: 11px;" t-esc="line.product_id.arabic_name" />
+                        <span> / </span>
+                        <span t-esc="line.product_id.arabic_name" />
                     </t>
                 </td>
+            </xpath>
+            <xpath expr="//td[@name='account_invoice_line_name']" position="attributes">
+                <attribute name="t-attf-style">
+                    font-size: {{ '14px' if hide_report_footer else '11px' }};
+                </attribute>
             </xpath>
 
             <xpath expr="//th[@name='th_taxes']" position="replace"></xpath>
@@ -167,10 +219,18 @@
             </xpath>
 
             <xpath expr="//th[@name='th_quantity']" position="replace">
-                <th name="th_quantity" class="text-center"
-                    style="font-size: 11px !important; width: 7% !important;">
-                    <span>Qty</span>
-                </th>
+                <t t-if="hide_report_footer">
+                    <th name="th_quantity" class="text-center"
+                        style="font-size: 14.5px !important; width: 7% !important; font-weight: bold !important;">
+                        <span>Qty</span>
+                    </th>
+                </t>
+                <t t-else="">
+                    <th name="th_quantity" class="text-center"
+                        style="font-size: 12px !important; width: 7% !important;">
+                        <span>Qty</span>
+                    </th>
+                </t>
             </xpath>
             <xpath expr="//td[@name='td_quantity']/span[@t-field='line.quantity']"
                 position="replace">
@@ -208,7 +268,7 @@
 
             <!-- Reduce table heading font size -->
             <xpath expr="//table[@name='invoice_line_table']/thead/tr" position="attributes">
-                <attribute name="style">font-size: 11px !important; vertical-align: middle
+                <attribute name="style">font-size: 12px !important; vertical-align: middle
                     !important;</attribute>
             </xpath>
 
@@ -250,12 +310,16 @@
             <!-- Add Invoice Number Heading, Customer Name, and Informations inside table header to
             repeat on every page -->
             <xpath expr="//table[@name='invoice_line_table']/thead/tr[1]" position="before">
+<!--                The Below Div Erases the Top Border of Table (Manually Positioned, Might Have to change values if some changes are made else where                -->
+                <div t-if="hide_report_footer" style="position: absolute; top: 10; left: 0;
+                     right: 0; height: 5px; background-color: white; z-index: 10; width: 100%;"/>
                 <tr class="no-border-header"
                     style="border-style: hidden !important; border-width: 0 !important; border: none !important;">
                     <th colspan="99" class="no-border-header"
                         style="border-style: hidden !important; border-width: 0 !important; border: none !important; padding: 0 0 3px 0 !important; font-weight: normal; background-color: transparent !important; text-align: left;">
                         <div class="row mb-0"
-                            style="margin-left: 0; margin-right: 0;">
+                            style="margin-left: 0; margin-right: 0; padding: 3px 5px;">
+<!--                            t-attf-style="border: 1px solid #000000; border-radius: 10px; padding: 3px 5px; margin-left: 0; margin-right: 0; margin-bottom: 0px !important;">-->
                             <div class="col-6 text-start" style="color: black; padding-left: 0;">
                                 <div>
                                     <span style="font-weight: bold; font-size: 11px;">العميل /
@@ -366,7 +430,19 @@
                     </div>
                 </t>
             </xpath>
-
+            <xpath expr="//tbody" position="attributes">
+                <attribute name="t-attf-style">
+                    font-weight: {{ 'bold' if hide_report_footer else 'normal' }};
+                    font-size: {{ '14px' if hide_report_footer else '11px' }};
+                </attribute>
+            </xpath>
+            <xpath expr="//table" position="attributes">
+                <attribute name="style">
+                    width:100%;
+                    border-collapse:collapse;
+                    border-spacing:0;
+                </attribute>
+            </xpath>
         </template>
 
         <template id="document_tax_totals_template_inherit"
