@@ -382,7 +382,7 @@
                                 </div>
                                 <!-- === END TOTAL BLOCK === -->
 
-                                <div style="font-size:11px; padding15px; font-family: 'RobotoMono-Bold', monospace !important;">
+                                <div style="font-size:15px !important; padding:15px; font-family: 'RobotoMono-Bold', monospace !important;">
                                     <span>
                                         <strong>Amount in Words (Total) :</strong>
                                     </span>

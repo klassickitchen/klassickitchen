@@ -453,7 +453,7 @@
 
         <!-- Custom Header -->
     <xpath expr="//div[contains(@t-attf-class, 'header o_company_#{company.id}_layout')]" position="replace">
-        <div t-attf-class="header o_company_#{company.id}_layout {{report_type == 'pdf' and 'pt-3'}}" t-if="not hide_report_footer">
+        <div t-attf-class="header o_company_#{company.id}_layout {{report_type == 'pdf' and 'pt-3'}}" t-if="not hide_report_footer and not wo_header_and_footer">
             <t t-if="company.report_header_image">
                 <!--             Background Shape -->
                 <svg xmlns="http://www.w3.org/2000/svg"
@@ -497,20 +497,46 @@
         </div>
     </xpath>
 
-         Custom Footer
+<!--         Custom Footer-->
         <xpath expr="//div[contains(@t-attf-class, 'footer o_company_#{company.id}_layout')]" position="replace">
-        <t t-if="not hide_report_footer">
-            <div t-attf-class="footer o_company_#{company.id}_layout {{report_type != 'pdf' and 'position-relative mt-auto mx-n5'}}">
-                <svg xmlns="http://www.w3.org/2000/svg" t-attf-class="{{report_type == 'pdf' and 'position-fixed start-0'}}" width="500" height="228" viewBox="0 0 500 228" fill="none">
-                    <path d="M500 228H0V6.52743C26.3323 2.23278 53.3561 0 80.9008 0C256.522 0 410.969 90.7656 500 228Z" t-att-fill="company.secondary_color" fill-opacity=".1"/>
-                </svg>
-                <div t-attf-class="o_footer_content {{report_type != 'pdf' and 'position-absolute end-0 start-0 bottom-0 mx-5'}} pt-4 text-center">
-                    <div class="border-top pt-2" t-field="company.report_footer"/>
-                    <span t-if="report_type == 'pdf' and display_name_in_footer" class="text-muted" t-out="str(o.name) + ', '">(document name)</span>
-                    <span t-if="report_type == 'pdf'" class="text-muted">Page <span class="page"/> / <span class="topage"/></span>
+            <t t-if="not hide_report_footer and not wo_header_and_footer">
+                <div t-attf-class="footer o_company_#{company.id}_layout {{report_type != 'pdf' and 'position-relative mt-auto mx-n5'}}">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         t-attf-class="{{report_type == 'pdf' and 'position-fixed start-0'}}" width="500" height="228"
+                         viewBox="0 0 500 228" fill="none">
+                        <path d="M500 228H0V6.52743C26.3323 2.23278 53.3561 0 80.9008 0C256.522 0 410.969 90.7656 500 228Z"
+                              t-att-fill="company.secondary_color" fill-opacity=".1"/>
+                    </svg>
+                    <div t-attf-class="o_footer_content {{report_type != 'pdf' and 'position-absolute end-0 start-0 bottom-0 mx-5'}} pt-4 text-center">
+                        <div class="border-top pt-2" t-field="company.report_footer"/>
+                        <span t-if="report_type == 'pdf' and display_name_in_footer" class="text-muted"
+                              t-out="str(o.name) + ', '">(document name)
+                        </span>
+                        <span t-if="report_type == 'pdf'" class="text-muted">Page
+                            <span class="page"/>
+                            /
+                            <span class="topage"/>
+                        </span>
+                    </div>
                 </div>
-            </div>
-        </t>
+            </t>
+            <t t-else="">
+                <div t-attf-class="footer o_company_#{company.id}_layout {{report_type != 'pdf' and 'position-relative mt-auto mx-n5'}}">
+                    <div t-attf-class="o_footer_content {{report_type != 'pdf' and 'position-absolute end-0 start-0 bottom-0 mx-5'}} pt-4 text-center">
+                        <!--                        <span class="text-muted"-->
+                        <!--                              t-out="str(o.name) + ', '">(document name)-->
+                        <!--                        </span>-->
+                    </div>
+                    <div t-if="report_type == 'pdf'"
+                         style="position: fixed; bottom: 25; right: -20; width: 100%;">
+                        <span class="text-muted">Page
+                            <span class="page"/>
+                            /
+                            <span class="topage"/>
+                        </span>
+                    </div>
+                </div>
+            </t>
         </xpath>
 
 
