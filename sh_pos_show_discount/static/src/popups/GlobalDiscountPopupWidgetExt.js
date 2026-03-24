@@ -2,20 +2,30 @@
 
 import { patch } from "@web/core/utils/patch";
 import { GlobalDiscountPopupWidget } from "@sh_pos_order_discount/apps/popups/GlobalDiscountPopupWidget/GlobalDiscountPopupWidget";
-import { useState } from "@odoo/owl";
+import { useState, onMounted } from "@odoo/owl";
 
 patch(GlobalDiscountPopupWidget.prototype, {
     setup() {
         super.setup(...arguments);
+        const order = this.pos.get_order();
+        const currentTotal = order ? order.get_total_with_tax() : 0;
         this.state = useState({
             equivDisplay: "0.00",
+            amountBefore: currentTotal.toFixed(2),
+            amountAfter: currentTotal.toFixed(2),
+        });
+        onMounted(() => {
+            // Refresh amount before on mount in case order changed
+            const order = this.pos.get_order();
+            if (order) {
+                this.state.amountBefore = order.get_total_with_tax().toFixed(2);
+                this.state.amountAfter = order.get_total_with_tax().toFixed(2);
+            }
         });
     },
 
     /**
      * Returns the current order total with tax.
-     * If a global discount was already applied, it resets discounts
-     * temporarily to get the "clean" total.
      */
     _getOrderTotal() {
         const order = this.pos.get_order();
@@ -25,7 +35,7 @@ patch(GlobalDiscountPopupWidget.prototype, {
 
     /**
      * Called whenever the user types in the value input.
-     * Computes the equivalent value for the other discount type.
+     * Computes the equivalent value and before/after amounts.
      */
     onValueInput(ev) {
         const val = parseFloat(ev.target.value);
@@ -43,17 +53,20 @@ patch(GlobalDiscountPopupWidget.prototype, {
     },
 
     /**
-     * Core logic: compute equivalent discount value.
+     * Core logic: compute equivalent discount value + before/after amounts.
      * If Fixed is selected  → show equivalent Percentage
      * If Percentage is selected → show equivalent Fixed Amount
      */
     _computeEquivalent(val) {
+        const total = this._getOrderTotal();
+        this.state.amountBefore = total.toFixed(2);
+
         if (!val || isNaN(val) || val <= 0) {
             this.state.equivDisplay = "0.00";
+            this.state.amountAfter = total.toFixed(2);
             return;
         }
 
-        const total = this._getOrderTotal();
         const isFixed =
             document.getElementById("discount_fixed_radio") &&
             document.getElementById("discount_fixed_radio").checked;
@@ -63,16 +76,20 @@ patch(GlobalDiscountPopupWidget.prototype, {
             if (total > 0) {
                 const pct = (val / total) * 100;
                 this.state.equivDisplay = pct.toFixed(2) + " %";
+                this.state.amountAfter = (total - val).toFixed(2);
             } else {
                 this.state.equivDisplay = "0.00 %";
+                this.state.amountAfter = "0.00";
             }
         } else {
             // Percentage entered → show equivalent fixed amount
             if (total > 0) {
-                const fixed = (total * val) / 100;
-                this.state.equivDisplay = fixed.toFixed(2);
+                const discountAmount = (total * val) / 100;
+                this.state.equivDisplay = discountAmount.toFixed(2);
+                this.state.amountAfter = (total - discountAmount).toFixed(2);
             } else {
                 this.state.equivDisplay = "0.00";
+                this.state.amountAfter = "0.00";
             }
         }
     },

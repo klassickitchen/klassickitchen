@@ -368,9 +368,9 @@
 
                             <!-- LPO No -->
                             <div class="col text-center" t-if="o.ref">
-                                <span style="font-weight: 900; font-size: 15px; color: #000000;">رقم
-                                    طلب
-                                    الشراء / LPO No : </span>
+<!--                                <span style="font-weight: 900; font-size: 15px; color: #000000;">رقم-->
+<!--                                    طلب-->
+<!--                                    الشراء / LPO No : </span>-->
                                 <span style="font-weight: 900; font-size: 15px; color: black;"
                                     t-field="o.ref" />
                             </div>

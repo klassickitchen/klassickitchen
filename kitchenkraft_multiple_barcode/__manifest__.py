@@ -1,6 +1,6 @@
 {
     "name": "kitchenkraft Multiple Barcode",
-    "version": "18.12.5",
+    "version": "18.12.6",
     "category": "Inventory",
     "summary": "Multiple Barcode for kitchenkraft",
     "license": "OPL-1",
@@ -22,7 +22,8 @@
         "point_of_sale._assets_pos": [
             "kitchenkraft_multiple_barcode/static/src/js/pos_order_line_patch.js",
             "kitchenkraft_multiple_barcode/static/src/js/product_screen.js",
-            "kitchenkraft_multiple_barcode/static/src/js/product_screen_extension.js"
+            "kitchenkraft_multiple_barcode/static/src/js/product_screen_extension.js",
+            "kitchenkraft_multiple_barcode/static/src/js/pos_barcode_search.js"
         ],
     },
     "installable": True,
