@@ -11,6 +11,16 @@
                 <input type="text" class="form-control form-control-lg sh_discount_equiv_value w-25 text-left" readonly="1"
                        t-att-value="state.equivDisplay"/>
             </div>
+            <div class="discount_before_div d-flex justify-content-center align-items-center gap-2 mt-2">
+                <span class="tax-info subentry fs-6 text-muted d-flex flex-row-reverse align-items-start gap-2 sh_discount_label">Before Discount : </span>
+                <input type="text" class="form-control form-control-lg w-25 text-left" readonly="1"
+                       t-att-value="state.amountBefore"/>
+            </div>
+            <div class="discount_after_div d-flex justify-content-center align-items-center gap-2 mt-2">
+                <span class="tax-info subentry fs-6 text-muted d-flex flex-row-reverse align-items-start gap-2 sh_discount_label">After Discount : </span>
+                <input type="text" class="form-control form-control-lg w-25 text-left" readonly="1"
+                       t-att-value="state.amountAfter"/>
+            </div>
         </xpath>
 
         <!-- Add t-on-input handler to value input -->

@@ -5,20 +5,25 @@
                 .modal-content {
                     .modal-body {
                         .sh_modul_body {
-                            // Ensure both Value and Equivalent labels have equal width for alignment
+                            // Ensure all labels have equal width for alignment
                             .discount_amount_div,
-                            .discount_equiv_div {
+                            .discount_equiv_div,
+                            .discount_before_div,
+                            .discount_after_div {
                                 .sh_discount_label {
                                     display: inline-block !important;
-                                    width: 110px;
-                                    min-width: 110px;
+                                    width: 140px;
+                                    min-width: 140px;
                                     text-align: right;
                                     font-size: 16px !important;
                                     white-space: nowrap;
                                 }
                             }
-                            .discount_equiv_div {
-                                .sh_discount_equiv_value {
+                            // Read-only input styling for equivalent, before & after
+                            .discount_equiv_div,
+                            .discount_before_div,
+                            .discount_after_div {
+                                input[readonly] {
                                     background-color: #f8f9fa;
                                     font-weight: 600;
                                     color: #495057;
