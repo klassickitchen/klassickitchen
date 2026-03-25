@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-inherit="point_of_sale.OrderWidget" t-inherit-mode="extension">
+        <xpath expr="//span[hasclass('sh_global_title')]" position="after">
+            <span class="badge ms-1" style="background-color: #e0e0e0; color: #333; font-size: 13px; font-weight: bold; padding: 3px 5px;">
+                Product Qty: <t t-esc="get_product_qty()" />
+            </span>
+            <span class="badge ms-1" style="background-color: #e0e0e0; color: #333; font-size: 13px; font-weight: bold; padding: 3px 5px;">
+                Items Qty: <t t-esc="get_items_qty()" />
+            </span>
+            <span class="badge ms-1" style="background-color: #e0e0e0; color: #333; font-size: 13px; font-weight: bold; padding: 3px 5px;">
+                Zero Qty: <t t-esc="get_zero_qty()" />
+            </span>
+        </xpath>
+    </t>
+</templates>
