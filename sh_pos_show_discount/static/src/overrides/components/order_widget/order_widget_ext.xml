@@ -1,16 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates id="template" xml:space="preserve">
     <t t-inherit="point_of_sale.OrderWidget" t-inherit-mode="extension">
-        <xpath expr="//span[hasclass('sh_global_title')]" position="after">
-            <span class="badge ms-1" style="background-color: #e0e0e0; color: #333; font-size: 13px; font-weight: bold; padding: 3px 5px;">
-                Product Qty: <t t-esc="get_product_qty()" />
-            </span>
-            <span class="badge ms-1" style="background-color: #e0e0e0; color: #333; font-size: 13px; font-weight: bold; padding: 3px 5px;">
-                Items Qty: <t t-esc="get_items_qty()" />
-            </span>
-            <span class="badge ms-1" style="background-color: #e0e0e0; color: #333; font-size: 13px; font-weight: bold; padding: 3px 5px;">
-                Zero Qty: <t t-esc="get_zero_qty()" />
-            </span>
+        <xpath expr="//div[hasclass('order-summary')]/div[hasclass('fs-2')]" position="after">
+            <div class="d-flex justify-content-end gap-2 text-muted fs-6 mb-1">
+                <span class="badge" style="background-color: #e0e0e0; color: #333; font-size: 13px; font-weight: bold; padding: 3px 5px;">
+                    Items Qty: <t t-esc="get_items_qty()" />
+                </span>
+                <span class="badge" style="background-color: #e0e0e0; color: #333; font-size: 13px; font-weight: bold; padding: 3px 5px;">
+                    Zero Qty: <t t-esc="get_zero_qty()" />
+                </span>
+                <span class="badge" style="background-color: #e0e0e0; color: #333; font-size: 13px; font-weight: bold; padding: 3px 5px;">
+                    Return Qty: <t t-esc="get_return_qty()" />
+                </span>
+            </div>
+        </xpath>
+        <xpath expr="//div[hasclass('order-summary')]/div[hasclass('fs-2')]/span[hasclass('total')]" position="attributes">
+            <attribute name="style">color: #198754; background-color: #d1e7dd; padding: 2px 8px; border-radius: 4px;</attribute>
         </xpath>
     </t>
 </templates>

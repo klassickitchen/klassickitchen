@@ -33,4 +33,14 @@ patch(OrderWidget.prototype, {
           ? parseFloat(order.get_order_global_discount()).toFixed(2)
           : 0;
     },
+    get_total_before_discount() {
+        var order = this.pos?.get_order();
+        if (!order) return "0.00";
+        var orderlines = order.get_orderlines();
+        var total_before = 0;
+        for (var i = 0; i < orderlines.length; i++) {
+            total_before += (orderlines[i].qty * orderlines[i].price_unit);
+        }
+        return total_before.toFixed(2);
+    },
 });
