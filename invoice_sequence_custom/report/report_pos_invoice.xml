@@ -59,10 +59,8 @@
         <field name="name">Print A4 w/o Header and Footer</field>
         <field name="model">account.move</field>
         <field name="report_type">qweb-pdf</field>
-        <field name="report_name">
-            invoice_sequence_custom.report_invoice_with_payments_twice_a4_wo_header_and_footer</field>
-        <field name="report_file">
-            invoice_sequence_custom.report_invoice_with_payments_twice_a4_wo_header_and_footer</field>
+        <field name="report_name">invoice_sequence_custom.report_invoice_with_payments_twice_a4_wo_header_and_footer</field>
+        <field name="report_file">invoice_sequence_custom.report_invoice_with_payments_twice_a4_wo_header_and_footer</field>
         <field name="is_invoice_report">True</field>
         <field name="paperformat_id" ref="invoice_sequence_custom.paperformat_a4_custom" />
         <field name="print_report_name">(object._get_report_base_filename())</field>
@@ -197,4 +195,19 @@
         <field name="paperformat_id" ref="invoice_sequence_custom.paperformat_a4_custom" />
     </record>
 
+    <template id="report_invoice_document_cash_credit_title" inherit_id="account.report_invoice_document">
+        <!-- We use position="before" to place it right above the invoice line table -->
+        <xpath expr="//table[@name='invoice_line_table']" position="before">
+            <!-- This ensures it ONLY appears on the w/o header and footer report -->
+            <t t-if="wo_header_and_footer">
+                <div class="text-center mt-3 mb-3">
+                    <h4 style="text-decoration: underline; font-weight: bold; margin: 0; color: black;">
+                        <t t-if="o.payment_type == 'cash'">CASH INVOICE</t>
+                        <t t-elif="o.payment_type == 'credit'">CREDIT INVOICE</t>
+                        <t t-else="">CASH INVOICE</t>
+                    </h4>
+                </div>
+            </t>
+        </xpath>
+    </template>
 </odoo>
