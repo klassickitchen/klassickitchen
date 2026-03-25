@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "POS Global Discount Auto Calculation",
-    "version": "18.0.1.0.1",
+    "version": "18.0.1.0.2",
     "author": "AGM Info Solutions",
     "website": "https://www.agmglobal.in/",
     "category": "Point Of Sale",

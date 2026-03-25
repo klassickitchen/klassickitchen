@@ -72,8 +72,9 @@
                         !important; margin-top: 0px !important; } #informations_table th {
                         font-size: 9px !important; padding-top: 1px !important; padding-bottom: 1px
                         !important; } table[name="invoice_line_table"] thead th { font-size: 14.5px
-                        !important; padding-top: 1px !important; padding-bottom: 1px !important; font-weight: bold !important;}
-                        /* background removal - ONLY for A5 POS invoice */ .article[data-oe-id="<t
+                        !important; padding-top: 1px !important; padding-bottom: 1px !important;
+                        font-weight: bold !important;} /* background removal - ONLY for A5 POS
+                        invoice */ .article[data-oe-id="<t
                             t-esc="o.id" />"], .article[data-oe-id="<t t-esc="o.id" />"] .watermark,
                         .article[data-oe-id="<t t-esc="o.id" />"] .o_watermark,
                         .article[data-oe-id="<t t-esc="o.id" />"] .o_report_layout_background {
@@ -102,10 +103,9 @@
                         /* Ensure the actual header row gets its top border back in standard
                         standard Odoo gray */ table[name="invoice_line_table"] > thead >
                         tr:not(.no-border-header) > th { border-top: 1px solid #dee2e6 !important; }
-                        /* Force pure black on all table content */
-                        .pos-report table, .pos-report table td, .pos-report table th, .pos-report table * { color:
-                        #000000 !important; }
-                    </style>
+                        /* Force pure black on all table content */ .pos-report table, .pos-report
+                        table td, .pos-report table th, .pos-report table * { color: #000000
+                        !important; } </style>
                 </t>
                 <t t-set="layout_document_title">
                     <div class="row"
@@ -310,16 +310,20 @@
             <!-- Add Invoice Number Heading, Customer Name, and Informations inside table header to
             repeat on every page -->
             <xpath expr="//table[@name='invoice_line_table']/thead/tr[1]" position="before">
-<!--                The Below Div Erases the Top Border of Table (Manually Positioned, Might Have to change values if some changes are made else where                -->
-                <div t-if="hide_report_footer" style="position: absolute; top: 10; left: 0;
-                     right: 0; height: 5px; background-color: white; z-index: 10; width: 100%;"/>
+                <!--                The Below Div Erases the Top Border of Table (Manually Positioned, Might Have
+                to change values if some changes are made else where                -->
+                <div t-if="hide_report_footer"
+                    style="position: absolute; top: 10; left: 0;
+                     right: 0; height: 5px; background-color: white; z-index: 10; width: 100%;" />
                 <tr class="no-border-header"
                     style="border-style: hidden !important; border-width: 0 !important; border: none !important;">
                     <th colspan="99" class="no-border-header"
                         style="border-style: hidden !important; border-width: 0 !important; border: none !important; padding: 0 0 3px 0 !important; font-weight: normal; background-color: transparent !important; text-align: left;">
                         <div class="row mb-0"
                             style="margin-left: 0; margin-right: 0; padding: 3px 5px;">
-<!--                            t-attf-style="border: 1px solid #000000; border-radius: 10px; padding: 3px 5px; margin-left: 0; margin-right: 0; margin-bottom: 0px !important;">-->
+                            <!--                            t-attf-style="border: 1px solid #000000; border-radius: 10px;
+                            padding: 3px 5px; margin-left: 0; margin-right: 0; margin-bottom: 0px
+                            !important;">-->
                             <div class="col-6 text-start" style="color: black; padding-left: 0;">
                                 <div>
                                     <span style="font-weight: bold; font-size: 11px;">العميل /
@@ -368,9 +372,10 @@
 
                             <!-- LPO No -->
                             <div class="col text-center" t-if="o.ref">
-<!--                                <span style="font-weight: 900; font-size: 15px; color: #000000;">رقم-->
-<!--                                    طلب-->
-<!--                                    الشراء / LPO No : </span>-->
+                                <!-- <span style="font-weight: 900; font-size: 15px; color:
+                                #000000;">رقم
+                                    طلب
+                                    الشراء / LPO No : </span> -->
                                 <span style="font-weight: 900; font-size: 15px; color: black;"
                                     t-field="o.ref" />
                             </div>

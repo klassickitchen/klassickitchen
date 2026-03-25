@@ -6,11 +6,11 @@
                 <main class="modal-body modal-md sh_modul_body">
                     <div class=" sh_discount_radio d-flex justify-content-center gap-3 my-2">
                         <label class="tax-info subentry fs-6 text-muted sh_custom_radio sh_control_radio d-flex flex-row-reverse align-items-start gap-2" for="discount_fixed_radio">Fixed
-                            <input type="radio" class="form-check-input radio-check" id="discount_fixed_radio" name="fixed_percen_discount_radio" checked="true" />
+                            <input type="radio" class="form-check-input radio-check" id="discount_fixed_radio" name="fixed_percen_discount_radio" />
                             <div class="sh_custom_radio_indicator"></div>
                         </label>
                         <label class="tax-info subentry fs-6 text-muted sh_custom_radio sh_control_radio d-flex flex-row-reverse align-items-start gap-2" for="discount_percentage_radio">Percentage
-                            <input type="radio" class="form-check-input radio-check" id="discount_percentage_radio" name="fixed_percen_discount_radio" />
+                            <input type="radio" class="form-check-input radio-check" id="discount_percentage_radio" name="fixed_percen_discount_radio" checked="true" />
                             <div class="sh_custom_radio_indicator"></div>
                         </label>
                     </div>

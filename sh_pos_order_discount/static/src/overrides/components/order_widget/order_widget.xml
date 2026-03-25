@@ -18,6 +18,8 @@
                             <t t-else="">
                                 <t t-esc="props.global_discount" />
                             </t>
+                            <span class="sh_cart_amount_label ms-3" style="margin-left: 15px;">Before Discount : </span>
+                            <t t-esc="get_total_before_discount()" />
                         </span>
                     </div>
                 </t>
