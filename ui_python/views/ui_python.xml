@@ -65,6 +65,14 @@
                     type="object"
                     string="Assign POS Category By Company"
                     class="btn btn-primary ms-2" />
+                <button name="compare_barcodes_excel_odoo"
+                    type="object"
+                    string="Compare Barcodes"
+                    class="btn btn-primary ms-2" />
+                <button name="check_sold_in_pos"
+                    type="object"
+                    string="Check POS Sales"
+                    class="btn btn-primary ms-2" />
 
 
                 <br></br>

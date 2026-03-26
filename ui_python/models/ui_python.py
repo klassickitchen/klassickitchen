@@ -2101,14 +2101,289 @@ class UiPython(models.Model):
         return True
 
 
+    def compare_barcodes_excel_odoo(self):
+        print("====== Started compare_barcodes_excel_odoo ======")
+        if not self.worksheet:
+            raise UserError(_('Please upload an Excel file'))
+
+        excel_data = base64.b64decode(self.worksheet)
+
+        try:
+            wb = openpyxl.load_workbook(BytesIO(excel_data))
+            sheet = wb.active
+            print(f"Loaded Excel sheet with max_row: {sheet.max_row}")
+        except Exception as e:
+            raise UserError(f"Error opening Excel: {e}")
+            
+        company_kk = self.env['res.company'].sudo().search([('code', '=', 'KK')], limit=1)
+        print(f"Company KK found: {company_kk.name if company_kk else 'Not Found'}")
+        if not company_kk:
+            raise UserError(_("Company with code 'KK' not found."))
+
+        matched_records = []
+        price_mismatch = []
+        not_found_odoo = []
+        no_barcode_in_odoo = []
+        multiple_barcodes_skipped = []
+
+        total_records = 0
+
+        # Start from row 3 to skip header
+        for row in range(3, sheet.max_row + 1):
+            icode_val = sheet.cell(row=row, column=1).value
+            price_val = sheet.cell(row=row, column=4).value
+            item_name_val = sheet.cell(row=row, column=2).value
+            barcode_val = sheet.cell(row=row, column=5).value
+            
+            icode = str(icode_val).strip() if icode_val is not None else ''
+            item_name = str(item_name_val).strip() if item_name_val is not None else ''
+            excel_barcode = str(barcode_val).strip() if barcode_val is not None else ''
+            if not icode:
+                continue
+                
+            total_records += 1
+            print(f"\n--- Checking Row {row} | ICODE: '{icode}' | Excel Price: '{price_val}' ---")
+                
+            try:
+                excel_price = float(price_val) if price_val is not None else 0.0
+            except:
+                excel_price = 0.0
+                
+            # Step 1: Search product by internal reference
+            product = self.env['product.product'].sudo().search([('default_code', '=', icode)], limit=1)
+            
+            if not product:
+                print(f"[X] Product NOT FOUND for ICODE: '{icode}'")
+                not_found_odoo.append(f"{icode} | {excel_price} | {item_name} | {excel_barcode}")
+                continue
+                
+            print(f"[OK] Product Found: '{product.name}' (ID: {product.id})")
+            
+            # Step 2: Get product_id and check product.barcode for price
+            odoo_barcodes = self.env['product.barcode'].sudo().search([
+                ('product_id', '=', product.id),
+                ('company_id', '=', company_kk.id)
+            ])
+            
+            if not odoo_barcodes:
+                print(f"[!] NO KK BARCODE in Odoo for Product: '{product.name}'")
+                product_name = product.name or ''
+                no_barcode_in_odoo.append(f"{icode} | {excel_price} | {product_name}")
+                continue
+            if len(odoo_barcodes) > 1:
+                print(f"[!] MULTIPLE Barcodes Found for Product: '{product.name}'. Skipping update.")
+                multiple_barcodes_skipped.append(f"{icode} | {excel_price} | {product.name or ''} | {len(odoo_barcodes)} barcodes")
+                continue
+                
+            # If exactly 1 barcode
+            ob = odoo_barcodes[0]
+            odoo_price = float(ob.price)
+            if abs(excel_price - odoo_price) < 0.001:
+                print(f"[OK] Price MATCHED! (Excel: {excel_price} == Odoo: {odoo_price}) Barcode: {ob.barcode}")
+                matched_records.append(f"{icode} | {excel_price} | {odoo_price} | {product.name or ''} | {ob.barcode or ''}")
+            else:
+                print(f"[X] Price MISMATCH! (Excel: {excel_price} != Odoo: {odoo_price}) Barcode: {ob.barcode}. UPDATING PRICE.")
+                # Update price
+                ob.write({'price': excel_price})
+                price_mismatch.append(f"{icode} | {excel_price} | {odoo_price} | {product.name or ''} | {ob.barcode or ''} -> (Updated to {excel_price})")
+
+        print("\n====== Comparison Summary ======")
+        print(f"Total Processed: {total_records}")
+        print(f"Matched Records (Same Price): {len(matched_records)}")
+        print(f"Price Mismatch (Price UPDATED): {len(price_mismatch)}")
+        print(f"Product Not Found in Odoo: {len(not_found_odoo)}")
+        print(f"Product Found but NO KK Barcode: {len(no_barcode_in_odoo)}")
+        print(f"Multiple Barcodes (Skipped Update): {len(multiple_barcodes_skipped)}")
+        print("================================\n")
+
+        separator = "-" * 80
+        
+        output_parts = [
+            f"Matched Records (Same Price): {len(matched_records)}",
+            f"Price Mismatch (Price UPDATED): {len(price_mismatch)}",
+            f"Product Not Found in Odoo: {len(not_found_odoo)}",
+            f"Product Found but NO KK Barcode in Odoo: {len(no_barcode_in_odoo)}",
+            f"Multiple Barcodes (Skipped Update): {len(multiple_barcodes_skipped)}"
+        ]
+        
+        output_parts.append(f"\n{separator}")
+        output_parts.append(f"PRICE MISMATCH (PRICE UPDATED MAPPED TO EXCEL) ({len(price_mismatch)})")
+        output_parts.append(separator)
+        output_parts.append("ICODE | Excel Price | Odoo Old Price | Product Name | Barcode -> Status")
+        output_parts.append(separator)
+        if price_mismatch:
+            output_parts.extend(price_mismatch)
+        else:
+            output_parts.append("(none)")
+            
+        output_parts.append(f"\n{separator}")
+        output_parts.append(f"MULTIPLE BARCODES (SKIPPED UPDATE) ({len(multiple_barcodes_skipped)})")
+        output_parts.append(separator)
+        output_parts.append("ICODE | Excel Price | Product Name | Info")
+        output_parts.append(separator)
+        if multiple_barcodes_skipped:
+            output_parts.extend(multiple_barcodes_skipped)
+        else:
+            output_parts.append("(none)")
+            
+        output_parts.append(f"\n{separator}")
+        output_parts.append(f"PRODUCT NOT FOUND IN ODOO ({len(not_found_odoo)})")
+        output_parts.append(separator)
+        output_parts.append("ICODE | Excel Price | Product Name | Barcode")
+        output_parts.append(separator)
+        if not_found_odoo:
+            output_parts.extend(not_found_odoo)
+        else:
+            output_parts.append("(none)")
+            
+        output_parts.append(f"\n{separator}")
+        output_parts.append(f"PRODUCT FOUND BUT NO KK BARCODE IN ODOO ({len(no_barcode_in_odoo)})")
+        output_parts.append(separator)
+        output_parts.append("ICODE | Excel Price | Product Name")
+        output_parts.append(separator)
+        if no_barcode_in_odoo:
+            output_parts.extend(no_barcode_in_odoo)
+        else:
+            output_parts.append("(none)")
+            
+        output_parts.append(f"\n{separator}")
+        output_parts.append(f"MATCHED RECORDS (PRICE IS SAME) ({len(matched_records)})")
+        output_parts.append(separator)
+        output_parts.append("ICODE | Excel Price | Odoo Price | Product Name | Barcode")
+        output_parts.append(separator)
+        if matched_records:
+            output_parts.extend(matched_records)
+        else:
+            output_parts.append("(none)")
+
+        self.results = "\n".join(output_parts)
+        return True
+
+    def check_sold_in_pos(self):
+        print("====== Started check_sold_in_pos ======")
+        if not self.worksheet:
+            raise UserError(_('Please upload an Excel file'))
+
+        excel_data = base64.b64decode(self.worksheet)
+
+        try:
+            wb = openpyxl.load_workbook(BytesIO(excel_data))
+            sheet = wb.active
+            print(f"Loaded Excel sheet with max_row: {sheet.max_row}")
+        except Exception as e:
+            raise UserError(f"Error opening Excel: {e}")
+
+        # Lists for final output
+        sold_in_pos = []
+        never_sold_in_pos = []
+        barcode_not_linked = []
+        product_not_found = []
+
+        total_records = 0
+        company_kk = self.env['res.company'].sudo().search([('code', '=', 'KK')], limit=1)
+        print(f"Company KK found: {company_kk.name if company_kk else 'Not Found'}")
+
+        # Start from row 2 to skip header (Barcode, Internal Reference)
+        for row in range(2, sheet.max_row + 1):
+            barcode_val = sheet.cell(row=row, column=1).value
+            internal_ref_val = sheet.cell(row=row, column=2).value
+            
+            barcode = str(barcode_val).strip() if barcode_val is not None else ''
+            internal_ref = str(internal_ref_val).strip() if internal_ref_val is not None else ''
+
+            if not barcode and not internal_ref:
+                continue
 
 
+            total_records += 1
+            print(f"\n--- Checking Row {row} | Barcode: '{barcode}' | Internal Ref: '{internal_ref}' ---")
 
+            # Step 1: Find Product
+            product = self.env['product.product'].sudo().search([('default_code', '=', internal_ref)], limit=1)
+            if not product:
+                print(f"[X] Product NOT FOUND for Internal Ref: '{internal_ref}'")
+                product_not_found.append(f"{barcode} | {internal_ref}")
+                continue
+                
+            product_name = product.name or ''
+            print(f"[OK] Product Found: '{product_name}' (ID: {product.id})")
 
+            # Step 2: Validate Barcode
+            barcode_record = self.env['product.barcode'].sudo().search([
+                ('product_id', '=', product.id),
+                ('barcode', '=', barcode),
+                ('company_id', '=', company_kk.id)
+            ], limit=1)
 
+            if not barcode_record:
+                print(f"[!] Barcode NOT LINKED for Product: '{product_name}', Barcode: '{barcode}' under Company KK")
+                barcode_not_linked.append(f"{barcode} | {internal_ref} | {product_name}")
+                continue
 
+            print("[OK] Barcode cleanly linked to product and company.")
 
+            # Step 3: Check POS Sales
+            pos_line = self.env['pos.order.line'].sudo().search([
+                ('product_id', '=', product.id),
+                ('order_id.state', 'in', ['paid', 'done', 'invoiced'])
+            ], limit=1)
 
+            if pos_line:
+                print(f"[OK] SOLD IN POS! Found pos.order.line (ID: {pos_line.id})")
+                sold_in_pos.append(f"{barcode} | {internal_ref} | {product_name}")
+            else:
+                print("[X] NEVER SOLD IN POS!")
+                never_sold_in_pos.append(f"{barcode} | {internal_ref} | {product_name}")
 
+        print("\n====== Validation Summary ======")
+        print(f"Total Processed: {total_records}")
+        print(f"Sold in POS: {len(sold_in_pos)}")
+        print(f"Never Sold in POS: {len(never_sold_in_pos)}")
+        print(f"Barcode Not Linked: {len(barcode_not_linked)}")
+        print(f"Product Not Found: {len(product_not_found)}")
+        print("================================\n")
 
+        separator = "-" * 80
+        
+        output_parts = [
+            f"Total Records: {total_records}",
+        ]
+        
+        output_parts.append(f"\nSOLD IN POS ({len(sold_in_pos)})")
+        output_parts.append(separator)
+        output_parts.append("Barcode | Internal Ref | Product Name")
+        output_parts.append(separator)
+        if sold_in_pos:
+            output_parts.extend(sold_in_pos)
+        else:
+            output_parts.append("(none)")
 
+        output_parts.append(f"\nNEVER SOLD IN POS ({len(never_sold_in_pos)})")
+        output_parts.append(separator)
+        output_parts.append("Barcode | Internal Ref | Product Name")
+        output_parts.append(separator)
+        if never_sold_in_pos:
+            output_parts.extend(never_sold_in_pos)
+        else:
+            output_parts.append("(none)")
+
+        output_parts.append(f"\nBARCODE NOT LINKED ({len(barcode_not_linked)})")
+        output_parts.append(separator)
+        output_parts.append("Barcode | Internal Ref | Product Name")
+        output_parts.append(separator)
+        if barcode_not_linked:
+            output_parts.extend(barcode_not_linked)
+        else:
+            output_parts.append("(none)")
+
+        output_parts.append(f"\nPRODUCT NOT FOUND ({len(product_not_found)})")
+        output_parts.append(separator)
+        output_parts.append("Barcode | Internal Ref")
+        output_parts.append(separator)
+        if product_not_found:
+            output_parts.extend(product_not_found)
+        else:
+            output_parts.append("(none)")
+
+        self.results = "\n".join(output_parts)
+        return True
