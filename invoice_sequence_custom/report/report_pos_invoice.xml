@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-
+<data noupdate="0">
     <record id="paperformat_a5" model="report.paperformat">
         <field name="name">A5</field>
         <field name="default">False</field>
@@ -230,4 +230,5 @@
             (4, ref('account.account_invoices'))
         ]"/>
     </record>
+</data>
 </odoo>
