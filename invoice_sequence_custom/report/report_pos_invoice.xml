@@ -145,6 +145,16 @@
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="doc">
                 <t t-set="lang" t-value="doc.partner_id.lang" />
+                <t t-set="o" t-value="doc" />
+                <t t-call="account.report_invoice_document" t-lang="lang" />
+            </t>
+        </t>
+    </template>
+
+    <!-- <template id="report_invoice_with_payments_twice_a4">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-set="lang" t-value="doc.partner_id.lang" />
                 <t t-foreach="[1, 2]" t-as="copy">
                     <t t-set="o" t-value="doc.with_context(is_bw_copy=(copy == 2))" />
                     <t t-set="copy_label" t-value="'CUSTOMER COPY' if copy == 1 else 'OFFICE COPY'" />
@@ -152,9 +162,20 @@
                 </t>
             </t>
         </t>
-    </template>
+    </template> -->
 
     <template id="report_invoice_with_payments_twice_a4_wo_header_and_footer">
+        <t t-set="wo_header_and_footer" t-value="True" />
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-set="lang" t-value="doc.partner_id.lang" />
+                <t t-set="o" t-value="doc" />
+                <t t-call="account.report_invoice_document" t-lang="lang" />
+            </t>
+        </t>
+    </template>
+
+    <!-- <template id="report_invoice_with_payments_twice_a4_wo_header_and_footer">
         <t t-set="wo_header_and_footer" t-value="True" />
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="doc">
@@ -166,7 +187,7 @@
                 </t>
             </t>
         </t>
-    </template>
+    </template>  -->
 
     <record id="action_print_pdf_a5" model="ir.actions.report">
         <field name="name">Print PDF A5</field>
