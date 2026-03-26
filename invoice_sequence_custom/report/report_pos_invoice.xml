@@ -224,10 +224,10 @@
         ]"/>
     </record>
     <!-- Enforce A4 Custom to other ones -->
-    <record id="paperformat_a4_custom" model="report.paperformat">
-        <field name="report_ids" eval="[
-            (4, ref('invoice_sequence_custom.account_invoices_a4')),
-            (4, ref('account.account_invoices'))
-        ]"/>
-    </record>
+<!--    <record id="paperformat_a4_custom" model="report.paperformat">-->
+<!--        <field name="report_ids" eval="[-->
+<!--            (4, ref('invoice_sequence_custom.account_invoices_a4')),-->
+<!--            (4, ref('account.account_invoices'))-->
+<!--        ]"/>-->
+<!--    </record>-->
 </odoo>
