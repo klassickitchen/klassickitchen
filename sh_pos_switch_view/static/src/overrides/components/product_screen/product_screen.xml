@@ -88,9 +88,7 @@
             </t>
             <t t-if="pos.config.sh_display_product_price">
                 <td>
-                    <t t-if="props.product.product_price">
-                        <t t-esc="props.product.product_price"/>
-                    </t>
+                    <t t-esc="getBarcodePrice(props.product)"/>
                 </td>
             </t>
         </tr>
