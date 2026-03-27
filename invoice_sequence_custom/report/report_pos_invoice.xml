@@ -206,7 +206,12 @@
     <record id="account.account_invoices" model="ir.actions.report">
         <field name="report_name">invoice_sequence_custom.report_invoice_with_payments_twice_a4</field>
         <field name="report_file">invoice_sequence_custom.report_invoice_with_payments_twice_a4</field>
-        <field name="paperformat_id" ref="invoice_sequence_custom.paperformat_a4_custom" />
+        <field name="paperformat_id" ref="invoice_sequence_custom.paperformat_a4_custom"/>
+    </record>
+    <record id="account.account_invoices" model="ir.actions.report">
+        <field name="report_name">invoice_sequence_custom.report_invoice_with_payments_twice_a5</field>
+        <field name="report_file">invoice_sequence_custom.report_invoice_with_payments_twice_a5</field>
+        <field name="paperformat_id" ref="invoice_sequence_custom.paperformat_a5"/>
     </record>
 
     <record id="account.account_invoices_without_payment" model="ir.actions.report">
@@ -234,13 +239,13 @@
         </xpath>
     </template>
 
-    <!-- Enforce A5 format to attach to all three reports requested by user -->
-    <record id="paperformat_a5" model="report.paperformat">
-        <field name="report_ids"
-            eval="[
-            (4, ref('invoice_sequence_custom.action_print_pdf_a5')),
-            (4, ref('invoice_sequence_custom.account_invoices_a4')),
-            (4, ref('account.account_invoices'))
-        ]" />
-    </record>
+<!--    &lt;!&ndash; Enforce A5 format to attach to all three reports requested by user &ndash;&gt;-->
+<!--    <record id="paperformat_a5" model="report.paperformat">-->
+<!--        <field name="report_ids"-->
+<!--            eval="[-->
+<!--            (4, ref('invoice_sequence_custom.action_print_pdf_a5')),-->
+<!--            (4, ref('invoice_sequence_custom.account_invoices_a4')),-->
+<!--            (4, ref('account.account_invoices'))-->
+<!--        ]" />-->
+<!--    </record>-->
 </odoo>
