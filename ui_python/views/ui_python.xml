@@ -73,6 +73,10 @@
                     type="object"
                     string="Check POS Sales"
                     class="btn btn-primary ms-2" />
+                <button name="import_products_kk_company"
+                    type="object"
+                    string="Import Products (KK)"
+                    class="btn btn-warning ms-2" />
 
 
                 <br></br>
