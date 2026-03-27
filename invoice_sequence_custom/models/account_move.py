@@ -63,24 +63,29 @@ class AccountMove(models.Model):
         for move in self:
             company_code = move.company_id.code or ''
 
-            # Only for customer invoices and credit notes
             if move.move_type in ('out_invoice', 'out_refund'):
-                if move.name in ('/', False):
-                    # Customer Invoice (normal or POS)
+                needs_sequence = (
+                        move.name in ('/', False)
+                        or (move.move_type == 'out_refund' and move.name.startswith('RINV/'))
+                )
+
+                if needs_sequence:
                     if move.move_type == 'out_invoice':
                         if move.is_pos_invoice:
                             sequence_code = 'pos.invoice'
                         else:
                             sequence_code = 'account.invoice'
-                    # Customer Credit Note
                     elif move.move_type == 'out_refund':
                         sequence_code = 'account.invoice.return'
 
-                    # Get next sequence and assign custom name
                     sequence_number = self.env['ir.sequence'].next_by_code(sequence_code)
-                    move.name = f"{company_code}/{sequence_number}"
+                    if sequence_number:
+                        self.env.cr.execute(
+                            "UPDATE account_move SET name = %s WHERE id = %s",
+                            (f"{company_code}/{sequence_number}", move.id)
+                        )
+                        move.invalidate_recordset(['name'])
 
-        # Continue with Odoo’s standard post behavior
         res = super().action_post()
         return res
 
@@ -128,6 +133,7 @@ class AccountMove(models.Model):
     #         special_mode=False if is_invoice else 'total_excluded',
     #     )
 
+
 class AccountMoveLine(models.Model):
     _inherit = "account.move.line"
 
@@ -154,4 +160,3 @@ class AccountMoveLine(models.Model):
     #             continue
     #
     #         line.price_subtotal = line.price_unit * line.quantity
-
