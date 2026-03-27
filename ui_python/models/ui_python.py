@@ -2001,6 +2001,7 @@ class UiPython(models.Model):
           H: Sales
           I: Available in POS
           J: Track Inventory
+          K: Unit of Measure Name
 
         Logic:
           - Skip row if Internal Reference already exists in product.product
@@ -2030,6 +2031,7 @@ class UiPython(models.Model):
         SALES_COL = 8
         POS_COL = 9
         TRACK_COL = 10
+        UOM_COL = 11
 
         # Find KK company
         company_kk = self.env['res.company'].sudo().search([('code', '=', 'KK')], limit=1)
@@ -2042,18 +2044,21 @@ class UiPython(models.Model):
         skipped_internal_ref = []
         skipped_barcode_conflict = []
         category_not_found_results = []
+        uom_not_found_results = []
 
         created_count = 0
         barcode_created_count = 0
         skipped_ir_count = 0
         skipped_bc_count = 0
         category_stop_count = 0
+        uom_not_found_count = 0
 
         for row in range(2, sheet.max_row + 1):
             internal_ref = str(sheet.cell(row=row, column=INTERNAL_REF_COL).value or '').strip()
             name = str(sheet.cell(row=row, column=NAME_COL).value or '').strip()
             categ_name = str(sheet.cell(row=row, column=CATEGORY_COL).value or '').strip()
             barcode = str(sheet.cell(row=row, column=BARCODE_COL).value or '').strip()
+            uom_name = str(sheet.cell(row=row, column=UOM_COL).value or '').strip()
 
             cost_val = sheet.cell(row=row, column=COST_COL).value or 0
             sale_price_val = sheet.cell(row=row, column=SALE_PRICE_COL).value or 0
@@ -2063,7 +2068,7 @@ class UiPython(models.Model):
             track_inventory = sheet.cell(row=row, column=TRACK_COL).value
 
             # Skip completely empty rows
-            if not internal_ref and not name:
+            if not internal_ref:
                 continue
 
             try:
@@ -2102,6 +2107,18 @@ class UiPython(models.Model):
             else:
                 category = False
 
+            # 2b. Check if UOM exists — skip row if not found
+            if uom_name:
+                uom = self.env['uom.uom'].sudo().search([('name', '=', uom_name)], limit=1)
+                if not uom:
+                    uom_not_found_count += 1
+                    uom_not_found_results.append(
+                        f"{name} | {internal_ref} | {barcode} | UOM: '{uom_name}'"
+                    )
+                    continue
+            else:
+                uom = False
+
             # 3. Check if barcode already exists in product.barcode for KK company → skip
             if barcode:
                 existing_barcode = self.env['product.barcode'].sudo().search([
@@ -2129,6 +2146,9 @@ class UiPython(models.Model):
             }
             if category:
                 tmpl_vals['categ_id'] = category.id
+            if uom:
+                tmpl_vals['uom_id'] = uom.id
+                tmpl_vals['uom_po_id'] = uom.id
 
             tmpl = self.env['product.template'].sudo().create(tmpl_vals)
 
@@ -2141,15 +2161,17 @@ class UiPython(models.Model):
 
             # 6. Create product.barcode record for KK company
             if barcode:
+                barcode_uom_id = uom.id if uom else product_variant.uom_id.id
                 self.env['product.barcode'].sudo().create({
                     'product_id': product_variant.id,
                     'barcode': barcode,
-                    'uom_id': product_variant.uom_id.id,
+                    'uom_id': barcode_uom_id,
                     'price': sale_price,
                     'company_id': company_kk.id,
                 })
                 barcode_created_count += 1
-                barcode_created_results.append(f"{name} | {internal_ref} | {barcode} | Price: {sale_price}")
+                barcode_uom_name = uom.name if uom else product_variant.uom_id.name
+                barcode_created_results.append(f"{name} | {internal_ref} | {barcode} | Price: {sale_price} | UOM: {barcode_uom_name}")
 
         # Build result output
         separator = "-" * 60
@@ -2161,6 +2183,7 @@ class UiPython(models.Model):
             f"Barcodes Created: {barcode_created_count}",
             f"Skipped (Internal Ref Exists): {skipped_ir_count}",
             f"Skipped (Barcode Conflict in KK): {skipped_bc_count}",
+            f"Skipped (UOM Not Found): {uom_not_found_count}",
             f"Stopped (Category Not Found): {category_stop_count}",
         ]
 
@@ -2196,7 +2219,15 @@ class UiPython(models.Model):
         output_parts.append(separator)
         output_parts.extend(skipped_barcode_conflict) if skipped_barcode_conflict else output_parts.append("(none)")
 
-        # Section 5: Category Not Found (caused stop)
+        # Section 5: UOM Not Found (skipped)
+        output_parts.append(f"\n{separator}")
+        output_parts.append(f"SKIPPED - UOM NOT FOUND ({len(uom_not_found_results)})")
+        output_parts.append(separator)
+        output_parts.append("Product Name | Internal Ref | Barcode | UOM")
+        output_parts.append(separator)
+        output_parts.extend(uom_not_found_results) if uom_not_found_results else output_parts.append("(none)")
+
+        # Section 6: Category Not Found (caused stop)
         output_parts.append(f"\n{separator}")
         output_parts.append(f"STOPPED - CATEGORY NOT FOUND ({len(category_not_found_results)})")
         output_parts.append(separator)
