@@ -140,3 +140,44 @@ class ProductProduct(models.Model):
 
 
 
+    @api.model
+    def name_search(self, name='', args=None, operator='ilike', limit=100):
+        """Extend name_search to also look up barcodes from product.barcode model."""
+        res = super().name_search(name=name, args=args, operator=operator, limit=limit)
+        if not res and name:
+            # Search in the custom product.barcode model with company filter
+            current_company = self.env.company.id
+            barcode_records = self.env['product.barcode'].search([
+                ('barcode', '=', name),
+                ('company_id', '=', current_company),
+            ])
+            if barcode_records:
+                products = barcode_records.mapped('product_id')
+                domain = args or []
+                if domain:
+                    products = products.filtered_domain(domain)
+                res = [(p.id, p.display_name) for p in products[:limit]]
+        return res
+
+    @api.model
+    def _search_display_name(self, operator, value):
+        """Extend display_name search to also check product.barcode model."""
+        domain = super()._search_display_name(operator, value)
+        is_positive = operator not in expression.NEGATIVE_TERM_OPERATORS
+        if operator in ('=', 'in') or (operator.endswith('like') and is_positive):
+            barcode_values = [value] if operator != 'in' else value
+            current_company = self.env.company.id
+            # Find product IDs from product.barcode with company filter
+            barcode_records = self.env['product.barcode'].search([
+                ('barcode', 'in', barcode_values),
+                ('company_id', '=', current_company),
+            ])
+            if barcode_records:
+                product_ids = barcode_records.mapped('product_id').ids
+                barcode_domain = [('id', 'in', product_ids)]
+            else:
+                barcode_domain = [('alternative_barcode_ids.barcode', 'in', barcode_values)]
+            domain = expression.OR([domain, barcode_domain])
+        return domain
+
+

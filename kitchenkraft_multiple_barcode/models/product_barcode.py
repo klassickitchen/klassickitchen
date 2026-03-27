@@ -130,7 +130,6 @@ class ProductBarcode(models.Model):
                 rec.arabic_price_alt = False
 
     def action_open_label_layout2(self):
-        print('notebook')
         # function for only alternative barcode
         self.ensure_one()
         product_tmpl = self.product_id.product_tmpl_id
@@ -138,7 +137,6 @@ class ProductBarcode(models.Model):
         # create the wizard record manually
         wizard = self.env["product.label.layout"].create({
             "product_tmpl_ids": [(6, 0, [product_tmpl.id])],
-            "print_format": "dymo",
         })
 
         # open it with context so your barcode info travels along
@@ -153,7 +151,6 @@ class ProductBarcode(models.Model):
                 **self.env.context,
                 "active_model": "product.template",
                 "active_ids": [product_tmpl.id],
-                "active_id": product_tmpl.id,
                 "default_barcode": self.barcode,
                 "from_alternative_barcode": True,
             },
