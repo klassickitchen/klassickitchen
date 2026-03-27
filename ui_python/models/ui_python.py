@@ -1987,7 +1987,256 @@ class UiPython(models.Model):
         self.results = "\n".join(output_parts)
         return True
 
+    def import_products_kk_company(self):
+        """
+        Import products for KK company from Excel.
+        Excel columns (starting row 2):
+          A: Internal Reference
+          B: Cost
+          C: Selling Price
+          D: Category
+          E: Product Name
+          F: Barcode
+          G: Purchase
+          H: Sales
+          I: Available in POS
+          J: Track Inventory
+          K: Unit of Measure Name
 
+        Logic:
+          - Skip row if Internal Reference already exists in product.product
+          - Stop if Category from Excel does not exist in Odoo (raise error)
+          - Check if barcode already exists in product.barcode for KK company → if yes, skip row
+          - Create product.product (with cost for KK company, no barcode/sale_price on product itself)
+          - Create product.barcode record with price=sale_price, uom=product.uom_id, company=KK
+        """
+        if not self.worksheet:
+            raise UserError(_('Please upload an Excel file'))
+
+        excel_data = base64.b64decode(self.worksheet)
+        try:
+            wb = openpyxl.load_workbook(BytesIO(excel_data))
+            sheet = wb.active
+        except Exception as e:
+            raise UserError(f"Error opening Excel: {e}")
+
+        # Excel column indices
+        INTERNAL_REF_COL = 1
+        COST_COL = 2
+        SALE_PRICE_COL = 3
+        CATEGORY_COL = 4
+        NAME_COL = 5
+        BARCODE_COL = 6
+        PURCHASE_COL = 7
+        SALES_COL = 8
+        POS_COL = 9
+        TRACK_COL = 10
+        UOM_COL = 11
+
+        # Find KK company
+        company_kk = self.env['res.company'].sudo().search([('code', '=', 'KK')], limit=1)
+        if not company_kk:
+            raise UserError(_("Company with code 'KK' not found."))
+
+        # Result buckets
+        created_results = []
+        barcode_created_results = []
+        skipped_internal_ref = []
+        skipped_barcode_conflict = []
+        category_not_found_results = []
+        uom_not_found_results = []
+
+        created_count = 0
+        barcode_created_count = 0
+        skipped_ir_count = 0
+        skipped_bc_count = 0
+        category_stop_count = 0
+        uom_not_found_count = 0
+
+        for row in range(2, sheet.max_row + 1):
+            internal_ref = str(sheet.cell(row=row, column=INTERNAL_REF_COL).value or '').strip()
+            name = str(sheet.cell(row=row, column=NAME_COL).value or '').strip()
+            categ_name = str(sheet.cell(row=row, column=CATEGORY_COL).value or '').strip()
+            barcode = str(sheet.cell(row=row, column=BARCODE_COL).value or '').strip()
+            uom_name = str(sheet.cell(row=row, column=UOM_COL).value or '').strip()
+
+            cost_val = sheet.cell(row=row, column=COST_COL).value or 0
+            sale_price_val = sheet.cell(row=row, column=SALE_PRICE_COL).value or 0
+            purchase_ok = sheet.cell(row=row, column=PURCHASE_COL).value
+            sale_ok = sheet.cell(row=row, column=SALES_COL).value
+            pos_ok = sheet.cell(row=row, column=POS_COL).value
+            track_inventory = sheet.cell(row=row, column=TRACK_COL).value
+
+            # Skip completely empty rows
+            if not internal_ref:
+                continue
+
+            try:
+                cost = float(cost_val)
+            except (TypeError, ValueError):
+                cost = 0.0
+
+            try:
+                sale_price = float(sale_price_val)
+            except (TypeError, ValueError):
+                sale_price = 0.0
+
+            # 1. Check if Internal Reference already exists → skip
+            existing_product = self.env['product.product'].sudo().search(
+                [('default_code', '=', internal_ref)], limit=1
+            )
+            if existing_product:
+                skipped_ir_count += 1
+                skipped_internal_ref.append(
+                    f"{name} | {internal_ref} | {barcode}"
+                )
+                continue
+
+            # 2. Check if category exists — STOP if not found
+            if categ_name:
+                category = self.env['product.category'].sudo().search(
+                    [('name', '=', categ_name)], limit=1
+                )
+                if not category:
+                    category_stop_count += 1
+                    category_not_found_results.append(
+                        f"{name} | {internal_ref} | {barcode} | Category: '{categ_name}'"
+                    )
+                    # Stop processing further rows
+                    break
+            else:
+                category = False
+
+            # 2b. Check if UOM exists — skip row if not found
+            if uom_name:
+                uom = self.env['uom.uom'].sudo().search([('name', '=', uom_name)], limit=1)
+                if not uom:
+                    uom_not_found_count += 1
+                    uom_not_found_results.append(
+                        f"{name} | {internal_ref} | {barcode} | UOM: '{uom_name}'"
+                    )
+                    continue
+            else:
+                uom = False
+
+            # 3. Check if barcode already exists in product.barcode for KK company → skip
+            if barcode:
+                existing_barcode = self.env['product.barcode'].sudo().search([
+                    ('barcode', '=', barcode),
+                    ('company_id', '=', company_kk.id),
+                ], limit=1)
+                if existing_barcode:
+                    skipped_bc_count += 1
+                    skipped_barcode_conflict.append(
+                        f"{name} | {internal_ref} | {barcode} | "
+                        f"Linked to: {existing_barcode.product_id.name} | "
+                        f"{existing_barcode.product_id.default_code or ''}"
+                    )
+                    continue
+
+            # 4. Create product.template / product.product
+            tmpl_vals = {
+                'name': name,
+                'default_code': internal_ref,
+                'purchase_ok': bool(purchase_ok),
+                'sale_ok': bool(sale_ok),
+                'available_in_pos': bool(pos_ok),
+                'is_storable': bool(track_inventory),
+                # No list_price / barcode on the product itself
+            }
+            if category:
+                tmpl_vals['categ_id'] = category.id
+            if uom:
+                tmpl_vals['uom_id'] = uom.id
+                tmpl_vals['uom_po_id'] = uom.id
+
+            tmpl = self.env['product.template'].sudo().create(tmpl_vals)
+
+            # 5. Set cost for KK company only
+            tmpl.with_company(company_kk).sudo().write({'standard_price': cost})
+
+            product_variant = tmpl.product_variant_id
+            created_count += 1
+            created_results.append(f"{name} | {internal_ref} | {barcode}")
+
+            # 6. Create product.barcode record for KK company
+            if barcode:
+                barcode_uom_id = uom.id if uom else product_variant.uom_id.id
+                self.env['product.barcode'].sudo().create({
+                    'product_id': product_variant.id,
+                    'barcode': barcode,
+                    'uom_id': barcode_uom_id,
+                    'price': sale_price,
+                    'company_id': company_kk.id,
+                })
+                barcode_created_count += 1
+                barcode_uom_name = uom.name if uom else product_variant.uom_id.name
+                barcode_created_results.append(f"{name} | {internal_ref} | {barcode} | Price: {sale_price} | UOM: {barcode_uom_name}")
+
+        # Build result output
+        separator = "-" * 60
+        section_header = "Product Name | Internal Reference | Barcode"
+
+        output_parts = [
+            f"[KK Company Import]",
+            f"Products Created: {created_count}",
+            f"Barcodes Created: {barcode_created_count}",
+            f"Skipped (Internal Ref Exists): {skipped_ir_count}",
+            f"Skipped (Barcode Conflict in KK): {skipped_bc_count}",
+            f"Skipped (UOM Not Found): {uom_not_found_count}",
+            f"Stopped (Category Not Found): {category_stop_count}",
+        ]
+
+        # Section 1: Products Created
+        output_parts.append(f"\n{separator}")
+        output_parts.append(f"PRODUCTS CREATED ({len(created_results)})")
+        output_parts.append(separator)
+        output_parts.append(section_header)
+        output_parts.append(separator)
+        output_parts.extend(created_results) if created_results else output_parts.append("(none)")
+
+        # Section 2: Barcodes Created
+        output_parts.append(f"\n{separator}")
+        output_parts.append(f"BARCODES CREATED ({len(barcode_created_results)})")
+        output_parts.append(separator)
+        output_parts.append("Product Name | Internal Reference | Barcode | Price")
+        output_parts.append(separator)
+        output_parts.extend(barcode_created_results) if barcode_created_results else output_parts.append("(none)")
+
+        # Section 3: Skipped - Internal Ref Exists
+        output_parts.append(f"\n{separator}")
+        output_parts.append(f"SKIPPED - INTERNAL REF ALREADY EXISTS ({len(skipped_internal_ref)})")
+        output_parts.append(separator)
+        output_parts.append(section_header)
+        output_parts.append(separator)
+        output_parts.extend(skipped_internal_ref) if skipped_internal_ref else output_parts.append("(none)")
+
+        # Section 4: Skipped - Barcode Conflict
+        output_parts.append(f"\n{separator}")
+        output_parts.append(f"SKIPPED - BARCODE ALREADY EXISTS IN KK ({len(skipped_barcode_conflict)})")
+        output_parts.append(separator)
+        output_parts.append("Product Name | Internal Ref | Barcode | Linked To | Linked Ref")
+        output_parts.append(separator)
+        output_parts.extend(skipped_barcode_conflict) if skipped_barcode_conflict else output_parts.append("(none)")
+
+        # Section 5: UOM Not Found (skipped)
+        output_parts.append(f"\n{separator}")
+        output_parts.append(f"SKIPPED - UOM NOT FOUND ({len(uom_not_found_results)})")
+        output_parts.append(separator)
+        output_parts.append("Product Name | Internal Ref | Barcode | UOM")
+        output_parts.append(separator)
+        output_parts.extend(uom_not_found_results) if uom_not_found_results else output_parts.append("(none)")
+
+        # Section 6: Category Not Found (caused stop)
+        output_parts.append(f"\n{separator}")
+        output_parts.append(f"STOPPED - CATEGORY NOT FOUND ({len(category_not_found_results)})")
+        output_parts.append(separator)
+        output_parts.append("Product Name | Internal Ref | Barcode | Category")
+        output_parts.append(separator)
+        output_parts.extend(category_not_found_results) if category_not_found_results else output_parts.append("(none)")
+
+        self.results = "\n".join(output_parts)
+        return True
 
 
     def assign_pos_category_by_companys(self):
