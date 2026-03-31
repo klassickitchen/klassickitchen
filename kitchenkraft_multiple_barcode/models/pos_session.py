@@ -26,9 +26,7 @@ class PosSession(models.Model):
                 ("barcode", "=", barcode),
                 ("product_id.sale_ok", "=", True),
                 ("product_id.available_in_pos", "=", True),
-                "|",
                 ("company_id", "=", current_company),  # match current company
-                ("company_id", "=", False),  # or global (shared) barcodes
             ],
             limit=1,
         )

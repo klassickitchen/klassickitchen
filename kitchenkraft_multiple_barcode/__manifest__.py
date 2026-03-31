@@ -1,6 +1,6 @@
 {
     "name": "kitchenkraft Multiple Barcode",
-    "version": "18.12.7",
+    "version": "18.12.6",
     "category": "Inventory",
     "summary": "Multiple Barcode for kitchenkraft",
     "license": "OPL-1",
@@ -9,7 +9,7 @@
         "point_of_sale",
         "stock",
         "web",
-        "product"
+        "stock_barcode",
     ],
     "data": [
         "security/ir_rule.xml",
