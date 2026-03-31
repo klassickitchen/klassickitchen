@@ -239,13 +239,13 @@
         </xpath>
     </template>
 
-<!--    &lt;!&ndash; Enforce A5 format to attach to all three reports requested by user &ndash;&gt;-->
-<!--    <record id="paperformat_a5" model="report.paperformat">-->
-<!--        <field name="report_ids"-->
-<!--            eval="[-->
-<!--            (4, ref('invoice_sequence_custom.action_print_pdf_a5')),-->
-<!--            (4, ref('invoice_sequence_custom.account_invoices_a4')),-->
-<!--            (4, ref('account.account_invoices'))-->
-<!--        ]" />-->
-<!--    </record>-->
+    <!-- Enforce A5 format to attach to all three reports requested by user -->
+    <record id="paperformat_a5" model="report.paperformat">
+        <field name="report_ids"
+            eval="[
+            (4, ref('invoice_sequence_custom.action_print_pdf_a5')),
+            (4, ref('invoice_sequence_custom.account_invoices_a4')),
+            (4, ref('account.account_invoices'))
+        ]" />
+    </record>
 </odoo>

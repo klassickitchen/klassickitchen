@@ -9,7 +9,7 @@
         "point_of_sale",
         "stock",
         "web",
-        "product"
+        "stock_barcode",
     ],
     "data": [
         "security/ir_rule.xml",

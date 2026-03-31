@@ -2148,7 +2148,7 @@ class UiPython(models.Model):
                 tmpl_vals['categ_id'] = category.id
             if uom:
                 tmpl_vals['uom_id'] = uom.id
-                tmpl_vals['uom_po_id'] = uom.id
+                
 
             tmpl = self.env['product.template'].sudo().create(tmpl_vals)
 
