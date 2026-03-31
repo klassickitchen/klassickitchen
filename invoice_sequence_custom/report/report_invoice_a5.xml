@@ -136,7 +136,7 @@
                                     </span>
                                     <span
                                         t-elif="o.move_type == 'out_refund' and o.state == 'posted'"
-                                        t-att-style="'font-size:18px; color:black; margin-top:10px;' if o.is_pos_invoice else 'font-size:20px; color:black;'">Credit
+                                        t-att-style="'font-size:18px; color:black; margin-top:15px;' if o.is_pos_invoice else 'font-size:20px; color:black;'">Credit
                                         Note
                                     </span>
                                     <span
