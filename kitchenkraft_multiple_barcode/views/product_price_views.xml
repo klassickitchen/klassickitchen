@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================ -->
+    <!-- 1. product.product LIST — replace lst_price with product_price -->
+    <!-- ============================================================ -->
+    <record id="product_product_tree_view_inherit_price" model="ir.ui.view">
+        <field name="name">product.product.tree.inherit.price</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_product_tree_view" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='lst_price']" position="attributes">
+                <attribute name="column_invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='lst_price']" position="after">
+                <field name="product_price" string="Sales Price" optional="show" />
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- 2. product.product KANBAN — replace lst_price with product_price -->
+    <!-- ============================================================ -->
+    <record id="product_product_kanban_view_inherit_price" model="ir.ui.view">
+        <field name="name">product.product.kanban.inherit.price</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_kanban_view" />
+        <field name="arch" type="xml">
+            <xpath expr="//span[field[@name='lst_price']]" position="replace">
+                <span> Price: <field name="product_price" />
+                </span>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
