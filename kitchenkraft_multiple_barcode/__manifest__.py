@@ -16,7 +16,7 @@
         "security/ir.model.access.csv",
         "views/multiple_barcode_views.xml",
         "views/product_template_view.xml",
-        "report/product_label_report.xml",
+        "views/product_price_views.xml",
     ],
     "assets": {
         "point_of_sale._assets_pos": [
