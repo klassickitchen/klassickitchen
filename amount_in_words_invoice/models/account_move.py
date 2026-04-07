@@ -32,7 +32,7 @@ class AccountMove(models.Model):
     number_to_words = fields.Char(string="Amount in Words (Total) : ",
                                   compute='_compute_number_to_words',
                                   help="To showing total amount in words")
-    number_to_words_ar = fields.Char(string="Amount in Words (Arabic)", compute='_compute_number_to_words', store=True, help="Total amount written in Arabic words")
+    number_to_words_ar = fields.Char(string="Amount in Words (Arabic)", compute='_compute_number_to_words', help="Total amount written in Arabic words")
 
     def _compute_number_to_words(self):
         """Compute the amount to words in Invoice"""
