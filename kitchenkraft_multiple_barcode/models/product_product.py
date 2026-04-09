@@ -37,7 +37,6 @@ class ProductProduct(models.Model):
     @api.depends('alternative_barcode_ids.uom_id', 'alternative_barcode_ids.price',
                  'alternative_barcode_ids.company_id')
     def _compute_price_for_company(self):
-        print("testing")
         current_company = self.env.company
         for rec in self:
             # Filter barcodes belonging to current company only
