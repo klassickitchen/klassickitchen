@@ -25,34 +25,45 @@ from odoo import fields, models
 
 class AccountMove(models.Model):
     """Inherit the Account Move to add amount in words in account move.
-        Methods:_compute_number_to_words(self):
-        Function to convert the invoice subtotal amount to words."""
-    _inherit = 'account.move'
+    Methods:_compute_number_to_words(self):
+    Function to convert the invoice subtotal amount to words."""
 
-    number_to_words = fields.Char(string="Amount in Words (Total) : ",
-                                  compute='_compute_number_to_words',
-                                  help="To showing total amount in words")
-    number_to_words_ar = fields.Char(string="Amount in Words (Arabic)", compute='_compute_number_to_words', help="Total amount written in Arabic words")
+    _inherit = "account.move"
+
+    number_to_words = fields.Char(
+        string="Amount in Words (Total) : ",
+        compute="_compute_number_to_words",
+        help="To showing total amount in words",
+    )
+    number_to_words_ar = fields.Char(
+        string="Amount in Words (Arabic)",
+        compute="_compute_number_to_words",
+        help="Total amount written in Arabic words",
+    )
 
     def _compute_number_to_words(self):
         """Compute the amount to words in Invoice"""
         for rec in self:
             words = rec.currency_id.amount_to_text(rec.amount_total)
-            if rec.currency_id.name == 'QAR':
+            if rec.currency_id.name == "QAR":
                 import re
+
                 # Replace Rial with Qatari Rials
-                words = re.sub(r'\bRials?\b', 'Qatari Riyals', words) #Edited
+                words = re.sub(r"\bRials?\b", "Qatari Riyals", words)  # Edited
                 # Add "Only" at the end
-                if not words.strip().endswith('Only'):
+                if not words.strip().endswith("Only"):
                     words = f"{words.strip()} Only"
             rec.number_to_words = words
             # skip if ar_001 is not installed
             arabic_words = False
             try:
-                arabic_words = rec.with_context(lang='ar_001').currency_id.amount_to_text(rec.amount_total)
-                if arabic_words and rec.currency_id.name == 'QAR':
+                arabic_words = rec.with_context(
+                    lang="ar_001"
+                ).currency_id.amount_to_text(rec.amount_total)
+                if arabic_words and rec.currency_id.name == "QAR":
                     import re
-                    arabic_words = re.sub(r'Rials?|Rial', 'ريال قطري', arabic_words)
+
+                    arabic_words = re.sub(r"Rials?|Rial", "ريال قطري", arabic_words)
             except Exception:
                 arabic_words = False
 
