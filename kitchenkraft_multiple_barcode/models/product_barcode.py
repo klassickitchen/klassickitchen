@@ -30,8 +30,8 @@ class ProductBarcode(models.Model):
         store=False,  # No need to store this helper field
     )
     price = fields.Float(string="Price", required=True)
-    arabic_price_alt=fields.Char(compute='_compute_arabic_price_alt', store=False)
-    company_id=fields.Many2one("res.company",'Company')
+    arabic_price_alt = fields.Char(compute="_compute_arabic_price_alt", store=False)
+    company_id = fields.Many2one("res.company", "Company")
     _sql_constraints = [
         (
             "barcode_unique_per_company",
@@ -68,14 +68,18 @@ class ProductBarcode(models.Model):
             if not record.barcode or not record.company_id:
                 continue
 
-            duplicate_count = self.sudo().search_count([
-                ("barcode", "=", record.barcode),
-                ("company_id", "=", record.company_id.id),
-                ("id", "!=", record.id),
-            ])
+            duplicate_count = self.sudo().search_count(
+                [
+                    ("barcode", "=", record.barcode),
+                    ("company_id", "=", record.company_id.id),
+                    ("id", "!=", record.id),
+                ]
+            )
             if duplicate_count > 0:
                 raise ValidationError(
-                    _("Barcode '%s' already exists for another product in company '%s'.")
+                    _(
+                        "Barcode '%s' already exists for another product in company '%s'."
+                    )
                     % (record.barcode, record.company_id.display_name)
                 )
 
@@ -100,9 +104,16 @@ class ProductBarcode(models.Model):
                         )
                     )
 
+    # @api.model
+    # def _load_pos_data_domain(self, data):
+    #     return [("product_id.available_in_pos", "=", True)]
+
     @api.model
     def _load_pos_data_domain(self, data):
-        return [("product_id.available_in_pos", "=", True)]
+        return [
+            ("product_id.available_in_pos", "=", True),
+            ("company_id", "=", self.env.company.id),
+        ]
 
     @api.model
     def _load_pos_data_fields(self, config_id):
@@ -114,7 +125,7 @@ class ProductBarcode(models.Model):
     # Define the translation table once as a class attribute
     ARABIC_NUMERALS = str.maketrans(ENGLISH_CHARS, ARABIC_CHARS)
 
-    @api.depends('price')  # <-- Crucial decorator must be present!
+    @api.depends("price")  # <-- Crucial decorator must be present!
     def _compute_arabic_price_alt(self):
         # Access the class attribute
         translation_table = self.ARABIC_NUMERALS

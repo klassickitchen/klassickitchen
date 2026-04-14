@@ -1,4 +1,4 @@
-import { Component , reactive} from "@odoo/owl";
+import { Component, reactive } from "@odoo/owl";
 import { usePos } from "@point_of_sale/app/store/pos_hook";
 
 export class ShProductCard extends Component {
@@ -19,8 +19,8 @@ export class ShProductCard extends Component {
         // default_code: { type: [Number, String,undefined], optional: true },
     };
     static defaultProps = {
-        onClick: () => {},
-        onProductInfoClick: () => {},
+        onClick: () => { },
+        onProductInfoClick: () => { },
         class: "",
         showWarning: false,
     };
@@ -50,7 +50,7 @@ export class ShProductCard extends Component {
                 const currentCompanyId = this.pos.company.id;
                 const match = barcodeRecords.find(
                     (b) => b.barcode === searchWord &&
-                           (!b.company_id || (typeof b.company_id === 'object' ? b.company_id.id : b.company_id) === currentCompanyId)
+                        (!b.company_id || (typeof b.company_id === 'object' ? b.company_id.id : b.company_id) === currentCompanyId)
                 );
                 if (match) {
                     return match;
@@ -67,14 +67,32 @@ export class ShProductCard extends Component {
      * If the search word matches a specific barcode record, return that barcode's price.
      * Otherwise, return the default product_price.
      */
+    // getBarcodePrice(product) {
+    //     const barcodeRecord = this._findMatchingBarcodeRecord(product);
+    //     if (barcodeRecord && barcodeRecord.price !== undefined) {
+    //         return barcodeRecord.price;
+    //     }
+    //     // Fallback to product_price or lst_price
+    //     return product.product_price ?? product.lst_price ?? 0;
+    // }
+
     getBarcodePrice(product) {
-        const barcodeRecord = this._findMatchingBarcodeRecord(product);
-        if (barcodeRecord && barcodeRecord.price !== undefined) {
-            return barcodeRecord.price;
+        // Cache per product ID + search word combination
+        const cacheKey = `${product.id}_${(this.pos.searchProductWord || "").trim()}`;
+        if (this._priceCache && this._priceCache.key === cacheKey) {
+            return this._priceCache.value;
         }
-        // Fallback to product_price or lst_price
-        return product.product_price ?? product.lst_price ?? 0;
+        const barcodeRecord = this._findMatchingBarcodeRecord(product);
+        let price;
+        if (barcodeRecord && barcodeRecord.price !== undefined) {
+            price = barcodeRecord.price;
+        } else {
+            price = product.product_price ?? product.lst_price ?? 0;
+        }
+        this._priceCache = { key: cacheKey, value: price };
+        return price;
     }
+
 
     async addProductToOrder(product) {
 
