@@ -44,7 +44,7 @@ patch(PosOrderline.prototype, {
         this.fix_discount;
         this.total_discount;
 
-        if (this.order_id.get_orderlines().length == 0) {
+        if (this.order_id && this.order_id.get_orderlines && this.order_id.get_orderlines().length == 0) {
             this.order_id.set_order_global_discount(0.0);
         }
     },
