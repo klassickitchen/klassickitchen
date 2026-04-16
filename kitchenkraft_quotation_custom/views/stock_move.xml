@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_picking_form_inherit_cost_price" model="ir.ui.view">
+        <field name="name">stock.picking.form.cost.price</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='move_ids_without_package']/list/field[@name='product_uom_qty']" position="before">
+                <field name="product_cost" readonly="1" optional="show" column_invisible="parent.picking_type_code != 'internal'"/>
+                <field name="product_sale_price" readonly="1" optional="show" column_invisible="parent.picking_type_code != 'internal'"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
