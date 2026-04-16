@@ -29,9 +29,9 @@ patch(PosOrder.prototype, {
         orders['sh_global_discount'] = self.order_global_discount || false
         return orders
     },
-    init_from_JSON (json) {
+    init_from_JSON(json) {
         super.init_from_JSON(...arguments);
-        if (json && json.sh_global_discount){
+        if (json && json.sh_global_discount) {
             this.order_global_discount = json.sh_global_discount || ""
         }
     },
@@ -44,14 +44,14 @@ patch(PosOrderline.prototype, {
         this.fix_discount;
         this.total_discount;
 
-        if (this.order_id.get_orderlines().length == 0) {
+        if (this.order_id && this.order_id.get_orderlines && this.order_id.get_orderlines().length == 0) {
             this.order_id.set_order_global_discount(0.0);
         }
     },
     getDisplayData() {
         let res = super.getDisplayData()
-        if(res.discount){
-            let int_discount =  parseFloat(res.discount).toFixed(2)
+        if (res.discount) {
+            let int_discount = parseFloat(res.discount).toFixed(2)
             res["discount"] = int_discount
         }
         return res
