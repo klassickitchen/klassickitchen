@@ -13,7 +13,7 @@ patch(PosOrder.prototype, {
     _recomputeLineSequences() {
         const lines = this.get_orderlines();
         lines.forEach((line, index) => {
-            line.sequence_number  = String(index + 1);
+            line.sequence_number = String(index + 1);
         });
     },
 

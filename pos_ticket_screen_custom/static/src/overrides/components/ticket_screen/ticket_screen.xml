@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="pos_ticket_screen_custom.TicketScreen" t-inherit="point_of_sale.TicketScreen" t-inherit-mode="extension">
+        
+        <!-- Replace "Order number" column header with Invoice Number -->
+        <xpath expr="//div[hasclass('header-row')]/div[3]" position="replace">
+            <div class="col wide p-2">Invoice Number</div>
+        </xpath>
+
+        <!-- Add Customer Mobile Header after Customer -->
+        <xpath expr="//div[hasclass('header-row')]/div[4]" position="after">
+            <div class="col p-2">Mobile</div>
+        </xpath>
+
+        <!-- Replace the "Order number" column data with account_move name (Invoice) -->
+        <xpath expr="//div[hasclass('order-row')]/div[3]" position="replace">
+            <div class="col wide p-2">
+                <div t-esc="order.account_move_name || ''"/>
+            </div>
+        </xpath>
+
+        <!-- Add Customer Mobile data after Customer name Column -->
+        <xpath expr="//div[hasclass('order-row')]/div[4]" position="after">
+            <div class="col p-2">
+                <div t-esc="order.get_partner() ? (order.get_partner().mobile || '') : ''"/>
+            </div>
+        </xpath>
+        
+    </t>
+</templates>
