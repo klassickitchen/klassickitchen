@@ -371,12 +371,14 @@
                             </div>
 
                             <!-- LPO No -->
-                            <div class="col text-center" t-if="o.ref">
+                            <!-- <div class="col text-center" t-if="o.ref"> -->
                                 <!-- <span style="font-weight: 900; font-size: 15px; color:
                                 #000000;">رقم
                                     طلب
                                     الشراء / LPO No : </span> -->
-                                <span style="font-weight: 900; font-size: 15px; color: black;"
+                            <div class="col text-start" t-if="o.ref">
+                                <span style="font-weight: 500 !important; font-size: 13px !important; color: #000000 !important;">PO Number : </span>
+                                <span style="font-weight: 500 !important; font-size: 14px !important; color: black !important;"
                                     t-field="o.ref" />
                             </div>
 
