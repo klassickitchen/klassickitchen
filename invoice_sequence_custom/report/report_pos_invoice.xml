@@ -206,12 +206,12 @@
     <record id="account.account_invoices" model="ir.actions.report">
         <field name="report_name">invoice_sequence_custom.report_invoice_with_payments_twice_a4</field>
         <field name="report_file">invoice_sequence_custom.report_invoice_with_payments_twice_a4</field>
-        <field name="paperformat_id" ref="invoice_sequence_custom.paperformat_a4_custom"/>
+        <field name="paperformat_id" ref="invoice_sequence_custom.paperformat_a4_custom" />
     </record>
     <record id="account.account_invoices" model="ir.actions.report">
         <field name="report_name">invoice_sequence_custom.report_invoice_with_payments_twice_a5</field>
         <field name="report_file">invoice_sequence_custom.report_invoice_with_payments_twice_a5</field>
-        <field name="paperformat_id" ref="invoice_sequence_custom.paperformat_a5"/>
+        <field name="paperformat_id" ref="invoice_sequence_custom.paperformat_a5" />
     </record>
 
     <record id="account.account_invoices_without_payment" model="ir.actions.report">
@@ -223,6 +223,14 @@
 
     <template id="report_invoice_document_cash_credit_title"
         inherit_id="account.report_invoice_document">
+
+        <!-- Increase standard Credit Note size -->
+        <xpath
+            expr="//span[@t-elif=&quot;o.move_type == 'out_refund' and o.state == 'posted'&quot;]"
+            position="attributes">
+            <attribute name="style">font-size: 40px; font-weight: bold;</attribute>
+        </xpath>
+
         <!-- We use position="before" to place it right above the invoice line table -->
         <xpath expr="//table[@name='invoice_line_table']" position="before">
             <!-- This ensures it ONLY appears on the w/o header and footer report -->
@@ -239,13 +247,14 @@
         </xpath>
     </template>
 
-<!--    &lt;!&ndash; Enforce A5 format to attach to all three reports requested by user &ndash;&gt;-->
-<!--    <record id="paperformat_a5" model="report.paperformat">-->
-<!--        <field name="report_ids"-->
-<!--            eval="[-->
-<!--            (4, ref('invoice_sequence_custom.action_print_pdf_a5')),-->
-<!--            (4, ref('invoice_sequence_custom.account_invoices_a4')),-->
-<!--            (4, ref('account.account_invoices'))-->
-<!--        ]" />-->
-<!--    </record>-->
+    <!--    &lt;!&ndash; Enforce A5 format to attach to all three reports requested by user
+    &ndash;&gt;-->
+    <!--    <record id="paperformat_a5" model="report.paperformat">-->
+    <!--        <field name="report_ids"-->
+    <!--            eval="[-->
+    <!--            (4, ref('invoice_sequence_custom.action_print_pdf_a5')),-->
+    <!--            (4, ref('invoice_sequence_custom.account_invoices_a4')),-->
+    <!--            (4, ref('account.account_invoices'))-->
+    <!--        ]" />-->
+    <!--    </record>-->
 </odoo>
