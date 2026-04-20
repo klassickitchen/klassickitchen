@@ -136,7 +136,7 @@
                                     </span>
                                     <span
                                         t-elif="o.move_type == 'out_refund' and o.state == 'posted'"
-                                        t-att-style="'font-size:18px; color:black; margin-top:15px;' if o.is_pos_invoice else 'font-size:20px; color:black;'">Credit
+                                        t-att-style="'font-size:25px; color:black; margin-top:10px !important; padding-bottom: 3px !important; font-weight:bold;' if o.is_pos_invoice and hide_report_footer else 'font-size:19px; color:black; margin-top:15px; font-weight:bold;'">Credit
                                         Note
                                     </span>
                                     <span
@@ -372,13 +372,16 @@
 
                             <!-- LPO No -->
                             <!-- <div class="col text-center" t-if="o.ref"> -->
-                                <!-- <span style="font-weight: 900; font-size: 15px; color:
+                            <!-- <span style="font-weight: 900; font-size: 15px; color:
                                 #000000;">رقم
                                     طلب
                                     الشراء / LPO No : </span> -->
                             <div class="col text-start" t-if="o.ref">
-                                <span style="font-weight: 500 !important; font-size: 13px !important; color: #000000 !important;">PO Number : </span>
-                                <span style="font-weight: 500 !important; font-size: 14px !important; color: black !important;"
+                                <span
+                                    style="font-weight: 500 !important; font-size: 13px !important; color: #000000 !important;">PO
+                                    Number : </span>
+                                <span
+                                    style="font-weight: 500 !important; font-size: 14px !important; color: black !important;"
                                     t-field="o.ref" />
                             </div>
 
@@ -455,8 +458,10 @@
         <template id="document_tax_totals_template_inherit"
             inherit_id="account.document_tax_totals_template">
             <xpath expr="//tr[@class='o_subtotal']/td/span" position="replace">
-                <span t-if="o and o._name == 'account.move'" style="font-size: 15px !important;">Gross Total</span>
-                <span t-else="" t-out="subtotal['name']" style="font-size: 15px !important;">Untaxed Amount</span>
+                <span t-if="o and o._name == 'account.move'" style="font-size: 15px !important;">Gross
+                    Total</span>
+                <span t-else="" t-out="subtotal['name']" style="font-size: 15px !important;">Untaxed
+                    Amount</span>
             </xpath>
 
             <xpath expr="//tr[@class='o_subtotal']/td[2]/span" position="replace">
@@ -472,7 +477,8 @@
             </xpath>
 
             <xpath expr="//tr[@class='o_total']/td[1]/strong" position="replace">
-                <strong t-if="o and o._name == 'account.move'" style="font-size: 15px !important;">Net Total</strong>
+                <strong t-if="o and o._name == 'account.move'" style="font-size: 15px !important;">Net
+                    Total</strong>
                 <strong t-else="" style="font-size: 15px !important;">Total</strong>
             </xpath>
             <xpath expr="//tr[@class='o_total']/td[2]/strong" position="attributes">
@@ -480,7 +486,8 @@
             </xpath>
 
             <xpath expr="//tr[@class='o_subtotal']" position="after">
-                <tr t-if="o and o._name == 'account.move' and o.amount_discount and o.amount_discount != 0">
+                <tr
+                    t-if="o and o._name == 'account.move' and o.amount_discount and o.amount_discount != 0">
                     <td style="font-size: 15px !important;">Discount</td>
                     <td class="text-end" style="font-size:15px !important;">
                         <span t-out="o.amount_discount"
