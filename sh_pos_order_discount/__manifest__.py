@@ -12,18 +12,18 @@
     "version": "0.0.3",
     "depends": ["point_of_sale"],
     "application": True,
-    "data": ["views/res_config_settings_views.xml"],
-    "assets": {
-        "point_of_sale._assets_pos": [
-            "web/static/lib/jquery/jquery.js",
-            "sh_pos_order_discount/static/src/**/*",
+    "data": [
+        'views/res_config_settings_views.xml'
+    ],
+    'assets': {
+        'point_of_sale._assets_pos': [
+            'web/static/lib/jquery/jquery.js',
+            'sh_pos_order_discount/static/src/**/*'
         ],
     },
     "auto_install": False,
     "installable": True,
-    "images": [
-        "static/description/background.png",
-    ],
+    'images': ['static/description/background.png', ],
     "price": 20,
     "currency": "EUR",
 }

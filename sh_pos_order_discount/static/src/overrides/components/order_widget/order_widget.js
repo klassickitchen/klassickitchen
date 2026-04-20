@@ -23,7 +23,7 @@ patch(OrderWidget.prototype, {
                     cumulative += (line.price_unit * line.qty) - line.get_display_price();
                 }
             }
-            if (cumulative > 0) {
+            if (cumulative !== 0) {
                 // Keep the stored value in sync
                 order.set_order_global_discount(cumulative);
                 return cumulative.toFixed(2);
@@ -31,7 +31,7 @@ patch(OrderWidget.prototype, {
         }
         return order.get_order_global_discount()
           ? parseFloat(order.get_order_global_discount()).toFixed(2)
-          : 0;
+          : "0.00";
     },
     get_total_before_discount() {
         var order = this.pos?.get_order();

@@ -74,9 +74,13 @@ patch(GlobalDiscountPopupWidget.prototype, {
         if (isFixed) {
             // Fixed entered → show equivalent percentage
             // if (total > 0) {
-                const pct = (val / total) * 100;
-                this.state.equivDisplay = pct.toFixed(2) + " %";
+            const pct = (val / Math.abs(total)) * 100;
+            this.state.equivDisplay = pct.toFixed(2) + " %";
+            if (total < 0) {
+                this.state.amountAfter = (total + val).toFixed(2);
+            } else {
                 this.state.amountAfter = (total - val).toFixed(2);
+            }
             // } else {
             //     this.state.equivDisplay = "0.00 %";
             //     this.state.amountAfter = "0.00";
@@ -84,9 +88,13 @@ patch(GlobalDiscountPopupWidget.prototype, {
         } else {
             // Percentage entered → show equivalent fixed amount
             // if (total > 0) {
-                const discountAmount = (total * val) / 100;
-                this.state.equivDisplay = discountAmount.toFixed(2);
+            const discountAmount = (Math.abs(total) * val) / 100;
+            this.state.equivDisplay = discountAmount.toFixed(2);
+            if (total < 0) {
+                this.state.amountAfter = (total + discountAmount).toFixed(2);
+            } else {
                 this.state.amountAfter = (total - discountAmount).toFixed(2);
+            }
             // } else {
             //     this.state.equivDisplay = "0.00";
             //     this.state.amountAfter = "0.00";
