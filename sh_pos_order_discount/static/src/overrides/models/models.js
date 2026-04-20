@@ -79,7 +79,6 @@ patch(PosOrderline.prototype, {
     },
     set_custom_discount(discount) {
         var disc = Math.min(Math.max(discount || 0, 0), 100);
-        this.discount = disc;
-        this.discountStr = "" + formatFloat(disc, { digits: [69, 2] });
+        this.set_discount(disc);
     },
 });

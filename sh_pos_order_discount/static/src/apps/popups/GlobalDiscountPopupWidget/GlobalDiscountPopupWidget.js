@@ -51,7 +51,7 @@ export class GlobalDiscountPopupWidget extends Component {
                     }
 
                     var percentage =
-                        ((value / self.pos.get_order().get_total_with_tax()) * 100);
+                        ((value / Math.abs(self.pos.get_order().get_total_with_tax())) * 100);
                     for (let each_order_line of orderlines) {
                         each_order_line.set_custom_discount(parseFloat(percentage));
                     }
@@ -68,7 +68,7 @@ export class GlobalDiscountPopupWidget extends Component {
                     if (selected_orderline) {
                         if (selected_orderline.get_discount()) {
                             var price = selected_orderline.get_display_price();
-                            var current_price = price - value;
+                            var current_price = price < 0 ? (price + parseFloat(value)) : (price - parseFloat(value));
                             var discount =
                                 ((selected_orderline.price_unit * selected_orderline.qty -
                                     current_price) /
@@ -89,7 +89,7 @@ export class GlobalDiscountPopupWidget extends Component {
                             selected_orderline.set_custom_discount(discount);
                         } else {
                             var apply_disc_percen =
-                                (value * 100) / selected_orderline.get_display_price();
+                                (value * 100) / Math.abs(selected_orderline.get_display_price());
                             selected_orderline.set_total_discount(parseFloat(value));
                             selected_orderline.set_fix_discount(parseFloat(value));
                             selected_orderline.set_global_discount(apply_disc_percen);
