@@ -29,7 +29,7 @@ class IntercompanyStockWizard(models.TransientModel):
                             'company': company,
                             'free_qty': p.free_qty,
                             'qty_available': p.qty_available,
-                            'price_unit': p.standard_price,
+                            'price_unit': p.standard_price * (1 + (company.intercompany_margin_pct / 100)),
                         })
 
                 if available_companies:
@@ -208,4 +208,4 @@ class IntercompanyStockWizardLine(models.TransientModel):
             product_with_company = self.product_id.with_company(self.company_id)
             self.qty_available = product_with_company.sudo().qty_available
             self.free_quantity = product_with_company.sudo().free_qty
-            self.price_unit = product_with_company.sudo().standard_price
+            self.price_unit = product_with_company.sudo().standard_price * (1 + (self.company_id.intercompany_margin_pct / 100))
