@@ -15,6 +15,7 @@
         "order_line_sequence_invoice",
     ],
     "data": [
+        "report/external_layout_custom.xml",
         "report/custom_report_a5.xml",
         "report/report_invoice_a5.xml",
         "report/report_pos_invoice.xml",

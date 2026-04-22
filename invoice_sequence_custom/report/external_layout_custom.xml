@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- STRIPED LAYOUT -->
+    <template id="custom_external_layout_striped" inherit_id="web.external_layout_striped">
+        <xpath expr="//div[contains(@t-attf-class, 'header')]" position="attributes">
+            <attribute name="t-if">not hide_report_footer and not wo_header_and_footer</attribute>
+        </xpath>
+        <xpath expr="//div[contains(@t-attf-class, 'footer')]" position="attributes">
+            <attribute name="t-if">not hide_report_footer and not wo_header_and_footer</attribute>
+        </xpath>
+    </template>
+
+    <!-- BOXED LAYOUT -->
+    <template id="custom_external_layout_boxed" inherit_id="web.external_layout_boxed">
+        <xpath expr="//div[contains(@t-attf-class, 'header')]" position="attributes">
+            <attribute name="t-if">not hide_report_footer and not wo_header_and_footer</attribute>
+        </xpath>
+        <xpath expr="//div[contains(@t-attf-class, 'footer')]" position="attributes">
+            <attribute name="t-if">not hide_report_footer and not wo_header_and_footer</attribute>
+        </xpath>
+    </template>
+
+    <!-- BOLD LAYOUT -->
+    <template id="custom_external_layout_bold" inherit_id="web.external_layout_bold">
+        <xpath expr="//div[contains(@t-attf-class, 'header')]" position="attributes">
+            <attribute name="t-if">not hide_report_footer and not wo_header_and_footer</attribute>
+        </xpath>
+        <xpath expr="//div[contains(@t-attf-class, 'footer')]" position="attributes">
+            <attribute name="t-if">not hide_report_footer and not wo_header_and_footer</attribute>
+        </xpath>
+    </template>
+
+    <!-- FOLDER LAYOUT -->
+    <template id="custom_external_layout_folder" inherit_id="web.external_layout_folder">
+        <xpath expr="//div[contains(@t-attf-class, 'header')]" position="attributes">
+            <attribute name="t-if">not hide_report_footer and not wo_header_and_footer</attribute>
+        </xpath>
+        <xpath expr="//div[contains(@t-attf-class, 'footer')]" position="attributes">
+            <attribute name="t-if">not hide_report_footer and not wo_header_and_footer</attribute>
+        </xpath>
+    </template>
+
+    <!-- WAVE LAYOUT -->
+    <template id="custom_external_layout_wave" inherit_id="web.external_layout_wave">
+        <xpath expr="//div[contains(@t-attf-class, 'header')]" position="attributes">
+            <attribute name="t-if">not hide_report_footer and not wo_header_and_footer</attribute>
+        </xpath>
+        <xpath expr="//div[contains(@t-attf-class, 'footer')]" position="attributes">
+            <attribute name="t-if">not hide_report_footer and not wo_header_and_footer</attribute>
+        </xpath>
+    </template>
+
+    <!-- BUBBLE LAYOUT -->
+    <template id="custom_external_layout_bubble" inherit_id="web.external_layout_bubble">
+        <xpath expr="//div[contains(@t-attf-class, 'header')]" position="attributes">
+            <attribute name="t-if">not hide_report_footer and not wo_header_and_footer</attribute>
+        </xpath>
+        <xpath expr="//div[contains(@t-attf-class, 'footer')]" position="attributes">
+            <attribute name="t-if">not hide_report_footer and not wo_header_and_footer</attribute>
+        </xpath>
+    </template>
+
+</odoo>
