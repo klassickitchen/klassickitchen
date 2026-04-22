@@ -232,9 +232,9 @@
         </xpath> -->
 
         <!-- We use position="before" to place it right above the invoice line table -->
-        <xpath expr="//table[@name='invoice_line_table']" position="before">
+        <!-- <xpath expr="//table[@name='invoice_line_table']" position="before"> -->
             <!-- This ensures it ONLY appears on the w/o header and footer report -->
-            <t t-if="wo_header_and_footer">
+            <!-- <t t-if="wo_header_and_footer">
                 <div class="text-center mt-3 mb-3">
                     <h4
                         style="text-decoration: underline; font-weight: bold; margin: 0; color: black;">
@@ -242,8 +242,8 @@
                         <t t-if="o.payment_type == 'credit'">CREDIT INVOICE</t>
                     </h4>
                 </div>
-            </t>
-        </xpath>
+            </t> -->
+        <!-- </xpath> -->
     </template>
 
     <!--    &lt;!&ndash; Enforce A5 format to attach to all three reports requested by user
