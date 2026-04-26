@@ -10,6 +10,9 @@ _logger = logging.getLogger(__name__)
 class ProductProduct(models.Model):
     _inherit = "product.product"
 
+    brand = fields.Char(string="Brand")
+    country_of_origin = fields.Many2one("res.country", string="Country of Origin")
+
     alternative_barcode_ids = fields.One2many(
         "product.barcode",
         "product_id",

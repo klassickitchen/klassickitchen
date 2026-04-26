@@ -5,6 +5,10 @@
         <field name="model">product.product</field>
         <field name="inherit_id" ref="product.product_normal_form_view" />
         <field name="arch" type="xml">
+            <xpath expr="//field[@name='categ_id']" position="after">
+                <field name="brand" />
+                <field name="country_of_origin" />
+            </xpath>
             <xpath expr="//notebook/page[1]" position="after">
                 <page string="Barcode">
                     <field name="alternative_barcode_ids">
