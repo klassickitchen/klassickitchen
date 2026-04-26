@@ -1,4 +1,5 @@
-from odoo import models, fields, api
+from odoo import models, fields, api, _
+from odoo.exceptions import ValidationError
 
 
 class IntercompanyStockWizard(models.TransientModel):
@@ -20,7 +21,7 @@ class IntercompanyStockWizard(models.TransientModel):
 
                 vals = line_vals[2]
                 product = self.env['product.product'].browse(vals['product_id'])
-                companies = self.env['res.company'].search([('id', '!=', self.env.company.id)])
+                companies = self.env['res.company'].sudo().search([('id', '!=', self.env.company.id)])
                 available_companies = []
                 for company in companies:
                     p = product.with_company(company).sudo()
@@ -52,8 +53,14 @@ class IntercompanyStockWizard(models.TransientModel):
         return res
 
     def create_intercompany_purchase_order_confirm(self):
-        if not self.order_line_ids.filtered(lambda l: l.selected):
+        selected_lines = self.order_line_ids.filtered(lambda l: l.selected)
+        if not selected_lines:
             return
+        # Validate company_id is set for all selected lines
+        missing = selected_lines.filtered(lambda l: not l.company_id)
+        if missing:
+            products = ', '.join(missing.mapped('product_id.display_name'))
+            raise ValidationError(_('Source Company is required for: %s') % products)
 
         created_po_ids = []
         company_lines = {}
@@ -118,8 +125,14 @@ class IntercompanyStockWizard(models.TransientModel):
 
 
     def create_intercompany_purchase_order(self):
-        if not self.order_line_ids.filtered(lambda l: l.selected):
+        selected_lines = self.order_line_ids.filtered(lambda l: l.selected)
+        if not selected_lines:
             return
+        # Validate company_id is set for all selected lines
+        missing = selected_lines.filtered(lambda l: not l.company_id)
+        if missing:
+            products = ', '.join(missing.mapped('product_id.display_name'))
+            raise ValidationError(_('Source Company is required for: %s') % products)
 
         created_po_ids = []
 
@@ -183,7 +196,6 @@ class IntercompanyStockWizardLine(models.TransientModel):
     company_id = fields.Many2one(
         'res.company',
         string='Source Company',
-        required=True,
         domain=lambda self: [('id', '!=', self.env.company.id)]
     )
     qty_available = fields.Float(string='On Hand Quantity', readonly=True)
