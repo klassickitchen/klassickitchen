@@ -363,7 +363,9 @@
                             t-attf-style="background-color: #{'transparent' if o and o.is_pos_invoice else '#eaeff3'}; border: 2px solid #000000; border-radius: 10px; padding: 3px 5px; margin-left: 0; margin-right: 0; margin-bottom: 0px !important; font-family: sans-serif;">
 
                             <!-- Invoice Date -->
-                            <div class="col text-center" t-if="o.is_pos_invoice and o.invoice_date">
+                            <div t-att-class="'col text-center' if (o.ref and not o.is_pos_invoice) else 'col text-start'"
+                                t-att-style="'' if (o.ref and not o.is_pos_invoice) else 'padding-left: 50px;'"
+                                t-if="o.is_pos_invoice and o.invoice_date">
                                 <span style="font-weight: 900; font-size: 15px; color: #000000;">تاريخ
                                     الفاتورة / Invoice Date : </span>
                                 <span style="font-weight: 900; font-size: 15px; color: black;"
@@ -376,7 +378,7 @@
                                 #000000;">رقم
                                     طلب
                                     الشراء / LPO No : </span> -->
-                            <div class="col text-start" t-if="o.ref">
+                            <div class="col text-start" t-if="o.ref and not o.is_pos_invoice">
                                 <span
                                     style="font-weight: 500 !important; font-size: 13px !important; color: #000000 !important;">PO
                                     Number : </span>
