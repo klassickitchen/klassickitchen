@@ -2,6 +2,14 @@
 <odoo>
     <data>
     <template id="inherit_sale_order_quotation_template" inherit_id="sale.report_saleorder_document">
+        <xpath expr="//span[@t-field='line.name']" position="replace">
+            <t t-if="line.product_id and line.product_id.product_tmpl_id.is_discount">
+                <span t-field="line.product_id.name"/>
+            </t>
+            <t t-else="">
+                <span t-field="line.name"/>
+            </t>
+        </xpath>
             <xpath expr="//th[@name='th_description']" position="after">
                 <th name="th_image" class="text-start">Product Image</th>
             </xpath>
