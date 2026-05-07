@@ -194,8 +194,19 @@
             <!--            </xpath>-->
             <xpath expr="//td[@name='td_quantity']" position="before">
                 <td name="account_invoice_line_name" style="font-size: 11px;">
-                    <span t-if="line.name" t-field="line.name"
-                        t-options="{'widget': 'text'}" />
+<!--                    <span t-if="line.name" t-field="line.name"-->
+<!--                        t-options="{'widget': 'text'}" />-->
+                    <t t-if="line.product_id and line.product_id.product_tmpl_id.is_discount">
+                        <span t-field="line.product_id.name"/>
+                    </t>
+                    <t t-else="">
+                        <t t-if="doc.use_custom_description">
+                            <t t-esc="line.product_id.name"/>
+                        </t>
+                        <t t-else="">
+                            <span t-field="line.name"/>
+                        </t>
+                    </t>
                     <t t-if="line.product_id.arabic_name">
                         <span> / </span>
                         <span t-esc="line.product_id.arabic_name" />
@@ -363,8 +374,7 @@
                             t-attf-style="background-color: #{'transparent' if o and o.is_pos_invoice else '#eaeff3'}; border: 2px solid #000000; border-radius: 10px; padding: 3px 5px; margin-left: 0; margin-right: 0; margin-bottom: 0px !important; font-family: sans-serif;">
 
                             <!-- Invoice Date -->
-                            <div
-                                t-att-class="'col text-center' if (o.ref and not o.is_pos_invoice) else 'col text-start'"
+                            <div t-att-class="'col text-center' if (o.ref and not o.is_pos_invoice) else 'col text-start'"
                                 t-att-style="'' if (o.ref and not o.is_pos_invoice) else 'padding-left: 50px;'"
                                 t-if="o.is_pos_invoice and o.invoice_date">
                                 <span style="font-weight: 900; font-size: 15px; color: #000000;">تاريخ

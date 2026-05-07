@@ -5,8 +5,13 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
+            <xpath expr="//field[@name='payment_term_id']" position="after">
+<!--                <field name="use_custom_description"/>-->
+                <field name="show_product_image"/>
+            </xpath>
             <xpath expr="//field[@name='order_line']//list//field[@name='product_template_id']" position="after">
-                <field name="sale_order_line_product_image" widget="image"/>
+<!--                <field name="custom_description" optional="show" column_invisible="not parent.use_custom_description"/>-->
+                <field name="sale_order_line_product_image" widget="image" column_invisible="not parent.show_product_image"/>
             </xpath>
         </field>
     </record>
