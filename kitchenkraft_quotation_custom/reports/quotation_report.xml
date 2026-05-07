@@ -10,11 +10,11 @@
                 <span t-field="line.name"/>
             </t>
         </xpath>
-            <xpath expr="//th[@name='th_description']" position="after">
-                <th name="th_image" class="text-start">Product Image</th>
-            </xpath>
+        <xpath expr="//th[@name='th_description']" position="after">
+            <th t-if="doc.show_product_image" name="th_image" class="text-start">Product Image</th>
+        </xpath>
         <xpath expr="//tbody[@class='sale_tbody']//td[@name='td_name']" position="after">
-            <td name="td_image"
+            <td t-if="doc.show_product_image" name="td_image"
                 class="text-center"
                 style="vertical-align: middle; width: 90px; white-space: nowrap;">
                 <div style="display: flex; justify-content: center; align-items: center; height: 100%;">

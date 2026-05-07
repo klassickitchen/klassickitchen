@@ -5,6 +5,8 @@ class SaleOrderLine(models.Model):
 
     sale_order_line_product_image = fields.Image(string='Product Image')
 
+    # custom_description = fields.Char(string='Custom Description')
+
     @api.onchange('product_id')
     def auto_sale_order_line_product_image(self):
         for order in self:

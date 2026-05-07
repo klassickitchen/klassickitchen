@@ -11,6 +11,7 @@
 
             <xpath expr="//div[@name='journal_div']" position="after">
                 <field name="payment_type" widget="radio"/>
+                <field name="use_custom_description"/>
             </xpath>
 
             <xpath expr="//list//field[@name='price_subtotal']" position="after">

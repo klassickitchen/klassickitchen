@@ -194,8 +194,19 @@
             <!--            </xpath>-->
             <xpath expr="//td[@name='td_quantity']" position="before">
                 <td name="account_invoice_line_name" style="font-size: 11px;">
-                    <span t-if="line.name" t-field="line.name"
-                        t-options="{'widget': 'text'}" />
+<!--                    <span t-if="line.name" t-field="line.name"-->
+<!--                        t-options="{'widget': 'text'}" />-->
+                    <t t-if="line.product_id and line.product_id.product_tmpl_id.is_discount">
+                        <span t-field="line.product_id.name"/>
+                    </t>
+                    <t t-else="">
+                        <t t-if="doc.use_custom_description">
+                            <t t-esc="line.product_id.name"/>
+                        </t>
+                        <t t-else="">
+                            <span t-field="line.name"/>
+                        </t>
+                    </t>
                     <t t-if="line.product_id.arabic_name">
                         <span> / </span>
                         <span t-esc="line.product_id.arabic_name" />
