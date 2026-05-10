@@ -159,7 +159,7 @@
                                     </span>
 
                                     <!-- Improved payment type title detection -->
-                                    <div t-if="o.is_pos_invoice or o.payment_type and o.move_type not in ('out_refund', 'in_refund')" class="mb-0"
+                                    <div t-if="(o.is_pos_invoice or o.payment_type) and o.move_type not in ('out_refund', 'in_refund')" class="mb-0"
                                         style="margin-top: 0 !important; padding-top: 0 !important;">
                                         <h2 class="text-uppercase fw-bold mb-0"
                                             style="margin-top: 0 !important;"
