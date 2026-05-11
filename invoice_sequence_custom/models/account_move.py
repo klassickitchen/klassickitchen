@@ -20,7 +20,7 @@ class AccountMove(models.Model):
         string="Total Discount", currency_field='currency_id', compute='_custom_compute_amount'
     )
 
-    use_custom_description = fields.Boolean(string='Remove Description', default=False)
+    use_custom_description = fields.Boolean(string='Remove Description', default=True)
 
     @api.depends('invoice_line_ids')
     def _custom_compute_amount(self):
