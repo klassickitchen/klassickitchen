@@ -22,7 +22,7 @@
 ###############################################################################
 {
     'name': "Amount In Words In Invoice, Sale Order And Purchase Order",
-    'version': '18.0.1.3.3',
+    'version': '18.0.1.3.4',
     'category': 'Accounting',
     'summary': """Showing the subtotal amounts of invoice, sale order 
      and purchase order in words""",
