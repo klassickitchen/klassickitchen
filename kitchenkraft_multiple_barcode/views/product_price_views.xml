@@ -33,4 +33,32 @@
         </field>
     </record>
 
+<!--    Product.Template-->
+
+    <record id="product_template_tree_view_inherit_price" model="ir.ui.view">
+        <field name="name">product.template.tree.inherit.price</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_tree_view" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='list_price']" position="attributes">
+                <attribute name="column_invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='list_price']" position="after">
+                <field name="product_template_product_price" string="Sales Price" optional="show" />
+            </xpath>
+        </field>
+    </record>
+
+    <record id="product_template_kanban_view_inherit_price" model="ir.ui.view">
+        <field name="name">product.template.kanban.inherit.price</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_kanban_view" />
+        <field name="arch" type="xml">
+            <xpath expr="//span[field[@name='list_price']]" position="replace">
+                <span> Price: <field name="product_template_product_price" />
+                </span>
+            </xpath>
+        </field>
+    </record>
+
 </odoo>

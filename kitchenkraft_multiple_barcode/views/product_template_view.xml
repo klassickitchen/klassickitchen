@@ -9,6 +9,9 @@
                 <field name="supplier"/>
                 <field name="country_id"/>
             </xpath>
+            <xpath expr="//field[@name='list_price']" position="after">
+                <field name="product_template_product_price"/>
+            </xpath>
         </field>
     </record>
     <record id="product_product_form_inherit" model="ir.ui.view">
