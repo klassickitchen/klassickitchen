@@ -11,3 +11,4 @@ class ProductTemplate(models.Model):
         "product_id",
         string="Alternative Barcodes",
     )
+    product_template_product_price = fields.Float(string='Product Price', related='product_variant_ids.product_price')
