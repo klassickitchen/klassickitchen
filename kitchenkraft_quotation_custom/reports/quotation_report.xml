@@ -24,6 +24,25 @@
                 </div>
             </td>
         </xpath>
+
+        <xpath expr="//th[@name='th_description']" position="before">
+            <th name="th_slno" class="text-center">Sl No:</th>
+        </xpath>
+        <xpath expr="//tbody[@class='sale_tbody']//td[@name='td_name']" position="before">
+            <td name="td_slno" class="text-center" style="vertical-align: middle;">
+                <t t-if="not sl_no">
+                    <t t-set="sl_no" t-value="1"/>
+                </t>
+                <t t-else="">
+                    <t t-set="sl_no" t-value="sl_no + 1"/>
+                </t>
+                <span t-esc="sl_no"/>
+            </td>
+        </xpath>
+
+        <xpath expr="//th[@name='th_taxes']" position="replace"/>
+        <xpath expr="//tbody[@class='sale_tbody']//td[@name='td_taxes']" position="replace"/>
+
     </template>
     </data>
 </odoo>
