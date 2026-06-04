@@ -56,6 +56,11 @@ class ProductBarcode(models.Model):
                 # if you want it pre-filled based on the product.
         return res
 
+    @api.model
+    def load(self, fields, data):
+        return super(ProductBarcode, self.sudo()).load(fields, data)
+
+
     @api.constrains("price")
     def _check_price_not_negative(self):
         for record in self:
