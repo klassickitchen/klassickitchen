@@ -12,7 +12,7 @@
     """,
     'author': 'BROWSEINFO',
     'website': 'https://www.browseinfo.com/demo-request?app=bi_order_line_with_sequence_number&version=18&edition=Community',
-    'depends': ['base','sale_management','purchase','account','stock','mrp','purchase_requisition','pt_custom',],
+    'depends': ['base','sale_management','purchase','account','stock','mrp','purchase_requisition'],
     'data': [
         'security/access_display_order_line.xml',
         'views/order_line_view.xml',
