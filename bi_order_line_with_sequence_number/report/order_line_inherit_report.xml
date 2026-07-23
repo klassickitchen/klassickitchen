@@ -107,8 +107,9 @@
                                     </t>
                                     <td>
                                         <div>
-                                            <span t-esc="move.product_line_main" style="font-weight: bold"/>
-                                            <div t-esc="move.product_line_description"
+                                            <span t-out="move.product_id.display_name" style="font-weight: bold"/>
+                                            <div t-if="move.description_picking and move.description_picking != move.product_id.name and move.description_picking != move.product_id.display_name"
+                                                 t-out="move.description_picking"
                                                  style="white-space: pre-line; font-style: italic; color: #444444"/>
                                         </div>
                                     </td>
@@ -159,11 +160,10 @@
                                     </t>
                                     <td>
                                         <div>
-                                            <span t-esc="move.product_line_main" style="font-weight: bold"/>
+                                            <span t-out="move.product_id.display_name" style="font-weight: bold"/>
 
-                                            <span  style="white-space: pre-line; font-style: italic; color: #444444">
-                                                <t t-esc="move.product_line_description"
-                                                   style="white-space: pre-line; font-style: italic; color: #444444"/>
+                                            <span t-if="move.description_picking and move.description_picking != move.product_id.name and move.description_picking != move.product_id.display_name" style="white-space: pre-line; font-style: italic; color: #444444">
+                                                <t t-out="move.description_picking"/>
                                             </span>
                                         </div>
                                     </td>
@@ -299,17 +299,6 @@
                 </div>
             </xpath>
         </template>
-        <template id="custom_stock_report_delivery_has_serial_move_line"
-                  inherit_id="stock.stock_report_delivery_has_serial_move_line">
-            <xpath expr="//td[last()]" position="after">
-                <t>
-                    <td><span t-esc="aggregated_lines[line]['stock_move_sequence']"/>1
-                    </td>
-                </t>
-
-            </xpath>
-        </template>
-
         <template id="stock_report" inherit_id="stock.report_picking">
             <xpath expr="//table[1]/thead/tr/th[1]" position="before">
                 <t t-if="env.user.has_group('bi_order_line_with_sequence_number.access_display_order_line_number')">
