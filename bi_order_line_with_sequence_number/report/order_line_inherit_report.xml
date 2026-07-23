@@ -72,8 +72,8 @@
                         <div id="informations" class="report-wrapping-flexbox clearfix row mb-4">
                             <div t-if="o.state" class="col col-3 mw-100 mb-2" name="div_sched_date">
                                 <strong>Shipping Date</strong>
-                                <div t-if="o.state == 'done'" t-field="o.display_date_done" class="m-0"/>
-                                <div t-else="" t-field="o.display_scheduled_date" class="m-0"/>
+                                <div t-if="o.state == 'done'" t-field="o.date_done" class="m-0"/>
+                                <div t-else="" t-field="o.scheduled_date" class="m-0"/>
                             </div>
 
                             <div class="col col-3 mw-100 mb-2" t-if="o.sudo().sale_id.client_order_ref">
