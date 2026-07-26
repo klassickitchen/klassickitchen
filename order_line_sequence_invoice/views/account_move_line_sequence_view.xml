@@ -8,7 +8,7 @@
         <field name="arch" type="xml">
             <!-- Add sequence number before product field -->
             <xpath expr="//field[@name='invoice_line_ids']//list//field[@name='product_id']" position="before">
-                <field name="invoice_sequence_number" readonly="1" string="No" />
+                <field name="invoice_sequence_number" readonly="1" string="No" column_invisible="1" />
             </xpath>
         </field>
     </record>
