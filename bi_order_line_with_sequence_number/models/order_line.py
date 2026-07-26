@@ -1,143 +1,123 @@
-from odoo import _, api, fields, models, tools
+# -*- coding: utf-8 -*-
+# Part of BrowseInfo. See LICENSE file for full copyright and licensing details.
+from odoo import api, fields, models
 
-class SaleOrder(models.Model):
-    _inherit = 'sale.order'
-
-    sequence1 = fields.Integer(string='Sequence Number ')
 
 class SaleOrderLine(models.Model):
     _inherit = 'sale.order.line'
 
-    sale_sequence_number = fields.Integer(string='No. ')
-    
-    @api.depends('sale_sequence_number')
-    def _compute_sale_order_line_sequence(self):
-        number = 1
-        for record in self.order_id.order_line:
-            record.sale_sequence_number = number
-            number += 1
-   
-class PurchaseOrder(models.Model):
-    _inherit = 'purchase.order'
+    sale_sequence_number = fields.Integer(
+        string='No.', compute='_compute_sale_sequence_number', store=True)
 
-    sequence1 = fields.Char(string=' Sequence Number')
+    @api.depends('order_id.order_line', 'order_id.order_line.sequence',
+                 'order_id.order_line.display_type')
+    def _compute_sale_sequence_number(self):
+        # Default so every record in self gets a value (e.g. lines without an
+        # order or section/note lines).
+        self.sale_sequence_number = 0
+        for order in self.order_id:
+            number = 1
+            for line in order.order_line:
+                if not line.display_type:
+                    line.sale_sequence_number = number
+                    number += 1
+
 
 class PurchaseOrderLine(models.Model):
     _inherit = 'purchase.order.line'
 
-    purchase_sequence_number = fields.Integer(string='No.')
+    purchase_sequence_number = fields.Integer(
+        string='No.', compute='_compute_purchase_sequence_number', store=True)
 
-    @api.depends('purchase_sequence_number')
-    def _compute_purchase_order_line_sequence(self):
-        number = 1
-        for record in self.order_id.order_line:
-            record.purchase_sequence_number = number
-            number += 1
+    @api.depends('order_id.order_line', 'order_id.order_line.sequence',
+                 'order_id.order_line.display_type')
+    def _compute_purchase_sequence_number(self):
+        self.purchase_sequence_number = 0
+        for order in self.order_id:
+            number = 1
+            for line in order.order_line:
+                if not line.display_type:
+                    line.purchase_sequence_number = number
+                    number += 1
 
-class AccountMove(models.Model):
-    _inherit = 'account.move'
 
-    sequence1 = fields.Char(string='Sequence Number  ')
-
-from odoo import models, fields, api
 class AccountMoveLine(models.Model):
     _inherit = 'account.move.line'
 
-    invoice_sequence_number = fields.Char(string='No.')
+    # Kept as Char (matches the previously installed column type, so no risky
+    # column type migration on upgrade). Only product lines are numbered.
+    invoice_sequence_number = fields.Char(
+        string='No.', compute='_compute_invoice_sequence_number', store=True)
 
-    @api.depends('invoice_sequence_number')
-    def _compute_invoice_line_sequence(self):
-        for move in self.mapped('move_id'):
+    @api.depends('move_id.invoice_line_ids', 'move_id.invoice_line_ids.sequence',
+                 'move_id.invoice_line_ids.display_type')
+    def _compute_invoice_sequence_number(self):
+        self.invoice_sequence_number = ''
+        for move in self.move_id:
             number = 1
-            for line in move.invoice_line_ids:
-                line.invoice_sequence_number = str(number)
-                number += 1
-
+            # The invoice report displays the lines sorted by sequence, so
+            # number them in the same order to keep the column contiguous.
+            for line in move.invoice_line_ids.sorted(key=lambda l: l.sequence):
+                if line.display_type == 'product':
+                    line.invoice_sequence_number = str(number)
+                    number += 1
 
 
 class StockMove(models.Model):
     _inherit = 'stock.move'
 
-    stock_move_sequence = fields.Integer(string='No.', compute='_compute_stock_move_sequence', store=True)
-    sequence1 = fields.Char(string='Sequence Number')
-    mrp_sequence_no = fields.Integer(string='No.   ')
-    @api.depends('sale_line_id.sale_sequence_number')
+    stock_move_sequence = fields.Integer(
+        string='No.', compute='_compute_stock_move_sequence', store=True)
+    mrp_sequence_no = fields.Integer(
+        string='No.', compute='_compute_mrp_sequence_no', store=True)
+
+    @api.depends('sale_line_id', 'sale_line_id.sale_sequence_number',
+                 'purchase_line_id', 'purchase_line_id.purchase_sequence_number',
+                 'picking_id', 'picking_id.move_ids_without_package',
+                 'picking_id.move_ids_without_package.sequence')
     def _compute_stock_move_sequence(self):
+        # Position of each move inside its picking, used as a fallback for
+        # moves that are not linked to a sale/purchase line (e.g. internal
+        # transfers, manual receipts).
+        position = {}
+        for picking in self.picking_id:
+            idx = 1
+            for move in picking.move_ids_without_package:
+                position[move.id] = idx
+                idx += 1
         for move in self:
             if move.sale_line_id:
+                # Carry the sale order line number onto the delivery.
                 move.stock_move_sequence = move.sale_line_id.sale_sequence_number
+            elif move.purchase_line_id:
+                # Carry the purchase order line number onto the receipt.
+                move.stock_move_sequence = move.purchase_line_id.purchase_sequence_number
             else:
-                move.stock_move_sequence = False
+                move.stock_move_sequence = position.get(move.id, 0)
 
-
-    @api.depends('picking_id.move_ids_without_package')
-    def _compute_stock_line_sequence(self):
-        for picking in self.mapped('picking_id'):
+    @api.depends('raw_material_production_id',
+                 'raw_material_production_id.move_raw_ids',
+                 'raw_material_production_id.move_raw_ids.sequence')
+    def _compute_mrp_sequence_no(self):
+        self.mrp_sequence_no = 0
+        for production in self.raw_material_production_id:
             number = 1
-            for move in picking.move_ids_without_package:
-                move.stock_move_sequence = number
+            for move in production.move_raw_ids:
+                move.mrp_sequence_no = number
                 number += 1
 
 
-
-
-    @api.depends('mrp_sequence_no')
-    def _compute_mrp_line_sequence(self):
-        number = 1
-        for record in self.raw_material_production_id.move_raw_ids:
-            record.mrp_sequence_no = number
-            number += 1
-class StockMoveLine(models.Model):
-    _inherit = 'stock.move.line'
-
-    def _get_aggregated_product_quantities(self, strict=False, except_package=False):
-        res = super()._get_aggregated_product_quantities(strict=strict, except_package=except_package)
-
-        # Group lines similarly as Odoo does, to find the source move line for each key
-        def _group_key(line):
-            return (
-                line.product_id.id,
-                line.product_uom_id.id,
-                line.lot_id.id if strict else False,
-                line.package_id.id if not except_package else False,
-                line.result_package_id.id if not except_package else False,
-                line.owner_id.id,
-                line.location_id.id,
-                line.location_dest_id.id,
-                line.move_id.description_picking,
-            )
-
-        grouped_lines = {}
-        for line in self:
-            key = _group_key(line)
-            if key not in grouped_lines:
-                grouped_lines[key] = line  # Keep first line as reference
-
-        for key, values in res.items():
-            # key must exist in grouped_lines
-            line = grouped_lines.get(key)
-            if line:
-                values['stock_move_sequence'] = line.move_id.stock_move_sequence or ''
-            else:
-                values['stock_move_sequence'] = ''
-
-        return res
-class MrpProduction(models.Model):
-    _inherit = 'mrp.production'
-
-    sequence1 = fields.Char(string='Sequence Number')
-
-
-class PurchaseRequisition(models.Model):
+class PurchaseRequisitionLine(models.Model):
     _inherit = 'purchase.requisition.line'
 
-    purchase_requistion_sequence = fields.Integer(string='No.',compute='_compute_purchase_requistion_sequence')
+    purchase_requistion_sequence = fields.Integer(
+        string='No.', compute='_compute_purchase_requistion_sequence', store=True)
 
-    @api.depends('purchase_requistion_sequence')
+    @api.depends('requisition_id', 'requisition_id.line_ids')
     def _compute_purchase_requistion_sequence(self):
-        number = 1
-        for record in self.requisition_id.line_ids:
-            record.purchase_requistion_sequence = number
-            number += 1
-
-
+        self.purchase_requistion_sequence = 0
+        for requisition in self.requisition_id:
+            number = 1
+            for line in requisition.line_ids:
+                line.purchase_requistion_sequence = number
+                number += 1
