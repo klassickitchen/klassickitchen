@@ -2,7 +2,7 @@
 # Part of BrowseInfo. See LICENSE file for full copyright and licensing details.
 {
     'name': "Order line Sequence Number",
-    'version': '18.0.0.4',
+    'version': '18.0.0.5',
     'category': 'Extra Tools',
     'summary': "Sales order line sequence number in order line with sequence number report purchase order line sequence sale order line sequence   purchase agreement order line report sales stock order line sequence sale order line number order line sequence number report",
     'description': """
@@ -12,7 +12,9 @@
     """,
     'author': 'BROWSEINFO',
     'website': 'https://www.browseinfo.com/demo-request?app=bi_order_line_with_sequence_number&version=18&edition=Community',
-    'depends': ['base','sale_management','purchase','account','stock','mrp','purchase_requisition'],
+    # kitchenkraft_quotation_custom owns stock.move.product_sale_price, rendered by
+    # the Sale Price column of report_delivery_document_replace_page below.
+    'depends': ['base','sale_management','purchase','account','stock','mrp','purchase_requisition','kitchenkraft_quotation_custom'],
     'data': [
         'security/access_display_order_line.xml',
         'views/order_line_view.xml',
