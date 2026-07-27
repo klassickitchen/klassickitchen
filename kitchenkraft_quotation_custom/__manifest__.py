@@ -1,10 +1,11 @@
 {
     'name': 'Kitchen Kraft Quotation Custom',
-    'version': '18.0.1.3',
+    'version': '18.0.1.4',
     'description': 'Kitchen Kraft Quotation',
     'author': 'AGM Global Services',
     'website': 'http://agmglobal.co',
-    'depends': ['base', 'sale', 'stock'],
+    # sale_stock owns stock.move.sale_line_id, used by product_sale_price.
+    'depends': ['base', 'sale', 'stock', 'sale_stock'],
     'data': [
         'views/sale_order_line.xml',
         'views/stock_move.xml',
