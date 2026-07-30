@@ -2,6 +2,7 @@
 
 import { patch } from "@web/core/utils/patch";
 import { GlobalDiscountPopupWidget } from "@sh_pos_order_discount/apps/popups/GlobalDiscountPopupWidget/GlobalDiscountPopupWidget";
+import { quantizeDiscount } from "@sh_pos_show_discount/overrides/models/discount_precision";
 import { useState, onMounted } from "@odoo/owl";
 
 patch(GlobalDiscountPopupWidget.prototype, {
@@ -71,35 +72,23 @@ patch(GlobalDiscountPopupWidget.prototype, {
             document.getElementById("discount_fixed_radio") &&
             document.getElementById("discount_fixed_radio").checked;
 
-        if (isFixed) {
-            // Fixed entered → show equivalent percentage
-            // if (total > 0) {
-            const pct = (val / Math.abs(total)) * 100;
-            this.state.equivDisplay = pct.toFixed(2) + " %";
-            if (total < 0) {
-                this.state.amountAfter = (total + val).toFixed(2);
-            } else {
-                this.state.amountAfter = (total - val).toFixed(2);
-            }
-            // } else {
-            //     this.state.equivDisplay = "0.00 %";
-            //     this.state.amountAfter = "0.00";
-            // }
-        } else {
-            // Percentage entered → show equivalent fixed amount
-            // if (total > 0) {
-            const discountAmount = (Math.abs(total) * val) / 100;
-            this.state.equivDisplay = discountAmount.toFixed(2);
-            if (total < 0) {
-                this.state.amountAfter = (total + discountAmount).toFixed(2);
-            } else {
-                this.state.amountAfter = (total - discountAmount).toFixed(2);
-            }
-            // } else {
-            //     this.state.equivDisplay = "0.00";
-            //     this.state.amountAfter = "0.00";
-            // }
-        }
+        // The discount always reaches the order lines as a percentage, and that
+        // percentage is quantised to the 'Discount' precision before it is
+        // stored (quantizeDiscount, discount_precision.js). Preview from the
+        // quantised percentage: a fixed amount that cannot be expressed in that
+        // many decimals would otherwise advertise a total the cashier is never
+        // actually charged. On a 13,054.00 order, entering 3,264.00 fixed shows
+        // 9,790.50 -- not 9,790.00 -- because 25.00 % is the most the line can
+        // carry.
+        const pct = quantizeDiscount(isFixed ? (val / Math.abs(total)) * 100 : val);
+        const discountAmount = (Math.abs(total) * pct) / 100;
+
+        this.state.equivDisplay = isFixed
+            ? pct.toFixed(2) + " %"
+            : discountAmount.toFixed(2);
+        this.state.amountAfter = (
+            total < 0 ? total + discountAmount : total - discountAmount
+        ).toFixed(2);
     },
 });
 
