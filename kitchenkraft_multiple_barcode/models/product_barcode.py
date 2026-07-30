@@ -72,6 +72,7 @@ class ProductBarcode(models.Model):
         return super().write(vals)
 
 
+
     @api.constrains("price")
     def _check_price_not_negative(self):
         for record in self:
