@@ -96,6 +96,7 @@
                                     <!--                                <th name="th_sm_ordered" class="text-end">Ordered</th>-->
                                     <th name="th_sm_quantity" class="text-end">Delivered</th>
                                     <th name="th_sm_sale_price" class="text-end">Sale Price</th>
+                                    <th name="th_sm_total_amount" class="text-end">Total Amount</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -134,6 +135,20 @@
                                     <td class="text-end">
                                         <span t-field="move.product_sale_price"/>
                                     </td>
+                                    <td class="text-end">
+                                        <span t-out="move.quantity * move.product_sale_price" t-options='{"widget": "float", "precision": 2}'/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <t t-if="env.user.has_group('bi_order_line_with_sequence_number.access_display_order_line_number')">
+                                        <td></td>
+                                    </t>
+                                    <td></td>
+                                    <td></td>
+                                    <td class="text-end"><strong>Total</strong></td>
+                                    <td class="text-end" style="border-top: 1px solid black;">
+                                        <strong t-out="sum([m.quantity * m.product_sale_price for m in lines])" t-options='{"widget": "float", "precision": 2}'/>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -153,6 +168,7 @@
                                     <!--                                <th name="lot_serial" t-else="">Lot/Serial Number</th>-->
                                     <th name="th_sml_quantity" class="text-center">Delivered</th>
                                     <th name="th_sml_sale_price" class="text-end">Sale Price</th>
+                                    <th name="th_sml_total_amount" class="text-end">Total Amount</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -191,6 +207,20 @@
                                     </td>
                                     <td class="text-end">
                                         <span t-field="move.product_sale_price"/>
+                                    </td>
+                                    <td class="text-end">
+                                        <span t-out="move.quantity * move.product_sale_price" t-options='{"widget": "float", "precision": 2}'/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <t t-if="env.user.has_group('bi_order_line_with_sequence_number.access_display_order_line_number')">
+                                        <td></td>
+                                    </t>
+                                    <td></td>
+                                    <td></td>
+                                    <td class="text-end"><strong>Total</strong></td>
+                                    <td class="text-end" style="border-top: 1px solid black;">
+                                        <strong t-out="sum([m.quantity * m.product_sale_price for m in lines])" t-options='{"widget": "float", "precision": 2}'/>
                                     </td>
                                 </tr>
                             </tbody>
