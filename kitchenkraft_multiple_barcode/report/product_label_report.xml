@@ -9,17 +9,17 @@
                         <!-- Entire label content here -->
                         <div style="width:100%; font-family: 'Oswald', sans-serif !important; text-align:center; font-size:8px; font-weight: 400 !important; position: relative; bottom:12px; right:2px;">
 
-                            <div style="display:inline-block; width:90%; margin-bottom:10px; line-height:1.2;">
+                            <div style="display:inline-block; width:95%; margin-bottom:10px; line-height:1.2;">
 
-                                <span style="display:block; font-size:8px; font-weight:500; letter-spacing:1px;">
+                                <span style="display:block; font-size:11px; font-weight:500; letter-spacing:1px;">
                                     <t t-esc="env.company.name"/>
                                 </span>
 
-                                <span style="display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; font-size:7px; font-weight:500; margin-left:4px; word-break:break-word; white-space:normal; line-height:1.3; letter-spacing:1px;">
+                                <span style="display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; font-size:9px; font-weight:500; margin-left:4px; word-break:break-word; white-space:normal; line-height:1.3; letter-spacing:1px;">
                                     <t t-esc="product.name"/>
                                 </span>
 
-                                <span style="display:block; font-size:7px; font-weight:500; letter-spacing:1px;">
+                                <span style="display:block; font-size:9px; font-weight:500; letter-spacing:1px;">
                                     <t t-esc="product.arabic_name"/>
                                 </span>
                             </div>
@@ -31,27 +31,27 @@
                             <t t-if="barcode">
                                 <!-- Product Code(internal reference) -->
                                 <t t-if="product.default_code">
-                                    <div style="text-align:center; font-size:8px; font-weight:500;">
+                                    <div style="text-align:center; font-size:10px; font-weight:500; margin-bottom:2px;">
                                         <span t-out="product.default_code"/>
                                     </div>
                                 </t>
                                 <!-- Barcode Image -->
                                 <div t-out="barcode"
                                      style="padding:0; margin:auto;text-align:center; position: relative; bottom:10px;"
-                                     t-options="{'widget': 'barcode', 'quiet': 0, 'symbology': 'auto', 'img_style': 'width:80px; height:18px;'}"/>
+                                     t-options="{'widget': 'barcode', 'quiet': 0, 'symbology': 'auto', 'img_style': 'width:95px; height:22px;'}"/>
 
                                 <!-- Barcode number & product code -->
-                                <div style="text-align:center; font-size:6px; line-height:0.1; position: relative; bottom:9px;">
+                                <div style="text-align:center; font-size:6px; line-height:0.1; position: relative; bottom:9px; margin-top:2px;">
                                     <!-- Barcode Code -->
-                                    <span t-out="barcode" style="margin-left:7px; font-size:8px; font-weight:500;"/>
+                                    <span t-out="barcode" style="margin-left:7px; font-size:10px; font-weight:500;"/>
 
-                                    <div style="text-align:center;font-weight:500; font-size:11px; line-height:1.8;">
+                                    <div style="text-align:center;font-weight:500; font-size:14px; line-height:1.8; margin-top:4px;">
                                         <t t-if="len(barcode_and_qty) == 2">
                                             <span>QR:
                                                 <t t-esc="'{:,.2f}'.format(product.lst_price)"/>
                                             </span>
                                             <t t-if="product.arabic_price">
-                                                <span style="margin-left:1px;">
+                                                <span style="margin-left:8px;">
                                                     <t t-esc="product.arabic_price"/>
                                                 </span>
                                             </t>
