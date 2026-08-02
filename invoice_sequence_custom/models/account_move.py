@@ -26,12 +26,24 @@ class AccountMove(models.Model):
         ('show_description_only', 'Show Description Only'),
     ], string='Description Display', default='remove_description')
 
-    @api.depends('invoice_line_ids')
+    @api.depends('invoice_line_ids.price_subtotal',
+                 'invoice_line_ids.amount_without_discount')
     def _custom_compute_amount(self):
+        # Print Gross - Untaxed, never a separately rounded sum.
+        #
+        # price_subtotal is rounded to the currency once per line, whereas
+        # summing quantity * price_unit * discount/100 rounds only at the end.
+        # The two do not agree: on KK/POS/0088 the exact discount is 57.998,
+        # which prints as 58.00, while the lines total 130.01 -- so the block
+        # read 188.00 - 58.00 = 130.01 and did not add up. Deriving the discount
+        # from the two figures that are actually printed makes it reconcile by
+        # construction, for any discount percentage.
         for move in self:
-            move.amount_discount = sum(
-                line.quantity * line.price_unit * (line.discount / 100)
-                for line in move.invoice_line_ids
+            product_lines = move.invoice_line_ids.filtered(
+                lambda line: line.display_type == 'product'
+            )
+            move.amount_discount = move.gross_total - sum(
+                product_lines.mapped('price_subtotal')
             )
 
     @api.depends('invoice_line_ids.amount_without_discount')

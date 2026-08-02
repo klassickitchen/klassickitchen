@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
 
@@ -37,13 +37,23 @@
                                 box-shadow: none !important;
                                 background: transparent !important;
                             }
-                            /* .o_label_sheet div { padding: 2px 4px } steals width */
+                            /* .o_label_sheet div { padding: 2px 4px } steals width.
+                               Only padding is reset here - margins are set per row below. */
                             .o_label_sheet.o_label_dymo div,
                             .o_label_sheet.o_label_dymo span {
                                 padding: 0 !important;
-                                margin: 0;
+                            }
+                            /* Top-aligned so there is no gap above the company name.
+                               table-cell because wkhtmltopdf's WebKit does not do
+                               flexbox reliably. */
+                            .kk_wrap {
+                                display: table;
+                                width: 100%;
+                                height: 27mm;
                             }
                             .kk_label {
+                                display: table-cell;
+                                vertical-align: top;
                                 width: 100%;
                                 text-align: center;
                                 line-height: 1.15;
@@ -51,16 +61,18 @@
                                 font-weight: 500;
                             }
                             .kk_label .kk_co {
-                                font-size: 12px;
+                                font-size: 9px;
                                 font-weight: 700;
                                 text-transform: uppercase;
                                 letter-spacing: 0.5px;
                                 white-space: nowrap;
                                 overflow: hidden;
                             }
+                            /* Gap 0: between the company name and the English name */
                             .kk_label .kk_en {
-                                font-size: 9px;
-                                font-weight: 600;
+                                font-size: 8px;
+                                font-weight: 400;
+                                margin-top: 2px;
                                 text-transform: uppercase;
                                 letter-spacing: 0.3px;
                                 word-break: break-word;
@@ -76,23 +88,42 @@
                                              'Traditional Arabic', Arial, sans-serif;
                                 direction: rtl;
                             }
+                            /* Gap 1: between the English name and the Arabic name */
                             .kk_label .kk_arname {
-                                font-size: 9px;
+                                font-size: 8.5px;
                                 font-weight: 400;
+                                line-height: 1.25;
+                                margin-top: 3px;
                                 white-space: nowrap;
                                 overflow: hidden;
                             }
+                            /* Gap 2: between the Arabic name and the barcode */
+                            .kk_label .kk_bc {
+                                margin-top: 3px;
+                            }
+                            /* Forced barcode size - beats the inline img_style either way */
+                            .kk_label .kk_bc img {
+                                width: 70% !important;
+                                height: 6.5mm !important;
+                                display: block;
+                                margin: 0 auto;
+                            }
+                            /* Gap 3: between the barcode and the barcode number */
                             .kk_label .kk_code {
                                 font-size: 9px;
-                                font-weight: 600;
+                                font-weight: 400;
                                 letter-spacing: 0.5px;
+                                margin-top: 3px;
                             }
+                            /* Gap 4: between the number/reference row and the price row */
                             .kk_label .kk_price {
                                 font-size: 13px;
-                                font-weight: 700;
+                                font-weight: 600;
+                                margin-top: 3px;
                             }
                         </style>
 
+                        <div class="kk_wrap">
                         <div class="kk_label">
 
                             <!-- Company name -->
@@ -113,9 +144,9 @@
                             </t>
 
                             <t t-if="barcode">
-                                <!-- Barcode, spanning the full label width -->
+                                <!-- Barcode: 70% of the label width, centred -->
                                 <div t-out="barcode" class="kk_bc"
-                                    t-options="{'widget': 'barcode', 'quiet': 0, 'symbology': 'auto', 'img_style': 'width:100%; height:7mm; display:block;'}" />
+                                    t-options="{'widget': 'barcode', 'quiet': 0, 'symbology': 'auto', 'img_style': 'width:70%; height:6.5mm; display:block; margin:0 auto;'}" />
 
                                 <!-- Barcode number (left) + internal reference (right) -->
                                 <div class="kk_code">
@@ -152,6 +183,7 @@
                                     </t>
                                 </div>
                             </t>
+                        </div>
                         </div>
                     </div>
 
