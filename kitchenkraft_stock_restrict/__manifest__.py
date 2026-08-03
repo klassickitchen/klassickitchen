@@ -1,6 +1,6 @@
 {
     'name': 'Kitchenkraft Stock Restrict',
-    'version': '1.0',
+    'version': '1.1',
     'summary': 'Restrict sale of out-of-stock products based on product configuration',
     'author': 'AGM Global Services',
     'license': 'OPL-1',

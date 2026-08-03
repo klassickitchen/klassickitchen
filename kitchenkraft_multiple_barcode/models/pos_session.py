@@ -18,6 +18,14 @@ class PosSession(models.Model):
         product_packaging_fields = self.env["product.packaging"]._load_pos_data_fields(config_id)
         product_context = {**self.env.context, "display_default_code": False}
 
+        # Scan results overwrite the cached product record in the browser, so this read
+        # must use the same stock scope as the initial POS load. Without the location
+        # key qty_available comes back as the whole-company warehouse total and would
+        # replace the correctly scoped figure. See kitchenkraft_stock_restrict.
+        source_location = self.env["pos.config"].browse(config_id).picking_type_id.default_location_src_id
+        if source_location:
+            product_context["location"] = source_location.id
+
         current_company = self.env.company.id
 
         # 1️⃣ First check our custom product.barcode model
