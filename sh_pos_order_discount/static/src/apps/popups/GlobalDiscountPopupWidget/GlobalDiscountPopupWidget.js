@@ -50,10 +50,46 @@ export class GlobalDiscountPopupWidget extends Component {
                         value = parseFloat(value) + parseFloat((total_after - total_before).toFixed(2));
                     }
 
-                    var percentage =
-                        ((value / Math.abs(self.pos.get_order().get_total_with_tax())) * 100);
-                    for (let each_order_line of orderlines) {
-                        each_order_line.set_custom_discount(parseFloat(percentage));
+                    var total_amount = Math.abs(self.pos.get_order().get_total_with_tax());
+                    var target_cents = Math.round(value * 100);
+                    var total_amount_cents = Math.round(total_amount * 100);
+
+                    if (total_amount_cents > 0) {
+                        var shares = [];
+                        var distributed_cents = 0;
+                        for (let each_order_line of orderlines) {
+                            let line_total_cents = Math.round(Math.abs(each_order_line.get_price_with_tax()) * 100);
+                            let raw_share = (target_cents * line_total_cents) / total_amount_cents;
+                            let rounded_share = Math.floor(raw_share);
+                            let remainder = raw_share - rounded_share;
+
+                            shares.push({
+                                line: each_order_line,
+                                rounded_share: rounded_share,
+                                remainder: remainder,
+                                line_total_cents: line_total_cents
+                            });
+                            distributed_cents += rounded_share;
+                        }
+
+                        var cents_to_give = target_cents - distributed_cents;
+                        shares.sort((a, b) => b.remainder - a.remainder);
+
+                        for (let i = 0; i < cents_to_give; i++) {
+                            shares[i].rounded_share += 1;
+                        }
+
+                        for (let share of shares) {
+                            let percentage = 0;
+                            if (share.line_total_cents > 0) {
+                                percentage = (share.rounded_share / share.line_total_cents) * 100;
+                            }
+                            share.line.set_custom_discount(percentage);
+                        }
+                    } else {
+                        for (let each_order_line of orderlines) {
+                            each_order_line.set_custom_discount(0);
+                        }
                     }
                     // Compute cumulative discount from orderlines
                     var cumulative_discount = 0;
