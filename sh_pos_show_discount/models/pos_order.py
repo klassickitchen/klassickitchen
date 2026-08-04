@@ -5,48 +5,42 @@ from odoo import models
 
 _logger = logging.getLogger(__name__)
 
-# HALF-UP <-> HALF-DOWN, UP <-> DOWN
-OPPOSITE_TIE_BREAK = {
-    "UP": "DOWN",
-    "DOWN": "UP",
-    "HALF-UP": "HALF-DOWN",
-    "HALF-DOWN": "HALF-UP",
-}
 
-
-class AccountCashRounding(models.Model):
-    _inherit = "account.cash.rounding"
-
-    def _mirrored_for_refund(self):
-        """Same rounding step, opposite tie-break.
-
-        POS inverts the tie-break itself whenever the amount still due is
-        negative -- see getRoundedRemaining() in
-        point_of_sale/static/src/app/models/pos_order.js -- so this is the rule
-        the till actually applied when it paid a refund out.
-
-        Returns an empty recordset if the method has no opposite (there is
-        nothing to mirror for HALF-EVEN).
-        """
-        self.ensure_one()
-        opposite = OPPOSITE_TIE_BREAK.get(self.rounding_method)
-        if not opposite:
-            return self.browse()
-
-        mirrored = self.sudo().search([
-            ("rounding", "=", self.rounding),
-            ("rounding_method", "=", opposite),
-            ("strategy", "=", self.strategy),
-        ], limit=1)
-        if mirrored:
-            return mirrored
-
-        # Created once, on the first refund, then reused. It inherits this
-        # record's profit/loss accounts.
-        return self.sudo().copy({
-            "name": "%s (refunds)" % self.name,
-            "rounding_method": opposite,
-        })
+# ---------------------------------------------------------------------------
+# Why there is no refund tie-break mirroring here
+# ---------------------------------------------------------------------------
+# An earlier version of this file pointed refund invoices at a mirrored
+# account.cash.rounding using the opposite tie-break (HALF-UP -> HALF-DOWN), on
+# the theory that POS inverts the tie-break for refunds while account.move does
+# not. That was wrong, and it was reverted after measuring the real data.
+#
+# getRoundedRemaining() in point_of_sale/static/src/app/models/pos_order.js does
+# contain an inversion, but it only fires when `remaining` is negative -- and for
+# a refund `remaining` is NOT negative. taxTotals is built with
+# `quantity: documentSign * line.qty` (pos_order.js:131-141), so every base line
+# of a refund is made positive and `order_remaining` is a positive magnitude. The
+# sign is re-applied afterwards in getDefaultAmountDueToPayIn as
+# `order_sign * amount`. The inversion therefore applies to change/overpayment on
+# a normal sale, never to refunds.
+#
+# Measured on klassic300726 over 106 refunds landing on an exact .50 tie:
+#
+#     POS paid AWAY from zero (-389.00 for -388.50)  101 orders
+#     POS paid TOWARD zero    (-304.00 for -304.50)    5 orders
+#
+# account.move applies HALF-UP to the positive refund total, giving 389.00 -- so
+# it already agrees with POS in 101 of 106 cases. Mirroring the tie-break would
+# have inverted the invoice for all 101 and broken them, to "fix" 5.
+#
+# The 5 outliers are all Cash, all on config 2, spread over four months. Their
+# payment amount is the floor of the total, which is what a cashier gets by
+# overwriting the prefilled amount -- check_cash_rounding_has_been_well_applied()
+# accepts any whole riyal, so 304 passes validation just as 305 does. They are a
+# data/procedure difference, not a code defect: the till handed over one riyal
+# less than the credit note says. Treat them as write-offs, not as a bug.
+#
+# Do not re-add the mirroring without re-measuring that distribution first.
+# ---------------------------------------------------------------------------
 
 
 class PosOrder(models.Model):
@@ -58,8 +52,11 @@ class PosOrder(models.Model):
         _prepare_invoice_vals() in core sets invoice_cash_rounding_id
         unconditionally, while POS only rounds when this returns true. With
         "Only round cash method" enabled the invoice would round card and
-        bank-transfer orders that the till left unrounded, producing the same
+        bank-transfer orders that the till left unrounded, producing a
         collected-vs-invoiced mismatch on every non-cash order.
+
+        The flag is off on both configs today, so this changes nothing now --
+        it removes a trap for whoever ticks it later.
         """
         self.ensure_one()
         config = self.config_id
@@ -71,24 +68,10 @@ class PosOrder(models.Model):
 
     def _prepare_invoice_vals(self):
         vals = super()._prepare_invoice_vals()
-
-        if not self._should_round_invoice():
+        if not self._should_round_invoice() and vals.get("invoice_cash_rounding_id"):
+            _logger.debug(
+                "POS %s: clearing invoice cash rounding, POS did not round this order.",
+                self.name,
+            )
             vals["invoice_cash_rounding_id"] = False
-            return vals
-
-        # A refund that lands on an exact tie -- 3.50 against a 1 QAR step -- is
-        # paid out by POS as 3.00 but invoiced by account.move as 4.00, because
-        # account.move applies the configured method to the positive refund
-        # total while POS inverted it. Point refunds at the mirrored record so
-        # the credit note agrees with what left the drawer.
-        if vals.get("move_type") == "out_refund" and vals.get("invoice_cash_rounding_id"):
-            mirrored = self.config_id.rounding_method._mirrored_for_refund()
-            if mirrored:
-                vals["invoice_cash_rounding_id"] = mirrored.id
-            else:
-                _logger.warning(
-                    "POS %s: cash rounding method %r has no opposite tie-break, "
-                    "the credit note may be rounded away from the amount paid out.",
-                    self.name, self.config_id.rounding_method.rounding_method,
-                )
         return vals

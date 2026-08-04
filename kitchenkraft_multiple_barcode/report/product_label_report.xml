@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
 
@@ -25,6 +25,24 @@
                     <t t-set="kk_ar_price"
                         t-value="(kk_var.arabic_price if 'arabic_price' in kk_var._fields else '') or ''" />
 
+                    <!-- Hard character cap on the product name.
+
+                         Measured empirically from rendered PDFs (8px Arial, 50mm
+                         printable width): line 1 holds 55 chars, line 2 holds 56, so
+                         112 chars is the largest that renders in full inside the fixed
+                         two-line .kk_en box. At 125 the wrap pushed 15 chars onto a
+                         third line that overflow:hidden discarded silently.
+
+                         105 leaves headroom for unlucky word breaks and guarantees the
+                         ellipsis is visible rather than text vanishing. This is the one
+                         number to change; raising it past ~112 requires raising the
+                         .kk_en height to add a third line. -->
+                    <t t-set="kk_name_max" t-value="105" />
+                    <t t-set="kk_name" t-value="product.name or ''" />
+                    <t t-set="kk_name"
+                        t-value="kk_name if len(kk_name) &lt;= kk_name_max
+                                 else kk_name[:kk_name_max - 1].rstrip() + '…'" />
+
                     <div class="o_label_sheet o_label_dymo" t-att-style="padding_page">
 
                         <style>
@@ -37,12 +55,21 @@
                                 box-shadow: none !important;
                                 background: transparent !important;
                             }
-                            /* .o_label_sheet div { padding: 2px 4px } steals width */
+                            /* .o_label_sheet div { padding: 2px 4px } steals width.
+                               Only padding is reset here - margins are set per row below. */
                             .o_label_sheet.o_label_dymo div,
                             .o_label_sheet.o_label_dymo span {
                                 padding: 0 !important;
-                                margin: 0;
                             }
+                            /* Block flow is top-aligned by default, so there is no gap
+                               above the company name.
+
+                               Do NOT wrap this in display:table - an auto-layout table
+                               sizes itself to its max-content width, so a nowrap child
+                               (kk_co, kk_arname) expands the whole layout past the 53mm
+                               printable area and the sheet crops the overflow. Block
+                               flow clips the nowrap child instead, which is what we
+                               want. */
                             .kk_label {
                                 width: 100%;
                                 text-align: center;
@@ -51,23 +78,32 @@
                                 font-weight: 500;
                             }
                             .kk_label .kk_co {
-                                font-size: 12px;
+                                font-size: 9px;
                                 font-weight: 700;
                                 text-transform: uppercase;
                                 letter-spacing: 0.5px;
                                 white-space: nowrap;
                                 overflow: hidden;
                             }
+                            /* Gap 0: between the company name and the English name.
+
+                               Fixed two-line box. Do NOT use -webkit-line-clamp here:
+                               wkhtmltopdf's WebKit paints the clamp ellipsis but does
+                               NOT enforce the line limit, so long names wrapped to 3-5
+                               lines and pushed the price row onto the next PDF page.
+                               An explicit height + overflow:hidden is honoured, and it
+                               also pins every row below to the same position on every
+                               label regardless of name length.
+                               4.9mm = 2 lines at 8px x 1.15 line-height. */
                             .kk_label .kk_en {
-                                font-size: 9px;
-                                font-weight: 600;
+                                font-size: 8px;
+                                font-weight: 400;
+                                margin-top: 2px;
                                 text-transform: uppercase;
                                 letter-spacing: 0.3px;
                                 word-break: break-word;
                                 white-space: normal;
-                                display: -webkit-box;
-                                -webkit-line-clamp: 2;
-                                -webkit-box-orient: vertical;
+                                height: 4.9mm;
                                 overflow: hidden;
                             }
                             /* Oswald has no Arabic glyphs - force a font that does */
@@ -76,20 +112,38 @@
                                              'Traditional Arabic', Arial, sans-serif;
                                 direction: rtl;
                             }
+                            /* Gap 1: between the English name and the Arabic name */
                             .kk_label .kk_arname {
-                                font-size: 9px;
+                                font-size: 8.5px;
                                 font-weight: 400;
+                                line-height: 1.25;
+                                margin-top: 3px;
                                 white-space: nowrap;
                                 overflow: hidden;
                             }
+                            /* Gap 2: between the Arabic name and the barcode */
+                            .kk_label .kk_bc {
+                                margin-top: 3px;
+                            }
+                            /* Forced barcode size - beats the inline img_style either way */
+                            .kk_label .kk_bc img {
+                                width: 70% !important;
+                                height: 6.5mm !important;
+                                display: block;
+                                margin: 0 auto;
+                            }
+                            /* Gap 3: between the barcode and the barcode number */
                             .kk_label .kk_code {
                                 font-size: 9px;
-                                font-weight: 600;
+                                font-weight: 400;
                                 letter-spacing: 0.5px;
+                                margin-top: 3px;
                             }
+                            /* Gap 4: between the number/reference row and the price row */
                             .kk_label .kk_price {
                                 font-size: 13px;
-                                font-weight: 700;
+                                font-weight: 600;
+                                margin-top: 3px;
                             }
                         </style>
 
@@ -102,7 +156,7 @@
 
                             <!-- Product name (English), full width, max 2 lines -->
                             <div class="kk_en">
-                                <t t-out="product.name" />
+                                <t t-out="kk_name" />
                             </div>
 
                             <!-- Product name (Arabic), full width -->
@@ -113,34 +167,36 @@
                             </t>
 
                             <t t-if="barcode">
-                                <!-- Barcode, spanning the full label width -->
+                                <!-- Barcode: 70% of the label width, centred -->
                                 <div t-out="barcode" class="kk_bc"
-                                    t-options="{'widget': 'barcode', 'quiet': 0, 'symbology': 'auto', 'img_style': 'width:100%; height:7mm; display:block;'}" />
+                                    t-options="{'widget': 'barcode', 'quiet': 0, 'symbology': 'auto', 'img_style': 'width:70%; height:6.5mm; display:block; margin:0 auto;'}" />
 
                                 <!-- Barcode number (left) + internal reference (right) -->
                                 <div class="kk_code">
-                                    <span style="display:inline-block; width:64%; text-align:left;"
+                                    <span
+                                        style="display:inline-block; width:64%; text-align:left; white-space:nowrap; overflow:hidden;"
                                         t-out="barcode" />
-                                    <span style="display:inline-block; width:34%; text-align:right;"
+                                    <span
+                                        style="display:inline-block; width:34%; text-align:right; white-space:nowrap; overflow:hidden;"
                                         t-out="product.default_code or ''" />
                                 </div>
 
                                 <!-- Price (left) + Arabic price (right) -->
                                 <div class="kk_price">
                                     <t t-if="len(barcode_and_qty) == 2">
-                                        <span style="display:inline-block; width:56%; text-align:left;">QR:<t
+                                        <span style="display:inline-block; width:56%; text-align:left; white-space:nowrap; overflow:hidden;">QR:<t
                                                 t-out="'{:,.2f}'.format(product.lst_price)" />
                                         </span>
                                         <span class="kk_ar"
-                                            style="display:inline-block; width:42%; text-align:right;"
+                                            style="display:inline-block; width:42%; text-align:right; white-space:nowrap; overflow:hidden;"
                                             t-out="kk_ar_price" />
                                     </t>
                                     <t t-if="len(barcode_and_qty) &gt; 2">
-                                        <span style="display:inline-block; width:56%; text-align:left;">QR:<t
+                                        <span style="display:inline-block; width:56%; text-align:left; white-space:nowrap; overflow:hidden;">QR:<t
                                                 t-out="'{:,.2f}'.format(float(barcode_and_qty[2]))" />
                                         </span>
                                         <span class="kk_ar"
-                                            style="display:inline-block; width:42%; text-align:right;">
+                                            style="display:inline-block; width:42%; text-align:right; white-space:nowrap; overflow:hidden;">
                                             <t t-foreach="kk_var.alternative_barcode_ids"
                                                 t-as="alt_barcode">
                                                 <t

@@ -17,6 +17,28 @@ class ProductProduct(models.Model):
             fields.append('restrict_sell_out_of_stock')
         return fields
 
+    def _load_pos_data(self, data):
+        """Scope the POS On Hand / Forecasted figures to the till's own source location.
+
+        Odoo computes qty_available with no location in the context, and
+        stock/models/product.py:302 resolves that to *every warehouse of the active
+        company*. For "Kitchenkraft- Showroom" that summed KK/SH and KK/WH together,
+        so the product list advertised stock the till cannot sell (G1026 displayed 538
+        while KK/SH/Stock actually held -12).
+
+        Pinning the picking type's default source location makes the displayed figure
+        equal the location the POS really decrements
+        (point_of_sale/models/stock_picking.py:41). The location context matches by
+        parent_path, so sub-locations such as KK/SH/Stock/4th Floor- Store are
+        included automatically, and each config resolves its own location - no
+        hard-coded ids.
+        """
+        config = self.env['pos.config'].browse(data['pos.config']['data'][0]['id'])
+        source_location = config.picking_type_id.default_location_src_id
+        if source_location:
+            self = self.with_context(location=source_location.id)
+        return super(ProductProduct, self)._load_pos_data(data)
+
 
 class SaleOrderLine(models.Model):
     _inherit = 'sale.order.line'

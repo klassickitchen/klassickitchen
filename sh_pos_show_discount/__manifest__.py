@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "POS Global Discount Auto Calculation",
-    "version": "18.0.2.0.0",
+    "version": "18.0.2.0.1",
     "author": "AGM Info Solutions",
     "website": "https://www.agmglobal.in/",
     "category": "Point Of Sale",
@@ -24,15 +24,17 @@
            now quantised in POS, and the popup previews the quantised result so
            the cashier sees the total that will actually be charged.
 
-        2. Refunds landing on an exact rounding tie
-           POS inverts the cash-rounding tie-break when the amount due is
-           negative (getRoundedRemaining in pos_order.js); account.move does
-           not, so a 3.50 refund was paid out as 3.00 but invoiced as 4.00.
-           Refund invoices now use a mirrored account.cash.rounding.
+        2. "Only round cash method" was ignored on the invoice
+           Core sets invoice_cash_rounding_id unconditionally while POS honours
+           the flag, so enabling it would round card and bank-transfer invoices
+           that the till left unrounded. _should_round_invoice() now mirrors
+           POS's shouldRound().
 
-        Also mirrors POS's shouldRound() on the invoice, so enabling
-        "Only round cash method" no longer rounds card and bank-transfer
-        invoices that the till left unrounded.
+        NOT a defect: refunds landing on an exact .50 tie. An earlier build
+        mirrored the cash-rounding tie-break for refunds; that was reverted in
+        18.0.2.0.1 after measuring 106 such refunds -- 101 already agreed with
+        the invoice and only 5 did not. See the comment in models/pos_order.py
+        before considering it again.
 
         No data migration. Invoices already posted keep the values they were
         posted with.
