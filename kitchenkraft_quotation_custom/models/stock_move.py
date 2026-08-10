@@ -4,7 +4,7 @@ from odoo import api, fields, models
 class StockMove(models.Model):
     _inherit = 'stock.move'
 
-    product_cost = fields.Float(string="Cost", related='product_id.standard_price')
+    product_cost = fields.Float(string="Cost", compute='_compute_product_cost')
     product_sale_price = fields.Float(
         string="Sale Price",
         compute='_compute_product_sale_price',
@@ -13,6 +13,11 @@ class StockMove(models.Model):
              "Falls back to the product's sales price when there is no order behind "
              "the move, e.g. a manual internal transfer.",
     )
+    @api.depends('product_id.standard_price', 'company_id')
+    def _compute_product_cost(self):
+        for move in self:
+            move.product_cost = move.product_id.with_company(move.company_id).standard_price
+
 
     def _get_pos_sale_price(self):
         """Unit price charged in POS for this move's product, or None.
@@ -45,7 +50,7 @@ class StockMove(models.Model):
             return sum(prices) / len(prices)
         return sum(line.price_unit * abs(line.qty) for line in lines) / total_qty
 
-    @api.depends('product_id.list_price', 'sale_line_id.price_unit',
+    @api.depends('product_id.product_price','company_id', 'sale_line_id.price_unit',
                  'picking_id', 'group_id')
     def _compute_product_sale_price(self):
         for move in self:
@@ -57,5 +62,5 @@ class StockMove(models.Model):
                 continue
             pos_price = move._get_pos_sale_price()
             move.product_sale_price = (
-                move.product_id.list_price if pos_price is None else pos_price
+                move.product_id.with_company(move.company_id).product_price if pos_price is None else pos_price
             )
