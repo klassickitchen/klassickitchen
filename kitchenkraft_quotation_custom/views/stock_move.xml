@@ -9,6 +9,19 @@
                 <field name="product_cost" readonly="1" optional="show" column_invisible="parent.picking_type_code != 'internal'"/>
                 <field name="product_sale_price" readonly="1" optional="show" column_invisible="parent.picking_type_code != 'internal'"/>
             </xpath>
+            <!-- On internal transfers only, restrict the product picker to what the
+                 transfer's own company sells. Products are shared records (company_id
+                 is empty on all but one template), so check_company has nothing to
+                 filter on and both catalogues show up. Barcode ownership is the real
+                 divider, carried by product.product.catalogue_hidden_company_ids
+                 (kitchenkraft_multiple_barcode).
+                 Any other picking type keeps the unfiltered picker, hence the empty
+                 domain: deliveries, receipts and POS pickings are out of scope.
+                 A view domain, not a record rule: it filters new selections only, so
+                 products already saved on existing documents keep displaying. -->
+            <xpath expr="//field[@name='move_ids_without_package']/list/field[@name='product_id']" position="attributes">
+                <attribute name="domain">[('catalogue_hidden_company_ids', 'not in', [parent.company_id])] if parent.picking_type_code == 'internal' else []</attribute>
+            </xpath>
         </field>
     </record>
 </odoo>

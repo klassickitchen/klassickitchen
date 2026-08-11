@@ -18,6 +18,39 @@ class ProductProduct(models.Model):
         "product_id",
         string="Alternative Barcodes",
     )
+    catalogue_hidden_company_ids = fields.Many2many(
+        "res.company",
+        "product_product_hidden_company_rel",
+        "product_id",
+        "company_id",
+        string="Hidden From Companies",
+        compute="_compute_catalogue_hidden_company_ids",
+        store=True,
+        help="Companies that must not use this product: those managing their catalogue "
+             "by barcode that have no barcode row for it. Empty when no such company "
+             "claims the product, so barcode-less items stay available everywhere.",
+    )
+
+    @api.depends("alternative_barcode_ids.company_id")
+    def _compute_catalogue_hidden_company_ids(self):
+        """Companies the product must be hidden from, by barcode ownership.
+
+        A company "manages its catalogue by barcode" when it owns at least one
+        product.barcode row. That is read from the data rather than configured, so a
+        company that never sold over the counter (Al-Saif, Al Diyafa) never lands in
+        the hidden set and is therefore never filtered.
+        """
+        groups = self.env["product.barcode"].sudo()._read_group(
+            [("company_id", "!=", False)], ["company_id"]
+        )
+        separated = self.env["res.company"].browse([group[0].id for group in groups])
+        for product in self:
+            # sudo: product.barcode carries its own company record rule, so a Kitchen
+            # Kraft user reads none of the Klassic rows; without sudo a recompute
+            # triggered from one company would store a wrong set for the other.
+            owners = product.sudo().alternative_barcode_ids.company_id
+            product.catalogue_hidden_company_ids = (separated - owners) if owners else False
+
     arabic_price_alt = fields.Char(
         string="Arabic Price Alt", compute="_compute_arabic_price_alt", store=True
     )
