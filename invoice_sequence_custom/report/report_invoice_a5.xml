@@ -176,12 +176,12 @@
                                             style="margin-top: 0 !important;"
                                             t-att-style="'font-size: 15px; font-weight: bold !important; color: black !important; margin-top: 0 !important;' if o.is_pos_invoice else 'font-size: 22px; font-weight: bold !important;'">
                                             <t
-                                                    t-if="(o.payment_type == 'cash' or (o.is_pos_invoice and not o.payment_type)) and not hide_report_footer">
+                                                    t-if="(o.payment_type == 'cash' or (o.is_pos_invoice and not o.payment_type))">
                                                 CASH
                                                 INVOICE
                                             </t>
                                             <t
-                                                    t-elif="(o.payment_type == 'credit') and not hide_report_footer">
+                                                    t-elif="(o.payment_type == 'credit')">
                                                 CREDIT
                                                 INVOICE
                                             </t>
