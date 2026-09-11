@@ -9,6 +9,10 @@ class PosOrder(models.Model):
         if invoice:
             company_code = self.company_id.code or ''
             invoice.is_pos_invoice = True
+            # super() has just written the cash rounding line against what the customer
+            # actually paid, and the invoice is still a draft here -- this is the only point
+            # where the absorb/keep decision can be frozen before posting.
+            invoice._absorb_cash_rounding_in_discount()
 
             if invoice.move_type == 'out_refund':
                 # Find sequence for THIS company specifically

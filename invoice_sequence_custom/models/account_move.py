@@ -1,9 +1,25 @@
 from odoo import models, api, fields
+from odoo.tools import float_compare
 
 
 class AccountMove(models.Model):
     _inherit = 'account.move'
     is_pos_invoice = fields.Boolean(string="POS Invoice", default=False)
+    cash_rounding_amount = fields.Monetary(
+        string="Cash Rounding",
+        currency_field='currency_id',
+        compute='_compute_cash_rounding_amount',
+        help="Signed cash rounding difference carried by this invoice, in invoice currency. "
+             "This is the figure the Rounding line prints.",
+    )
+    pos_rounding_absorbed = fields.Boolean(
+        string="Rounding Absorbed In Discount",
+        copy=False,
+        help="Set once, on the draft POS invoice, when the cash rounding difference was small "
+             "enough to be reported as part of the discount. Frozen at that point so that a "
+             "later change to the company threshold never reprints an existing invoice "
+             "differently.",
+    )
     payment_type = fields.Selection(
         [('cash', 'Cash'),
          ('credit', 'Credit')],
@@ -27,7 +43,8 @@ class AccountMove(models.Model):
     ], string='Description Display', default='remove_description')
 
     @api.depends('invoice_line_ids.price_subtotal',
-                 'invoice_line_ids.amount_without_discount')
+                 'invoice_line_ids.amount_without_discount',
+                 'cash_rounding_amount', 'pos_rounding_absorbed')
     def _custom_compute_amount(self):
         # Print Gross - Untaxed, never a separately rounded sum.
         #
@@ -42,15 +59,72 @@ class AccountMove(models.Model):
             product_lines = move.invoice_line_ids.filtered(
                 lambda line: line.display_type == 'product'
             )
-            move.amount_discount = move.gross_total - sum(
-                product_lines.mapped('price_subtotal')
-            )
+            net_total = sum(product_lines.mapped('price_subtotal'))
+            if move.pos_rounding_absorbed:
+                # The rounding is no longer printed on a line of its own, so it has to land
+                # somewhere or the block stops adding up. Netting it off here makes the
+                # printed discount the difference between the two other printed figures:
+                # Gross Total - Net Total, which is what the customer was actually given.
+                net_total += move.cash_rounding_amount
+            move.amount_discount = move.gross_total - net_total
 
     @api.depends('invoice_line_ids.amount_without_discount')
     def _compute_gross_total(self):
         for move in self:
             gross_total = sum(move.invoice_line_ids.mapped('amount_without_discount'))
             move.gross_total = gross_total
+
+    @api.depends('line_ids.display_type', 'line_ids.amount_currency', 'move_type')
+    def _compute_cash_rounding_amount(self):
+        # direction_sign * amount_currency is the same expression core uses in
+        # _prepare_cash_rounding_base_line_for_taxes_computation, so this always equals the
+        # 'cash_rounding_base_amount_currency' that the Rounding row renders.
+        for move in self:
+            rounding_lines = move.line_ids.filtered(
+                lambda line: line.display_type == 'rounding'
+            )
+            move.cash_rounding_amount = move.direction_sign * sum(
+                rounding_lines.mapped('amount_currency')
+            )
+
+    def _absorb_cash_rounding_in_discount(self):
+        """Freeze the absorb/keep decision on a draft invoice, before it is posted.
+
+        Nothing is written to the journal entry: the rounding line stays exactly where Odoo
+        booked it. Only the way the invoice reports itself changes.
+        """
+        for move in self:
+            company = move.company_id
+            absorbed = False
+            if company.pos_rounding_absorb and not move.currency_id.is_zero(move.cash_rounding_amount):
+                threshold = company.pos_rounding_absorb_threshold
+                absorbed = threshold > 0.0 and float_compare(
+                    abs(move.cash_rounding_amount),
+                    threshold,
+                    precision_rounding=move.currency_id.rounding,
+                ) <= 0
+            move.pos_rounding_absorbed = absorbed
+
+    def _compute_tax_totals(self):
+        super()._compute_tax_totals()
+        for move in self:
+            totals = move.tax_totals
+            if not move.pos_rounding_absorbed or not totals:
+                continue
+            # Fold the rounding back into the untaxed base and drop the key the totals
+            # template keys the Rounding row off. The total is unchanged -- core builds it as
+            # base + tax + rounding, and the rounding it subtracted from the base is exactly
+            # what we add back -- so the invoice still totals what the customer paid.
+            delta_currency = totals.pop('cash_rounding_base_amount_currency', 0.0)
+            delta = totals.pop('cash_rounding_base_amount', 0.0)
+            if not delta_currency and not delta:
+                continue
+            totals['base_amount_currency'] += delta_currency
+            totals['base_amount'] += delta
+            for subtotal in totals.get('subtotals', []):
+                subtotal['base_amount_currency'] += delta_currency
+                subtotal['base_amount'] += delta
+            move.tax_totals = totals
 
     @api.depends('invoice_line_ids.sale_line_ids.order_id.payment_type')
     def _compute_payment_type(self):
