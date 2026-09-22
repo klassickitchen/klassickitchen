@@ -175,8 +175,8 @@
                                         <h2 class="text-uppercase fw-bold mb-0"
                                             style="margin-top: 0 !important;"
                                             t-att-style="'font-size: 25px; font-weight: bold !important; color: black !important; margin-top: 0 !important;' if o.is_pos_invoice else 'font-size: 22px; font-weight: bold !important;'">
-                                            <t
-                                                    t-if="(o.payment_type == 'cash' or (o.is_pos_invoice and not o.payment_type))">
+                                            <!-- <t t-if="(o.payment_type == 'cash' or (o.is_pos_invoice and not o.payment_type))"> -->
+                                            <t t-if="o.company_id.id == 2 and (o.payment_type == 'cash' or (o.is_pos_invoice and not o.payment_type))">
                                                 CASH
                                                 INVOICE
                                             </t>
@@ -365,6 +365,22 @@
                 </attribute>
             </xpath>
 
+            <!-- The Bubble layout (o_table_boxed-rounded) draws the totals box with an
+                 absolutely-positioned table::before overlay. wkhtmltopdf drops its bottom
+                 edge, so the box prints with no bottom line. Turn the overlay off and give
+                 the table real borders instead, which always render. -->
+            <xpath expr="//div[@id='total']" position="inside">
+                <style>
+                    #total table.o_total_table::before { border: 0 !important; }
+                    #total table.o_total_table {
+                        border: 1px solid #495057 !important;
+                        border-radius: 0 0 0.5rem 0.5rem !important;
+                        border-collapse: separate !important;
+                        border-spacing: 0 !important;
+                    }
+                </style>
+            </xpath>
+
             <!-- Hide the original informations block so it doesn't appear twice -->
             <xpath expr="//div[@id='informations']" position="replace"/>
 
@@ -387,10 +403,10 @@
                             !important;">-->
                             <div class="col-6 text-start" style="color: black; padding-left: 0;">
                                 <div>
-                                    <span style="font-weight: bold; font-size: 11px;">العميل /
+                                    <span style="font-weight: bold; font-size: 13px;">العميل /
                                         Customer :
                                     </span>
-                                    <span style="font-weight: bold; font-size: 14px;"
+                                    <span style="font-weight: 900; font-size: 16px;"
                                           t-field="o.partner_id.name"/>
                                 </div>
                                 <div t-if="o.partner_id.street or o.partner_id.city"
@@ -424,6 +440,7 @@
                         </div>
 
                         <div id="informations" class="row mt-1"
+                             t-if="(o.is_pos_invoice and o.invoice_date) or (o.ref and not o.is_pos_invoice) or o.picking_ids"
                              t-attf-style="background-color: #{'transparent' if o and o.is_pos_invoice else '#eaeff3'}; border: 2px solid #000000; border-radius: 10px; padding: 3px 5px; margin-left: 0; margin-right: 0; margin-bottom: 0px !important; font-family: sans-serif;">
 
                             <!-- Invoice Date -->
