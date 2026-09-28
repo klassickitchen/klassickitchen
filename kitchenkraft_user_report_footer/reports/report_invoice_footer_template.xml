@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Only the "Print PDF" invoice report switches on the seller footer -->
+    <template id="report_invoice_print_pdf_seller_footer"
+              inherit_id="invoice_sequence_custom.report_invoice_with_payments_twice_a4">
+        <xpath expr="//t[@t-call='web.html_container']" position="before">
+            <t t-set="print_pdf_seller_footer" t-value="True"/>
+        </xpath>
+    </template>
+
+    <!--
+        Only the company footer text (company.report_footer) is swapped for the
+        seller's footer; the layout footer itself (line, page number, shapes) is kept.
+        Without a seller footer, or on any other report, the company footer is printed.
+        priority="50" makes these apply after the other layout inheritances
+        (invoice_sequence_custom, kitchenkraft_header_and_footer, ...), so they
+        also catch the footer field those modules put in their own footer markup.
+    -->
+    <template id="external_layout_striped_seller_footer" inherit_id="web.external_layout_striped" priority="50">
+        <xpath expr="//*[@t-field='company.report_footer']" position="attributes">
+            <attribute name="t-field"/>
+            <attribute name="t-out">(print_pdf_seller_footer and o._get_seller_report_footer()) or company.report_footer</attribute>
+        </xpath>
+    </template>
+
+    <template id="external_layout_boxed_seller_footer" inherit_id="web.external_layout_boxed" priority="50">
+        <xpath expr="//*[@t-field='company.report_footer']" position="attributes">
+            <attribute name="t-field"/>
+            <attribute name="t-out">(print_pdf_seller_footer and o._get_seller_report_footer()) or company.report_footer</attribute>
+        </xpath>
+    </template>
+
+    <template id="external_layout_bold_seller_footer" inherit_id="web.external_layout_bold" priority="50">
+        <xpath expr="//*[@t-field='company.report_footer']" position="attributes">
+            <attribute name="t-field"/>
+            <attribute name="t-out">(print_pdf_seller_footer and o._get_seller_report_footer()) or company.report_footer</attribute>
+        </xpath>
+    </template>
+
+    <template id="external_layout_standard_seller_footer" inherit_id="web.external_layout_standard" priority="50">
+        <xpath expr="//*[@t-field='company.report_footer']" position="attributes">
+            <attribute name="t-field"/>
+            <attribute name="t-out">(print_pdf_seller_footer and o._get_seller_report_footer()) or company.report_footer</attribute>
+        </xpath>
+    </template>
+
+    <template id="external_layout_folder_seller_footer" inherit_id="web.external_layout_folder" priority="50">
+        <xpath expr="//*[@t-field='company.report_footer']" position="attributes">
+            <attribute name="t-field"/>
+            <attribute name="t-out">(print_pdf_seller_footer and o._get_seller_report_footer()) or company.report_footer</attribute>
+        </xpath>
+    </template>
+
+    <template id="external_layout_wave_seller_footer" inherit_id="web.external_layout_wave" priority="50">
+        <xpath expr="//*[@t-field='company.report_footer']" position="attributes">
+            <attribute name="t-field"/>
+            <attribute name="t-out">(print_pdf_seller_footer and o._get_seller_report_footer()) or company.report_footer</attribute>
+        </xpath>
+    </template>
+
+    <template id="external_layout_bubble_seller_footer" inherit_id="web.external_layout_bubble" priority="50">
+        <xpath expr="//*[@t-field='company.report_footer']" position="attributes">
+            <attribute name="t-field"/>
+            <attribute name="t-out">(print_pdf_seller_footer and o._get_seller_report_footer()) or company.report_footer</attribute>
+        </xpath>
+    </template>
+
+</odoo>
