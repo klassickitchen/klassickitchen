@@ -3,8 +3,12 @@
     <!--    To show the amount in words in invoice report-->
     <template id="invoice_report_view_amount_in_words"
               inherit_id="account.report_invoice_document">
-        <xpath expr="//div[hasclass('clearfix')]" position="after">
-            <div style="font-size:11px; padding: 2px; page-break-inside: avoid;">
+        <!-- Sits in the free space to the left of the Gross Total / Net Total block.
+             mt-5 mirrors #right-elements so the two line up vertically in the PDF. -->
+        <xpath expr="//div[@id='right-elements']" position="after">
+            <div name="amount_in_words"
+                 t-attf-class="#{'mt-5' if report_type == 'pdf' else ''}"
+                 style="font-size:11px; padding: 2px; page-break-inside: avoid; break-inside: avoid;">
                 <span>
                     <strong>Amount in Words (Total) :</strong>
                 </span>
@@ -14,20 +18,8 @@
                     <span t-field="o.number_to_words_ar"/>
                 </div>
             </div>
-
-<!--            <div style="margin-top:10px; font-size:19px;" class="mb-3"-->
-<!--                 t-if="o.move_type in ('out_invoice', 'in_refund') and o.payment_reference">-->
-<!--                <p name="payment_communication">-->
-<!--                    Payment Communication:-->
-<!--                    <span class="fw-bold" t-field="o.payment_reference">INV/2023/00001</span>-->
-<!--                    <t t-if="o.partner_bank_id">-->
-<!--                        <br/>-->
-<!--                        on this account:-->
-<!--                        <span t-field="o.partner_bank_id" class="fw-bold"/>-->
-<!--                    </t>-->
-<!--                </p>-->
-<!--            </div>-->
         </xpath>
+
         <xpath expr="//p[@name='payment_communication']" position="replace"/>
     </template>
     <!--To show the amount in words on purchase report-->
