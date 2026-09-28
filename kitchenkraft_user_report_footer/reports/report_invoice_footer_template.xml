@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Only the "Print PDF" invoice report switches on the seller footer -->
+    <template id="report_invoice_print_pdf_seller_footer"
+              inherit_id="invoice_sequence_custom.report_invoice_with_payments_twice_a4">
+        <xpath expr="//t[@t-call='web.html_container']" position="before">
+            <t t-set="print_pdf_seller_footer" t-value="True"/>
+        </xpath>
+    </template>
+
+    <!-- Seller (showroom) footer, rendered in place of the layout footer -->
+    <template id="seller_report_footer">
+        <div t-attf-class="footer o_company_#{company.id}_layout {{report_type != 'pdf' and 'mt-auto'}}"
+             style="text-align: center; margin: 0; padding: 0;">
+            <t t-out="seller_report_footer"/>
+        </div>
+    </template>
+
+    <!--
+        priority="1" makes these apply before every other layout inheritance
+        (invoice_sequence_custom, kitchenkraft_header_and_footer, ...), so the
+        original footer div is still there to wrap. Those modules then keep
+        modifying it inside the t-else, and every other report is unchanged.
+        The seller footer is shown for POS and Sales invoices alike; without one
+        the layout's own (company) footer is printed.
+    -->
+    <template id="external_layout_striped_seller_footer" inherit_id="web.external_layout_striped" priority="1">
+        <xpath expr="//div[contains(@t-attf-class, 'footer o_company_#{company.id}_layout')]" position="replace">
+            <t t-set="seller_report_footer" t-value="print_pdf_seller_footer and o._get_seller_report_footer()"/>
+            <t t-if="seller_report_footer" t-call="kitchenkraft_user_report_footer.seller_report_footer"/>
+            <t t-else="">$0</t>
+        </xpath>
+    </template>
+
+    <template id="external_layout_boxed_seller_footer" inherit_id="web.external_layout_boxed" priority="1">
+        <xpath expr="//div[contains(@t-attf-class, 'footer o_company_#{company.id}_layout')]" position="replace">
+            <t t-set="seller_report_footer" t-value="print_pdf_seller_footer and o._get_seller_report_footer()"/>
+            <t t-if="seller_report_footer" t-call="kitchenkraft_user_report_footer.seller_report_footer"/>
+            <t t-else="">$0</t>
+        </xpath>
+    </template>
+
+    <template id="external_layout_bold_seller_footer" inherit_id="web.external_layout_bold" priority="1">
+        <xpath expr="//div[contains(@t-attf-class, 'footer o_company_#{company.id}_layout')]" position="replace">
+            <t t-set="seller_report_footer" t-value="print_pdf_seller_footer and o._get_seller_report_footer()"/>
+            <t t-if="seller_report_footer" t-call="kitchenkraft_user_report_footer.seller_report_footer"/>
+            <t t-else="">$0</t>
+        </xpath>
+    </template>
+
+    <template id="external_layout_standard_seller_footer" inherit_id="web.external_layout_standard" priority="1">
+        <xpath expr="//div[contains(@t-attf-class, 'footer o_company_#{company.id}_layout')]" position="replace">
+            <t t-set="seller_report_footer" t-value="print_pdf_seller_footer and o._get_seller_report_footer()"/>
+            <t t-if="seller_report_footer" t-call="kitchenkraft_user_report_footer.seller_report_footer"/>
+            <t t-else="">$0</t>
+        </xpath>
+    </template>
+
+    <template id="external_layout_folder_seller_footer" inherit_id="web.external_layout_folder" priority="1">
+        <xpath expr="//div[contains(@t-attf-class, 'footer o_company_#{company.id}_layout')]" position="replace">
+            <t t-set="seller_report_footer" t-value="print_pdf_seller_footer and o._get_seller_report_footer()"/>
+            <t t-if="seller_report_footer" t-call="kitchenkraft_user_report_footer.seller_report_footer"/>
+            <t t-else="">$0</t>
+        </xpath>
+    </template>
+
+    <template id="external_layout_wave_seller_footer" inherit_id="web.external_layout_wave" priority="1">
+        <xpath expr="//div[contains(@t-attf-class, 'footer o_company_#{company.id}_layout')]" position="replace">
+            <t t-set="seller_report_footer" t-value="print_pdf_seller_footer and o._get_seller_report_footer()"/>
+            <t t-if="seller_report_footer" t-call="kitchenkraft_user_report_footer.seller_report_footer"/>
+            <t t-else="">$0</t>
+        </xpath>
+    </template>
+
+    <template id="external_layout_bubble_seller_footer" inherit_id="web.external_layout_bubble" priority="1">
+        <xpath expr="//div[contains(@t-attf-class, 'footer o_company_#{company.id}_layout')]" position="replace">
+            <t t-set="seller_report_footer" t-value="print_pdf_seller_footer and o._get_seller_report_footer()"/>
+            <t t-if="seller_report_footer" t-call="kitchenkraft_user_report_footer.seller_report_footer"/>
+            <t t-else="">$0</t>
+        </xpath>
+    </template>
+
+</odoo>
