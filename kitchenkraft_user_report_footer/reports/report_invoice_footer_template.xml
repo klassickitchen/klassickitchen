@@ -9,75 +9,60 @@
         </xpath>
     </template>
 
-    <!-- Seller (showroom) footer, rendered in place of the layout footer -->
-    <template id="seller_report_footer">
-        <div t-attf-class="footer o_company_#{company.id}_layout {{report_type != 'pdf' and 'mt-auto'}}"
-             style="text-align: center; margin: 0; padding: 0;">
-            <t t-out="seller_report_footer"/>
-        </div>
-    </template>
-
     <!--
-        priority="1" makes these apply before every other layout inheritance
-        (invoice_sequence_custom, kitchenkraft_header_and_footer, ...), so the
-        original footer div is still there to wrap. Those modules then keep
-        modifying it inside the t-else, and every other report is unchanged.
-        The seller footer is shown for POS and Sales invoices alike; without one
-        the layout's own (company) footer is printed.
+        Only the company footer text (company.report_footer) is swapped for the
+        seller's footer; the layout footer itself (line, page number, shapes) is kept.
+        Without a seller footer, or on any other report, the company footer is printed.
+        priority="50" makes these apply after the other layout inheritances
+        (invoice_sequence_custom, kitchenkraft_header_and_footer, ...), so they
+        also catch the footer field those modules put in their own footer markup.
     -->
-    <template id="external_layout_striped_seller_footer" inherit_id="web.external_layout_striped" priority="1">
-        <xpath expr="//div[contains(@t-attf-class, 'footer o_company_#{company.id}_layout')]" position="replace">
-            <t t-set="seller_report_footer" t-value="print_pdf_seller_footer and o._get_seller_report_footer()"/>
-            <t t-if="seller_report_footer" t-call="kitchenkraft_user_report_footer.seller_report_footer"/>
-            <t t-else="">$0</t>
+    <template id="external_layout_striped_seller_footer" inherit_id="web.external_layout_striped" priority="50">
+        <xpath expr="//*[@t-field='company.report_footer']" position="attributes">
+            <attribute name="t-field"/>
+            <attribute name="t-out">(print_pdf_seller_footer and o._get_seller_report_footer()) or company.report_footer</attribute>
         </xpath>
     </template>
 
-    <template id="external_layout_boxed_seller_footer" inherit_id="web.external_layout_boxed" priority="1">
-        <xpath expr="//div[contains(@t-attf-class, 'footer o_company_#{company.id}_layout')]" position="replace">
-            <t t-set="seller_report_footer" t-value="print_pdf_seller_footer and o._get_seller_report_footer()"/>
-            <t t-if="seller_report_footer" t-call="kitchenkraft_user_report_footer.seller_report_footer"/>
-            <t t-else="">$0</t>
+    <template id="external_layout_boxed_seller_footer" inherit_id="web.external_layout_boxed" priority="50">
+        <xpath expr="//*[@t-field='company.report_footer']" position="attributes">
+            <attribute name="t-field"/>
+            <attribute name="t-out">(print_pdf_seller_footer and o._get_seller_report_footer()) or company.report_footer</attribute>
         </xpath>
     </template>
 
-    <template id="external_layout_bold_seller_footer" inherit_id="web.external_layout_bold" priority="1">
-        <xpath expr="//div[contains(@t-attf-class, 'footer o_company_#{company.id}_layout')]" position="replace">
-            <t t-set="seller_report_footer" t-value="print_pdf_seller_footer and o._get_seller_report_footer()"/>
-            <t t-if="seller_report_footer" t-call="kitchenkraft_user_report_footer.seller_report_footer"/>
-            <t t-else="">$0</t>
+    <template id="external_layout_bold_seller_footer" inherit_id="web.external_layout_bold" priority="50">
+        <xpath expr="//*[@t-field='company.report_footer']" position="attributes">
+            <attribute name="t-field"/>
+            <attribute name="t-out">(print_pdf_seller_footer and o._get_seller_report_footer()) or company.report_footer</attribute>
         </xpath>
     </template>
 
-    <template id="external_layout_standard_seller_footer" inherit_id="web.external_layout_standard" priority="1">
-        <xpath expr="//div[contains(@t-attf-class, 'footer o_company_#{company.id}_layout')]" position="replace">
-            <t t-set="seller_report_footer" t-value="print_pdf_seller_footer and o._get_seller_report_footer()"/>
-            <t t-if="seller_report_footer" t-call="kitchenkraft_user_report_footer.seller_report_footer"/>
-            <t t-else="">$0</t>
+    <template id="external_layout_standard_seller_footer" inherit_id="web.external_layout_standard" priority="50">
+        <xpath expr="//*[@t-field='company.report_footer']" position="attributes">
+            <attribute name="t-field"/>
+            <attribute name="t-out">(print_pdf_seller_footer and o._get_seller_report_footer()) or company.report_footer</attribute>
         </xpath>
     </template>
 
-    <template id="external_layout_folder_seller_footer" inherit_id="web.external_layout_folder" priority="1">
-        <xpath expr="//div[contains(@t-attf-class, 'footer o_company_#{company.id}_layout')]" position="replace">
-            <t t-set="seller_report_footer" t-value="print_pdf_seller_footer and o._get_seller_report_footer()"/>
-            <t t-if="seller_report_footer" t-call="kitchenkraft_user_report_footer.seller_report_footer"/>
-            <t t-else="">$0</t>
+    <template id="external_layout_folder_seller_footer" inherit_id="web.external_layout_folder" priority="50">
+        <xpath expr="//*[@t-field='company.report_footer']" position="attributes">
+            <attribute name="t-field"/>
+            <attribute name="t-out">(print_pdf_seller_footer and o._get_seller_report_footer()) or company.report_footer</attribute>
         </xpath>
     </template>
 
-    <template id="external_layout_wave_seller_footer" inherit_id="web.external_layout_wave" priority="1">
-        <xpath expr="//div[contains(@t-attf-class, 'footer o_company_#{company.id}_layout')]" position="replace">
-            <t t-set="seller_report_footer" t-value="print_pdf_seller_footer and o._get_seller_report_footer()"/>
-            <t t-if="seller_report_footer" t-call="kitchenkraft_user_report_footer.seller_report_footer"/>
-            <t t-else="">$0</t>
+    <template id="external_layout_wave_seller_footer" inherit_id="web.external_layout_wave" priority="50">
+        <xpath expr="//*[@t-field='company.report_footer']" position="attributes">
+            <attribute name="t-field"/>
+            <attribute name="t-out">(print_pdf_seller_footer and o._get_seller_report_footer()) or company.report_footer</attribute>
         </xpath>
     </template>
 
-    <template id="external_layout_bubble_seller_footer" inherit_id="web.external_layout_bubble" priority="1">
-        <xpath expr="//div[contains(@t-attf-class, 'footer o_company_#{company.id}_layout')]" position="replace">
-            <t t-set="seller_report_footer" t-value="print_pdf_seller_footer and o._get_seller_report_footer()"/>
-            <t t-if="seller_report_footer" t-call="kitchenkraft_user_report_footer.seller_report_footer"/>
-            <t t-else="">$0</t>
+    <template id="external_layout_bubble_seller_footer" inherit_id="web.external_layout_bubble" priority="50">
+        <xpath expr="//*[@t-field='company.report_footer']" position="attributes">
+            <attribute name="t-field"/>
+            <attribute name="t-out">(print_pdf_seller_footer and o._get_seller_report_footer()) or company.report_footer</attribute>
         </xpath>
     </template>
 
