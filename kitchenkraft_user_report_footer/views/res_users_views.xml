@@ -8,7 +8,7 @@
             <xpath expr="//notebook" position="inside">
                 <page string="Report Footer" name="report_footer_tab">
                     <div class="text-muted mb-2">
-                        Replaces the company footer text on "Print PDF" invoices sold by this user (POS or Sales).
+                        Replaces the company footer text on "Print PDF" invoices and quotations / sales orders of this user (POS or Sales).
                         Leave empty to use the company footer.
                     </div>
                     <field name="report_footer" widget="html"

@@ -9,6 +9,19 @@
         </xpath>
     </template>
 
+    <!-- The quotation / sales order report also switches on the seller footer -->
+    <template id="report_saleorder_seller_footer" inherit_id="sale.report_saleorder_raw">
+        <xpath expr="//t[@t-call='web.html_container']" position="before">
+            <t t-set="print_pdf_seller_footer" t-value="True"/>
+        </xpath>
+    </template>
+
+    <template id="report_saleorder_pro_forma_seller_footer" inherit_id="sale.report_saleorder_pro_forma">
+        <xpath expr="//t[@t-call='web.html_container']" position="before">
+            <t t-set="print_pdf_seller_footer" t-value="True"/>
+        </xpath>
+    </template>
+
     <!--
         Only the company footer text (company.report_footer) is swapped for the
         seller's footer; the layout footer itself (line, page number, shapes) is kept.
