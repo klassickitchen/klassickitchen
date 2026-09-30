@@ -1,7 +1,7 @@
 {
     'name': "User / Showroom Report Footer (Print PDF)",
     'version': '18.0.1.0.0',
-    'summary': "Showroom-specific HTML footer for Print PDF Invoices based on selling user",
+    'summary': "Showroom-specific HTML footer for Print PDF Invoices and Quotations based on selling user",
     'author': "AGM Global Services",
     'category': 'Accounting/Sales',
     'depends': [
