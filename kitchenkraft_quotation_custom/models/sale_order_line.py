@@ -10,11 +10,14 @@ class SaleOrderLine(models.Model):
         compute='_compute_amount_without_discount',
     )
 
-    @api.depends('product_uom_qty', 'price_unit', 'display_type')
+    @api.depends('product_uom_qty', 'price_unit', 'display_type', 'product_id.is_discount')
     def _compute_amount_without_discount(self):
+        # Discount product lines are left out of the gross, so their amount ends up in
+        # the order's Discount (Gross Total - Untaxed Amount) rather than as a line.
         for line in self:
             line.amount_without_discount = (
-                0.0 if line.display_type else line.price_unit * line.product_uom_qty
+                0.0 if line.display_type or line.product_id.is_discount
+                else line.price_unit * line.product_uom_qty
             )
 
     # custom_description = fields.Char(string='Custom Description')

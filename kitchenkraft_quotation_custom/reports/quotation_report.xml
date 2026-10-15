@@ -48,6 +48,10 @@
         <xpath expr="//t[@t-set='display_discount']" position="attributes">
             <attribute name="t-value">False</attribute>
         </xpath>
+        <!-- Discount product lines are reported in the Discount total, not as lines. -->
+        <xpath expr="//t[@t-set='lines_to_report']" position="attributes">
+            <attribute name="t-value">doc._get_order_lines_to_report().filtered(lambda l: not l.product_id.is_discount)</attribute>
+        </xpath>
         <xpath expr="//td[@name='td_subtotal']/span[@t-field='line.price_subtotal']" position="attributes">
             <attribute name="t-field">line.amount_without_discount</attribute>
         </xpath>
