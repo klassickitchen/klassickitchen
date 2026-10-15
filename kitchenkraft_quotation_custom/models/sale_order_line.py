@@ -4,6 +4,18 @@ class SaleOrderLine(models.Model):
     _inherit = 'sale.order.line'
 
     sale_order_line_product_image = fields.Image(string='Product Image')
+    amount_without_discount = fields.Monetary(
+        string="Amount Before Discount",
+        currency_field='currency_id',
+        compute='_compute_amount_without_discount',
+    )
+
+    @api.depends('product_uom_qty', 'price_unit', 'display_type')
+    def _compute_amount_without_discount(self):
+        for line in self:
+            line.amount_without_discount = (
+                0.0 if line.display_type else line.price_unit * line.product_uom_qty
+            )
 
     # custom_description = fields.Char(string='Custom Description')
 
