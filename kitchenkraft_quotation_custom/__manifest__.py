@@ -1,6 +1,6 @@
 {
     'name': 'Kitchen Kraft Quotation Custom',
-    'version': '18.0.1.6',
+    'version': '18.0.1.7',
     'description': 'Kitchen Kraft Quotation',
     'author': 'AGM Global Services',
     'website': 'http://agmglobal.co',
