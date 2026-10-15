@@ -43,6 +43,55 @@
         <xpath expr="//th[@name='th_taxes']" position="replace"/>
         <xpath expr="//tbody[@class='sale_tbody']//td[@name='td_taxes']" position="replace"/>
 
+        <!-- Discount is shown once in the totals block (as on the invoice), not per line:
+             drop the Disc.% column and print each line before discount. -->
+        <xpath expr="//t[@t-set='display_discount']" position="attributes">
+            <attribute name="t-value">False</attribute>
+        </xpath>
+        <xpath expr="//td[@name='td_subtotal']/span[@t-field='line.price_subtotal']" position="attributes">
+            <attribute name="t-field">line.amount_without_discount</attribute>
+        </xpath>
+        <xpath expr="//t[@t-set='current_subtotal'][@t-value='current_subtotal + line.price_subtotal']"
+               position="attributes">
+            <attribute name="t-value">current_subtotal + line.amount_without_discount</attribute>
+        </xpath>
+
+    </template>
+
+    <!-- Totals block: Gross Total, Discount, taxes, Net Total, as on the invoice. -->
+    <template id="sale_document_tax_totals_discount" inherit_id="sale.document_tax_totals">
+        <xpath expr="//t[@t-as='subtotal']" position="before">
+            <t t-set="show_gross_discount" t-value="doc and doc._name == 'sale.order'"/>
+        </xpath>
+        <xpath expr="//tr[@class='o_subtotal']" position="attributes">
+            <attribute name="t-if">not show_gross_discount</attribute>
+        </xpath>
+        <xpath expr="//tr[@class='o_subtotal']" position="before">
+            <t t-if="show_gross_discount and subtotal_first">
+                <tr>
+                    <td style="font-size: 15px !important;">Gross Total</td>
+                    <td class="text-end" style="font-size: 15px !important;">
+                        <span t-out="doc.gross_total"
+                              t-options='{"widget": "monetary", "display_currency": currency}'/>
+                    </td>
+                </tr>
+                <tr t-if="not currency.is_zero(doc.amount_discount)">
+                    <td style="font-size: 15px !important;">Discount</td>
+                    <td class="text-end" style="font-size: 15px !important;">
+                        <span t-out="doc.amount_discount"
+                              t-options='{"widget": "monetary", "display_currency": currency}'/>
+                    </td>
+                </tr>
+            </t>
+        </xpath>
+        <xpath expr="//tr[@class='o_total']/td[1]" position="attributes">
+            <attribute name="t-if">not show_gross_discount</attribute>
+        </xpath>
+        <xpath expr="//tr[@class='o_total']/td[1]" position="before">
+            <td t-if="show_gross_discount">
+                <strong style="font-size: 15px !important;">Net Total</strong>
+            </td>
+        </xpath>
     </template>
     </data>
 </odoo>
