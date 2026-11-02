@@ -21,3 +21,9 @@ class SaleOrder(models.Model):
         for order in self:
             order.gross_total = sum(order.order_line.mapped('amount_without_discount'))
             order.amount_discount = order.gross_total - order.amount_untaxed
+
+    def _prepare_invoice(self):
+        # The quotation's terms stay on the quotation: don't carry them into the invoice.
+        values = super()._prepare_invoice()
+        values['narration'] = ''
+        return values
