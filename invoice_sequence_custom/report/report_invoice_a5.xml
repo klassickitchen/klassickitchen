@@ -317,6 +317,16 @@
                 <span class="text-nowrap" t-field="line.amount_without_discount"/>
             </xpath>
 
+            <!-- Discount product lines are reported in the Discount total, not as lines
+                 (as on the quotation); section subtotals are before discount too. -->
+            <xpath expr="//t[@t-set='lines']" position="attributes">
+                <attribute name="t-value">o.invoice_line_ids.filtered(lambda l: not l.product_id.product_tmpl_id.is_discount).sorted(key=lambda l: (-l.sequence, l.date, l.move_name, -l.id), reverse=True)</attribute>
+            </xpath>
+            <xpath expr="//t[@t-set='current_subtotal'][@t-value='current_subtotal + line.price_subtotal']"
+                   position="attributes">
+                <attribute name="t-value">current_subtotal + line.amount_without_discount</attribute>
+            </xpath>
+
 
             <!-- increase table width and fix overlap -->
             <xpath expr="//table[@name='invoice_line_table']" position="attributes">

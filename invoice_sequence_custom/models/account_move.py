@@ -235,10 +235,14 @@ class AccountMoveLine(models.Model):
         store=True,
     )
 
-    @api.depends('quantity', 'price_unit', 'currency_id')
+    @api.depends('quantity', 'price_unit', 'currency_id', 'display_type',
+                 'product_id.product_tmpl_id.is_discount')
     def _compute_amount_without_discount(self):
+        # Discount product lines are left out of the gross, so their amount ends up in
+        # the invoice's Discount (Gross Total - Net Total) rather than as a line, as on
+        # the quotation (kitchenkraft_quotation_custom).
         for line in self:
-            if line.display_type not in ('product', 'cogs'):
+            if line.display_type not in ('product', 'cogs') or line.product_id.product_tmpl_id.is_discount:
                 line.amount_without_discount = 0.0
                 continue
 
