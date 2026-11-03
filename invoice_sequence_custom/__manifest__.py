@@ -1,6 +1,6 @@
 {
     "name": "Custom invoice sequence number",
-    "version": "18.0.4.3.2",
+    "version": "18.0.4.4.0",
     "category": "Point of Sale",
     "summary": "This module is used to add custom serial number for invoices",
     "author": "AGM Global Services",
@@ -13,6 +13,8 @@
         "stock_picking_invoice_link",
         "amount_in_words_invoice",
         "order_line_sequence_invoice",
+        # owns product.template.is_discount
+        "kitchenkraft_quotation_custom",
     ],
     "data": [
         "report/external_layout_custom.xml",
