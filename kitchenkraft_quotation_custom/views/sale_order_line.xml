@@ -13,6 +13,12 @@
 <!--                <field name="custom_description" optional="show" column_invisible="not parent.use_custom_description"/>-->
                 <field name="sale_order_line_product_image" widget="image" column_invisible="not parent.show_product_image"/>
             </xpath>
+            <!-- Gross Total and Discount above the totals, as on the quotation PDF and the
+                 invoice form. Both are computed live, so they follow line edits. -->
+            <xpath expr="//group[@name='sale_total']/field[@name='tax_totals']" position="before">
+                <field name="gross_total" colspan="2"/>
+                <field name="amount_discount" colspan="2" invisible="not amount_discount"/>
+            </xpath>
         </field>
     </record>
 </odoo>
