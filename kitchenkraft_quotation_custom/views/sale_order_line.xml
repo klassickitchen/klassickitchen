@@ -15,9 +15,19 @@
             </xpath>
             <!-- Gross Total and Discount above the totals, as on the quotation PDF and the
                  invoice form. Both are computed live, so they follow line edits. -->
+            <!-- sale_total is a flex column, so a plain <field> stacks its label above its
+                 value. Keep each label and value on one right-aligned row, with the same label
+                 classes as the Untaxed Amount / Total rows of the tax totals widget below. -->
             <xpath expr="//group[@name='sale_total']/field[@name='tax_totals']" position="before">
-                <field name="gross_total" colspan="2"/>
-                <field name="amount_discount" colspan="2" invisible="not amount_discount"/>
+                <div class="d-flex justify-content-end align-items-baseline" colspan="2">
+                    <label for="gross_total" class="o_form_label o_tax_total_label"/>
+                    <field name="gross_total" nolabel="1" class="w-auto"/>
+                </div>
+                <div class="d-flex justify-content-end align-items-baseline" colspan="2"
+                     invisible="not amount_discount">
+                    <label for="amount_discount" class="o_form_label o_tax_total_label"/>
+                    <field name="amount_discount" nolabel="1" class="w-auto"/>
+                </div>
             </xpath>
         </field>
     </record>
