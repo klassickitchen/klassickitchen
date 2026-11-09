@@ -352,9 +352,13 @@
             <xpath expr="//table[1]/thead/tr/th[1]" position="before">
                 <th name="th_d" class="text-start">No.</th>
             </xpath>
+            <!-- Number rows by their position in the printed table. The rows are
+                 move lines sorted by location, so the move's stock_move_sequence
+                 (which can be a sale order line number, and repeats when a move is
+                 split across lots/lines) printed out of order, e.g. 1, 30, 1, 2... -->
             <xpath expr="//table[1]/tbody/tr/td[1]" position="before">
                 <td>
-                    <span t-field="ml.move_id.stock_move_sequence"/>
+                    <span t-out="ml_index + 1"/>
                 </td>
             </xpath>
             <!-- Drop the From/To location columns and the barcode column: internal
