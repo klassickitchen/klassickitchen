@@ -199,6 +199,11 @@
             </xpath>
 
 
+            <xpath expr="//t[@t-set='display_discount']" position="before">
+                <t t-set="pos_display_sign"
+                   t-value="o._pos_exchange_refund_display_sign() if o and o._name == 'account.move' else 1"/>
+            </xpath>
+
             <xpath expr="//div[@name='address_same_as_shipping']//address" position="replace"/>
             <xpath expr="//td[@name='account_invoice_line_name']" position="replace"/>
 
@@ -293,9 +298,10 @@
             <xpath expr="//td[@name='td_quantity']/span[@t-field='line.quantity']"
                    position="replace">
                 <!-- Replace the original field to remove decimals -->
+                <t t-set="display_qty" t-value="line.quantity * pos_display_sign"/>
                 <span class="text-nowrap">
                     <t
-                            t-esc="int(line.quantity) if float(line.quantity).is_integer() else ('%.0f' % line.quantity)"/>
+                            t-esc="int(display_qty) if float(display_qty).is_integer() else ('%.0f' % display_qty)"/>
                 </span>
             </xpath>
             <xpath expr="//td[@name='td_quantity']" position="attributes">
@@ -314,7 +320,11 @@
 
             <xpath expr="//td[@name='td_subtotal']/span[@t-field='line.price_subtotal']"
                    position="replace">
-                <span class="text-nowrap" t-field="line.amount_without_discount"/>
+                <span t-if="pos_display_sign == -1"
+                      class="text-nowrap"
+                      t-out="line.amount_without_discount * pos_display_sign"
+                      t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                <span t-else="" class="text-nowrap" t-field="line.amount_without_discount"/>
             </xpath>
 
             <!-- Discount product lines are reported in the Discount total, not as lines
@@ -324,7 +334,7 @@
             </xpath>
             <xpath expr="//t[@t-set='current_subtotal'][@t-value='current_subtotal + line.price_subtotal']"
                    position="attributes">
-                <attribute name="t-value">current_subtotal + line.amount_without_discount</attribute>
+                <attribute name="t-value">current_subtotal + (line.amount_without_discount * pos_display_sign)</attribute>
             </xpath>
 
 
@@ -558,6 +568,11 @@
 
         <template id="document_tax_totals_template_inherit"
                   inherit_id="account.document_tax_totals_template">
+            <xpath expr="//t[@t-set='same_tax_base']" position="before">
+                <t t-set="pos_display_sign"
+                   t-value="o._pos_exchange_refund_display_sign() if o and o._name == 'account.move' else 1"/>
+            </xpath>
+
             <xpath expr="//tr[@class='o_subtotal']/td/span" position="replace">
                 <span t-if="o and o._name == 'account.move'" style="font-size: 15px !important;">Gross
                     Total
@@ -569,7 +584,7 @@
 
             <xpath expr="//tr[@class='o_subtotal']/td[2]/span" position="replace">
                 <span t-if="o and o._name == 'account.move'"
-                      t-out="o.gross_total"
+                      t-out="o.gross_total * pos_display_sign"
                       t-options='{"widget": "monetary", "display_currency": currency}'
                       style="font-size: 15px !important;"/>
                 <span t-else=""
@@ -585,7 +600,20 @@
                 </strong>
                 <strong t-else="" style="font-size: 15px !important;">Total</strong>
             </xpath>
+            <xpath expr="//tr[@class='o_taxes']/t[1]/td[2]/span"
+                   position="attributes">
+                <attribute name="t-out">tax_group['tax_amount_currency'] * pos_display_sign</attribute>
+            </xpath>
+            <xpath expr="//tr[@class='o_taxes']/t[2]/td[2]/span"
+                   position="attributes">
+                <attribute name="t-out">tax_group['tax_amount_currency'] * pos_display_sign</attribute>
+            </xpath>
+            <xpath expr="//tr[contains(@t-if, 'cash_rounding_base_amount_currency')]/td[2]/span"
+                   position="attributes">
+                <attribute name="t-out">tax_totals['cash_rounding_base_amount_currency'] * pos_display_sign</attribute>
+            </xpath>
             <xpath expr="//tr[@class='o_total']/td[2]/strong" position="attributes">
+                <attribute name="t-out">tax_totals['total_amount_currency'] * pos_display_sign</attribute>
                 <attribute name="style">font-size: 15px !important;</attribute>
             </xpath>
 
@@ -594,7 +622,7 @@
                         t-if="o and o._name == 'account.move' and o.amount_discount and o.amount_discount != 0">
                     <td style="font-size: 15px !important;">Discount</td>
                     <td class="text-end" style="font-size:15px !important;">
-                        <span t-out="o.amount_discount"
+                        <span t-out="o.amount_discount * pos_display_sign"
                               t-options='{"widget": "monetary", "display_currency": currency}'/>
                     </td>
                 </tr>

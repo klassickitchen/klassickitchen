@@ -181,6 +181,18 @@ class AccountMove(models.Model):
         res = super().action_post()
         return res
 
+    def _pos_exchange_refund_display_sign(self):
+        """Return -1 when printing a POS exchange Credit Note so quantities and amounts match POS signs."""
+        self.ensure_one()
+        if self.is_pos_invoice and self.move_type == 'out_refund':
+            product_lines = self.invoice_line_ids.filtered(
+                lambda l: l.display_type == 'product'
+                and not getattr(l.product_id.product_tmpl_id, 'is_discount', False)
+            )
+            if any(l.quantity < 0 for l in product_lines):
+                return -1
+        return 1
+
     def action_print_pdf(self):
         self.ensure_one()
         if self.is_pos_invoice:
