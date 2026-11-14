@@ -39,6 +39,14 @@ class PosConfig(models.Model):
         string="Invoice Report Template",
         domain="[('model', '=', 'account.move'), ('report_type', '=', 'qweb-pdf')]",
         help="Select which report template should be printed for POS invoices.")
+    invoice_pdf_rotation = fields.Selection([
+        ('auto', 'Auto (Rotate Landscape for Printer)'),
+        ('0', '0° (No Rotation)'),
+        ('90', '90° (Clockwise)'),
+        ('180', '180° (Upside Down)'),
+        ('270', '270° (Counter-Clockwise)'),
+    ], string="Invoice PDF Rotation", default='auto',
+       help="For laser printers feeding paper in portrait orientation, landscape reports must be rotated so they print across the page correctly.")
     order_receipt_format = fields.Selection(
         [('xml', 'XML Receipt'), ('default', 'Default Receipt')],
         string="Order Receipt Format", default='xml', required=True)
@@ -71,11 +79,62 @@ class PosConfig(models.Model):
         })
         return printer_info
 
+    @api.model
+    def _rotate_invoice_pdf(self, base64_pdf, rotation='auto', report=None):
+        """Rotate base64 PDF if needed so it matches the printer's physical paper feed."""
+        if rotation == '0':
+            return base64_pdf
+
+        try:
+            try:
+                import pypdf as pdf_lib
+            except ImportError:
+                import PyPDF2 as pdf_lib
+
+            pdf_bytes = base64.b64decode(base64_pdf)
+            reader = pdf_lib.PdfReader(BytesIO(pdf_bytes))
+            if not reader.pages:
+                return base64_pdf
+
+            target_angle = 0
+            if rotation in ('90', '180', '270'):
+                target_angle = int(rotation)
+            elif rotation == 'auto':
+                is_landscape = False
+                if report and report.paperformat_id and report.paperformat_id.orientation == 'Landscape':
+                    is_landscape = True
+                else:
+                    first_page = reader.pages[0]
+                    mb = first_page.mediabox
+                    if float(mb.width) > float(mb.height):
+                        is_landscape = True
+                if is_landscape:
+                    target_angle = 270
+
+            if not target_angle:
+                return base64_pdf
+
+            writer = pdf_lib.PdfWriter()
+            for page in reader.pages:
+                page.rotate(target_angle)
+                writer.add_page(page)
+
+            stream = BytesIO()
+            writer.write(stream)
+            return base64.b64encode(stream.getvalue()).decode('utf-8')
+        except Exception as e:
+            _logger.warning("kitchenkraft_pos_direct_print: Failed to rotate PDF: %s", e)
+            return base64_pdf
+
     def print_invoice_documents_printer(self, invoice_ids):
         report = self.invoice_report_id or self.env.ref('invoice_sequence_custom.action_print_pdf_a5', raise_if_not_found=False) or self.env.ref('account.account_invoices')
         report_ref = report.xml_id or report.report_name
         pdf = self.env['ir.actions.report']._render_qweb_pdf(report_ref, invoice_ids)[0]
-        rendered_text = base64.b64encode(pdf)
+        rendered_text = base64.b64encode(pdf).decode('utf-8')
+
+        rotation = self.invoice_pdf_rotation or 'auto'
+        rendered_text = self._rotate_invoice_pdf(rendered_text, rotation, report)
+
         self.env['print.jobs'].create_print_job(
             self.selected_invoice_printer.id,
             'print-file',
@@ -99,6 +158,8 @@ class ResConfigSettings(models.TransientModel):
         related='pos_config_id.selected_invoice_printer', readonly=False)
     pos_invoice_report_id = fields.Many2one(
         related='pos_config_id.invoice_report_id', readonly=False)
+    pos_invoice_pdf_rotation = fields.Selection(
+        related='pos_config_id.invoice_pdf_rotation', readonly=False)
     pos_order_receipt_format = fields.Selection(
         related='pos_config_id.order_receipt_format', readonly=False)
 

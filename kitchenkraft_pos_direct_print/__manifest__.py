@@ -3,7 +3,7 @@
     "name": "Kitchenkraft POS Direct Print",
     "summary": "Direct printing of POS receipts and A4 tax invoices without browser dialogs",
     "category": "Point of Sale",
-    "version": "18.0.1.0.4",
+    "version": "18.0.1.0.5",
     "sequence": 1,
     "author": "Kitchen Kraft / Klassic Kitchen",
     "license": "Other proprietary",

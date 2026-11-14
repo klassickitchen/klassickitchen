@@ -25,6 +25,10 @@
                             <label class="col-lg o_light_label" for="invoice_report_id" string="Invoice Report Template"/>
                             <field class="col-lg o_light_label" name="invoice_report_id" domain="[('model', '=', 'account.move'), ('report_type', '=', 'qweb-pdf')]" options="{'no_create': True}"/>
                         </div>
+                        <div class="row" invisible="invoice_operation != 'print'">
+                            <label class="col-lg o_light_label" for="invoice_pdf_rotation" string="Invoice PDF Rotation"/>
+                            <field class="col-lg o_light_label" name="invoice_pdf_rotation"/>
+                        </div>
                         <div class="row">
                             <label class="col-lg o_light_label" for="order_receipt_format" string="Order Receipt Format"/>
                             <field name="order_receipt_format"/>
@@ -68,6 +72,10 @@
                         <div class="row" invisible="pos_invoice_operation != 'print'">
                             <label class="col-lg o_light_label" for="pos_invoice_report_id" string="Invoice Report Template"/>
                             <field class="col-lg o_light_label" name="pos_invoice_report_id" domain="[('model', '=', 'account.move'), ('report_type', '=', 'qweb-pdf')]" options="{'no_create': True}"/>
+                        </div>
+                        <div class="row" invisible="pos_invoice_operation != 'print'">
+                            <label class="col-lg o_light_label" for="pos_invoice_pdf_rotation" string="Invoice PDF Rotation"/>
+                            <field class="col-lg o_light_label" name="pos_invoice_pdf_rotation"/>
                         </div>
                         <div>
                             <button name="%(wk_odoo_direct_print.wk_printer_view)d" icon="oi-arrow-right" type="action" string="My Printers" class="btn-link"/>
