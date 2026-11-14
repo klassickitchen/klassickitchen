@@ -39,9 +39,11 @@ class PosConfig(models.Model):
         string="Order Receipt Format", default='xml', required=True)
 
     def get_direct_printer_info(self):
+        if not self.direct_printer_id:
+            return {'is_hostmachine_online': False, 'pos_cashdrawer': False, 'pending_print_jobs': 0}
         printer_info = self.direct_printer_id._get_printer_config()
         printer_info.update({
-            'is_hostmachine_online': self.direct_printer_id.hostmachine_id.is_online,
+            'is_hostmachine_online': bool(self.direct_printer_id.hostmachine_id.is_online),
             'pos_cashdrawer': self.direct_printer_id.pos_cashdrawer, 
             'pending_print_jobs': len(self.env['print.jobs'].search([
                 ('printer_id', '=', self.direct_printer_id.id),
@@ -51,10 +53,12 @@ class PosConfig(models.Model):
         return printer_info
 
     def get_invoice_printer_info(self):
+        if not self.selected_invoice_printer:
+            return {'is_hostmachine_online': False, 'pos_cashdrawer': False, 'pending_print_jobs': 0}
         printer_info = self.selected_invoice_printer._get_printer_config()
         printer_info.update({
-            'is_hostmachine_online': self.direct_printer_id.hostmachine_id.is_online,
-            'pos_cashdrawer': self.direct_printer_id.pos_cashdrawer,
+            'is_hostmachine_online': bool(self.selected_invoice_printer.hostmachine_id.is_online),
+            'pos_cashdrawer': self.selected_invoice_printer.pos_cashdrawer,
             'pending_print_jobs': len(self.env['print.jobs'].search([
                 ('printer_id', '=', self.selected_invoice_printer.id),
                 ('state', '!=', 'Done')

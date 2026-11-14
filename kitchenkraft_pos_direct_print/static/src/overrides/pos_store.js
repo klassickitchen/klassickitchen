@@ -75,13 +75,24 @@ patch(PosStore.prototype, {
                 }
                 return true;
             }
+        } else if (
+            (this.config.invoice_operation === 'print' || this.config.raw?.invoice_operation === 'print') &&
+            Boolean(this.config.selected_invoice_printer || this.config.raw?.selected_invoice_printer) &&
+            (order?.raw?.account_move || order?.account_move)
+        ) {
+            // Only A4 invoice printer configured: reprint A4 invoice directly
+            await this.printInvoiceByInvoicePrinter(order);
+            return true;
         } else {
             return super.printReceipt(...arguments);
         }
     },
 
     async is_invoice_printer_hostmachine_online() {
-        if (this.config.raw.invoice_operation == 'print') {
+        const isInvoicePrint =
+            (this.config.invoice_operation === 'print' || this.config.raw?.invoice_operation === 'print') &&
+            Boolean(this.config.selected_invoice_printer || this.config.raw?.selected_invoice_printer);
+        if (isInvoicePrint) {
             const { is_hostmachine_online } = await this.data.call(
                 'pos.config',
                 'get_invoice_printer_info',
@@ -93,7 +104,10 @@ patch(PosStore.prototype, {
     },
 
     async canUseInvoicePrinter() {
-        if (this.config.raw.invoice_operation == 'print' && this.config.raw.selected_invoice_printer) {
+        const isInvoicePrint =
+            (this.config.invoice_operation === 'print' || this.config.raw?.invoice_operation === 'print') &&
+            Boolean(this.config.selected_invoice_printer || this.config.raw?.selected_invoice_printer);
+        if (isInvoicePrint) {
             return await this.is_invoice_printer_hostmachine_online();
         }
         return false;
@@ -102,7 +116,8 @@ patch(PosStore.prototype, {
     async printInvoiceByInvoicePrinter(order) {
         var canUseInvoicePrinter = await this.canUseInvoicePrinter();
         if (canUseInvoicePrinter) {
-            var res = await this.data.call("pos.config", "print_invoice_documents_printer", [[this.config.id], [order.raw.account_move]]);
+            const moveId = order.raw?.account_move || order.account_move;
+            var res = await this.data.call("pos.config", "print_invoice_documents_printer", [[this.config.id], [moveId]]);
             return true;
         } else {
             return false;

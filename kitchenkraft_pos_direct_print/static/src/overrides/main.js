@@ -36,17 +36,26 @@ patch(Navbar, {
 
 patch(PaymentScreen.prototype, {
     shouldDownloadInvoice() {
-        return this.pos.config.raw.invoice_operation == 'print' && this.pos.config.raw.selected_invoice_printer
-            ? false
-            : super.shouldDownloadInvoice();
+        const isInvoicePrint =
+            (this.pos.config.invoice_operation === 'print' || this.pos.config.raw?.invoice_operation === 'print') &&
+            Boolean(this.pos.config.selected_invoice_printer || this.pos.config.raw?.selected_invoice_printer);
+        if (isInvoicePrint) {
+            return false;
+        }
+        return super.shouldDownloadInvoice();
     },
     async afterOrderValidation(suggestToSync = true) {
         this.ui.block();
-        if (this.currentOrder.is_to_invoice() && this.pos.config.raw.invoice_operation == 'print' && this.pos.config.raw.selected_invoice_printer) {
-            if (this.currentOrder.raw.account_move) {
+        const isInvoicePrint =
+            (this.pos.config.invoice_operation === 'print' || this.pos.config.raw?.invoice_operation === 'print') &&
+            Boolean(this.pos.config.selected_invoice_printer || this.pos.config.raw?.selected_invoice_printer);
+
+        if (this.currentOrder.is_to_invoice() && isInvoicePrint) {
+            const moveId = this.currentOrder.raw?.account_move || this.currentOrder.account_move;
+            if (moveId) {
                 var res = await this.pos.printInvoiceByInvoicePrinter(this.currentOrder);
                 if (!res) {
-                    await this.invoiceService.downloadPdf(this.currentOrder.raw.account_move);
+                    await this.invoiceService.downloadPdf(moveId);
                 }
             } else {
                 throw {
