@@ -75,14 +75,10 @@ patch(PosStore.prototype, {
                 }
                 return true;
             }
-        } else if (
-            (this.config.invoice_operation === 'print' || this.config.raw?.invoice_operation === 'print') &&
-            Boolean(this.config.selected_invoice_printer || this.config.raw?.selected_invoice_printer) &&
-            (order?.raw?.account_move || order?.account_move)
-        ) {
-            // Only A4 invoice printer configured: reprint A4 invoice directly
-            await this.printInvoiceByInvoicePrinter(order);
-            return true;
+        } else if (this.config.use_direct_print && !this.direct_printer) {
+            // Receipt printer selection is empty:
+            // Keep the confirmation screen intact, but do not direct to printer or browser print dialog
+            return false;
         } else {
             return super.printReceipt(...arguments);
         }
