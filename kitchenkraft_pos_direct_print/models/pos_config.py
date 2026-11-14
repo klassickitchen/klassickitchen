@@ -34,6 +34,11 @@ class PosConfig(models.Model):
     selected_invoice_printer = fields.Many2one(
         'wk.printer',
         string="Invoice Printer")
+    invoice_report_id = fields.Many2one(
+        'ir.actions.report',
+        string="Invoice Report Template",
+        domain="[('model', '=', 'account.move'), ('report_type', '=', 'qweb-pdf')]",
+        help="Select which report template should be printed for POS invoices.")
     order_receipt_format = fields.Selection(
         [('xml', 'XML Receipt'), ('default', 'Default Receipt')],
         string="Order Receipt Format", default='xml', required=True)
@@ -67,7 +72,9 @@ class PosConfig(models.Model):
         return printer_info
 
     def print_invoice_documents_printer(self, invoice_ids):
-        pdf = self.env['ir.actions.report']._render_qweb_pdf("account.account_invoices", invoice_ids)[0]
+        report = self.invoice_report_id or self.env.ref('invoice_sequence_custom.action_print_pdf_a5', raise_if_not_found=False) or self.env.ref('account.account_invoices')
+        report_ref = report.xml_id or report.report_name
+        pdf = self.env['ir.actions.report']._render_qweb_pdf(report_ref, invoice_ids)[0]
         rendered_text = base64.b64encode(pdf)
         self.env['print.jobs'].create_print_job(
             self.selected_invoice_printer.id,
@@ -90,6 +97,8 @@ class ResConfigSettings(models.TransientModel):
         related='pos_config_id.invoice_operation', readonly=False)
     pos_selected_invoice_printer = fields.Many2one(
         related='pos_config_id.selected_invoice_printer', readonly=False)
+    pos_invoice_report_id = fields.Many2one(
+        related='pos_config_id.invoice_report_id', readonly=False)
     pos_order_receipt_format = fields.Selection(
         related='pos_config_id.order_receipt_format', readonly=False)
 
