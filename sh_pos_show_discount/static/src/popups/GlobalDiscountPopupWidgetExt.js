@@ -2,7 +2,14 @@
 
 import { patch } from "@web/core/utils/patch";
 import { GlobalDiscountPopupWidget } from "@sh_pos_order_discount/apps/popups/GlobalDiscountPopupWidget/GlobalDiscountPopupWidget";
-import { quantizeDiscount } from "@sh_pos_show_discount/overrides/models/discount_precision";
+import {
+    allocateFixedGlobalDiscount,
+    previewPercentageGlobalDiscount,
+} from "@sh_pos_order_discount/apps/popups/GlobalDiscountPopupWidget/discount_allocator";
+import {
+    DISCOUNT_DIGITS,
+    quantizeDiscount,
+} from "@sh_pos_show_discount/overrides/models/discount_precision";
 import { useState, onMounted } from "@odoo/owl";
 
 patch(GlobalDiscountPopupWidget.prototype, {
@@ -72,14 +79,23 @@ patch(GlobalDiscountPopupWidget.prototype, {
             document.getElementById("discount_fixed_radio") &&
             document.getElementById("discount_fixed_radio").checked;
 
-        // The discount always reaches the order lines as a percentage, and that
-        // percentage is quantised to the 'Discount' precision before it is
-        // stored (quantizeDiscount, discount_precision.js). Preview from the
-        // quantised percentage: a fixed amount that cannot be expressed in that
-        // many decimals would otherwise advertise a total the cashier is never
-        // actually charged. On a 13,054.00 order, entering 3,264.00 fixed shows
-        // 9,790.50 -- not 9,790.00 -- because 25.00 % is the most the line can
-        // carry.
+        const order = this.pos.get_order();
+        if (order && this.pos.is_global_discount) {
+            // Run the exact same 2-decimal quantised allocator used by confirm()
+            // so the popup preview always matches the cart total and posted invoice.
+            if (isFixed) {
+                const allocation = allocateFixedGlobalDiscount(order, val, DISCOUNT_DIGITS);
+                this.state.equivDisplay = allocation.addedPct.toFixed(2) + " %";
+                this.state.amountAfter = allocation.totalAfter.toFixed(2);
+            } else {
+                const preview = previewPercentageGlobalDiscount(order, val, DISCOUNT_DIGITS);
+                this.state.equivDisplay = preview.addedDiscount.toFixed(2);
+                this.state.amountAfter = preview.totalAfter.toFixed(2);
+            }
+            return;
+        }
+
+        // Fallback for per-line discount mode: single-line quantised preview.
         const pct = quantizeDiscount(isFixed ? (val / Math.abs(total)) * 100 : val);
         const discountAmount = (Math.abs(total) * pct) / 100;
 
