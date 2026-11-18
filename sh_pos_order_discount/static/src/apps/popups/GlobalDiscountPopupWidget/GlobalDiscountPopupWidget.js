@@ -4,6 +4,10 @@ import { _t } from "@web/core/l10n/translation";
 import { usePos } from "@point_of_sale/app/store/pos_hook";
 import { Dialog } from "@web/core/dialog/dialog";
 import { Component, useState } from "@odoo/owl";
+import {
+    allocateFixedGlobalDiscount,
+    previewPercentageGlobalDiscount,
+} from "@sh_pos_order_discount/apps/popups/GlobalDiscountPopupWidget/discount_allocator";
 
 export class GlobalDiscountPopupWidget extends Component {
     static template = "sh_pos_order_discount.GlobalDiscountPopupWidget";
@@ -40,63 +44,20 @@ export class GlobalDiscountPopupWidget extends Component {
                     : formatFloat("" + value);
             if (document.getElementById("discount_fixed_radio") && document.getElementById("discount_fixed_radio").checked) {
                 if (self.pos.is_global_discount) {
-                    var total_before = self.pos.get_order().get_total_with_tax();
-                    var orderlines = self.pos.get_order().get_orderlines();
+                    var order = self.pos.get_order();
+                    var orderlines = order.get_orderlines();
+                    var allocation = allocateFixedGlobalDiscount(order, parseFloat(value));
                     for (let each_order_line of orderlines) {
-                        each_order_line.set_discount(0);
-                    }
-                    var total_after = self.pos.get_order().get_total_with_tax();
-                    if (total_after != total_before) {
-                        value = parseFloat(value) + parseFloat((total_after - total_before).toFixed(2));
-                    }
-
-                    var total_amount = Math.abs(self.pos.get_order().get_total_with_tax());
-                    var target_cents = Math.round(value * 100);
-                    var total_amount_cents = Math.round(total_amount * 100);
-
-                    if (total_amount_cents > 0) {
-                        var shares = [];
-                        var distributed_cents = 0;
-                        for (let each_order_line of orderlines) {
-                            let line_total_cents = Math.round(Math.abs(each_order_line.get_price_with_tax()) * 100);
-                            let raw_share = (target_cents * line_total_cents) / total_amount_cents;
-                            let rounded_share = Math.floor(raw_share);
-                            let remainder = raw_share - rounded_share;
-
-                            shares.push({
-                                line: each_order_line,
-                                rounded_share: rounded_share,
-                                remainder: remainder,
-                                line_total_cents: line_total_cents
-                            });
-                            distributed_cents += rounded_share;
-                        }
-
-                        var cents_to_give = target_cents - distributed_cents;
-                        shares.sort((a, b) => b.remainder - a.remainder);
-
-                        for (let i = 0; i < cents_to_give; i++) {
-                            shares[i].rounded_share += 1;
-                        }
-
-                        for (let share of shares) {
-                            let percentage = 0;
-                            if (share.line_total_cents > 0) {
-                                percentage = (share.rounded_share / share.line_total_cents) * 100;
-                            }
-                            share.line.set_custom_discount(percentage);
-                        }
-                    } else {
-                        for (let each_order_line of orderlines) {
-                            each_order_line.set_custom_discount(0);
-                        }
+                        var linePct = allocation.lineDiscounts.get(each_order_line) || 0;
+                        each_order_line.set_global_discount(linePct);
+                        each_order_line.set_custom_discount(linePct);
                     }
                     // Compute cumulative discount from orderlines
                     var cumulative_discount = 0;
                     for (let line of orderlines) {
                         cumulative_discount += (line.price_unit * line.qty) - line.get_display_price();
                     }
-                    self.pos.get_order().set_order_global_discount(cumulative_discount);
+                    order.set_order_global_discount(cumulative_discount);
                 } else {
                     var selected_orderline = self.pos
                         .get_order()
@@ -140,65 +101,24 @@ export class GlobalDiscountPopupWidget extends Component {
                 document.getElementById("discount_percentage_radio").checked
             ) {
                 if (self.pos.is_global_discount) {
-                    var orderlines = self.pos.get_order().get_orderlines();
-                    //this will deduct discount from each orderline based on total order discount
-                    // var deduct_amount = ((self.pos.get_order().get_total_with_tax() * parseFloat(value)) / 100) / self.pos.get_order().get_orderlines().length
-                    // for (let each_order_line of orderlines) {
-                    //     if (each_order_line.get_discount()) {
-                    //         // var original_price_after_discount = each_order_line.get_display_price()
-                    //         var original_price_after = each_order_line.get_display_price() - deduct_amount
-                    //         each_order_line.set_discount(0)
-                    //         var original_price = each_order_line.get_display_price()
-                    //         var discount_percentage = [(original_price - original_price_after) / original_price] * 100
-                    //         each_order_line.set_discount(discount_percentage)
-                    //     } else {
-                    //         var original_price = each_order_line.get_display_price()
-                    //         var original_price_after = each_order_line.get_display_price() - deduct_amount
-                    //         var discount_percentage = [(original_price - original_price_after) / original_price] * 100
-                    //         each_order_line.set_discount(discount_percentage)
-                    //     }
-                    // }
-                    // it will apply exactly 10% (or whatever you enter) directly to every single order line.
-                    var total_current_price = 0;
+                    var order = self.pos.get_order();
+                    var orderlines = order.get_orderlines();
+                    var pctPlan = previewPercentageGlobalDiscount(order, parseFloat(value));
                     for (let each_order_line of orderlines) {
-                        if (each_order_line.get_discount()) {
-                            var price = each_order_line.get_display_price();
-                            var current_price = (price * value) / 100;
-                            total_current_price += current_price;
-
-                            var final_price = price - current_price;
-                            var discount =
-                                ((each_order_line.price_unit * each_order_line.qty -
-                                    final_price) /
-                                    (each_order_line.price_unit * each_order_line.qty)) *
-                                100;
-                            each_order_line.set_global_discount(discount);
-                            each_order_line.set_custom_discount(
-                                parseFloat(discount.toFixed(2))
-                            );
-                            each_order_line.set_total_discount(
-                                parseFloat(each_order_line.price) -
-                                parseFloat(each_order_line.get_display_price())
-                            );
-                        } else {
-                            var price = each_order_line.get_display_price();
-                            var current_price = price * value / 100;
-                            total_current_price += current_price;
-
-                            each_order_line.set_global_discount(parseFloat(value));
-                            each_order_line.set_custom_discount(parseFloat(value));
-                            each_order_line.set_total_discount(
-                                parseFloat(each_order_line.price) -
-                                parseFloat(each_order_line.get_display_price())
-                            );
-                        }
+                        var linePct = pctPlan.lineDiscounts.get(each_order_line) || 0;
+                        each_order_line.set_global_discount(linePct);
+                        each_order_line.set_custom_discount(linePct);
+                        each_order_line.set_total_discount(
+                            parseFloat(each_order_line.price_unit * each_order_line.qty) -
+                            parseFloat(each_order_line.get_display_price())
+                        );
                     }
                     // Compute cumulative global discount from all orderlines
                     var cumulative_discount = 0;
                     for (let line of orderlines) {
                         cumulative_discount += (line.price_unit * line.qty) - line.get_display_price();
                     }
-                    self.pos.get_order().set_order_global_discount(cumulative_discount);
+                    order.set_order_global_discount(cumulative_discount);
                 } else {
                     var selected_orderline = self.pos
                         .get_order()
